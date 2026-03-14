@@ -1,0 +1,1125 @@
+#HEADER_START
+/*
+ * Stranded for TTL 5.
+ * Edited by T-West, December 2025.
+ *
+ * This map is based on a map by Chrazini. I first played the map years ago in
+ * the Improvement Cup, and we brought it back with some changes for
+ * Wandering Warriors Cup II and for The Cartographers II. The map since has
+ * become a standard map in the Definitive Edition, albeit with significant
+ * changes, including starting the players on an outer island with a
+ * Transport Ship.
+ *
+ * This verion continues the start we used in Wandering Warriors Cup II, with
+ * no outer islands and with players starting with a Fishing Ship. I've
+ * rewritten the script to advantage the arithmetical expressions that were
+ * added to the Definitive Edition in April 2025, in particular using
+ * trigonometry to balance player starting positions, woodlines, hills, and
+ * Relics.
+ */
+
+/* Comments from the Improvement Cup version of the map follow. */
+/*
+
+	Stranded by Chrazini
+	Created: 15-10-2020
+	Version: 1.1
+	BSV: 7.0.0
+	Compatibility: Definitive Edition
+
+	Theme: Tropical
+	Style: Land & Water
+	Formation: Circle
+
+	Please report bugs or requests on either:
+	Steam: https://steamcommunity.com/id/chrazini
+	Discord: Chrazini#5687
+	AoEZone: https://www.aoezone.net/members/chrazini.48855/
+	Voobly: https://www.voobly.com/profile/view/123721778
+
+	Changelog 15-10-2020 | Version 1.0
+	� Initial release.
+
+	Changelog 10-12-2020 | Version 1.1
+	� Added better compatibility for Regicide and Capture the Relic.
+	� Added minor aesthetic changes.
+
+*/
+#HEADER_END
+
+/*
+ * Defeat players if the game mode is not set to random map.
+ * Includes a check for the secondary game mode checkboxes.
+ */
+if ANTIQUITY_MODE
+  #define ADMIN_RESTART
+elseif RANDOM_MAP
+  if REGICIDE
+    #define ADMIN_RESTART
+  elseif EMPIRE_WARS
+    #define ADMIN_RESTART
+  elseif SUDDEN_DEATH
+    #define ADMIN_RESTART
+  endif
+else
+  #define ADMIN_RESTART
+endif
+if TINY_MAP
+else
+  #define ADMIN_RESTART
+endif
+if DEFAULT_RESOURCES
+else
+  #define ADMIN_RESTART
+endif
+if DARK_AGE_START
+else
+  #define ADMIN_RESTART
+endif
+if TURBO_MODE
+  #define ADMIN_RESTART
+endif
+if ADMIN_RESTART
+  <PLAYER_SETUP>
+  guard_state SABOTEUR AMOUNT_GOLD 0 1
+endif
+
+/* Terrains */
+#const UNDERBRUSH_JUNGLE 77
+#const RAINFOREST_GRASS 83
+
+/* Placeholders */
+#const PHON 1543
+#const PHOFF 1902
+#const TERRAIN_BLOCKER 1613
+
+/* Scenery Objects */
+#const BONFIRE 304
+#const PLANT_RAINFOREST 1354 /* Plant (Rainforest) */
+
+/* Hack for create_land */
+#const L 32
+
+/* Player Land Locations */
+#const T1 rnd(0,359)
+#const ANGLE rnd(135,225)
+#const T2 (T1 + ANGLE)
+#const R 39
+#FOR($i, 1, 3)
+  #TRIG(T$i)
+  #const X$i (R * COS_T$i + 50)
+  #const Y$i (R * SIN_T$i + 50)
+#END_FOR
+
+/* Lands for Relics, roughly halfway between players. */
+#const RELIC_OFFSET_1 rnd(-20,20)
+#const RELIC_OFFSET_2 rnd(-20,20)
+#const RELIC_ANGLE_START (ANGLE / 2 + T1)
+#const RELIC_ANGLE_1 (RELIC_ANGLE_START + RELIC_OFFSET_1)
+#const RELIC_ANGLE_2 (RELIC_ANGLE_START + 180 + RELCI_OFFSET_2)
+#const RELIC_R (R - 5)
+#const RELIC_R_1 rnd(-2,2)
+#const RELIC_R_2 rnd(-2,2)
+#FOR($i, 1, 3)
+  #TRIG(RELIC_ANGLE_$i)
+  #const RELIC_X$i (RELIC_R + RELIC_R_1 * COS_RELIC_ANGLE_$i + 50)
+  #const RELIC_Y$i (RELIC_R + RELIC_R_2 * SIN_RELIC_ANGLE_$i + 50)
+#END_FOR
+
+/* Randomizes the number of hills in the middle. */
+start_random
+  percent_chance 33 #define HILLS_2
+  percent_chance 33 #define HILLS_3
+  percent_chance 34 #define HILLS_4
+end_random
+
+#const HILL_THETA rnd(0,359)
+#TRIG(HILL_THETA)
+
+#const HILL_R 9
+if HILLS_2
+  #const A1 (HILL_R * COS_HILL_THETA + 50)
+  #const B1 (HILL_R * SIN_HILL_THETA + 50)
+  #const A2 (HILL_R * -1 * COS_HILL_THETA + 50)
+  #const B2 (HILL_R * -1 * SIN_HILL_THETA + 50)
+  #const A3 0
+  #const A3 0
+  #const B4 0
+  #const B4 0
+elseif HILLS_3
+  #const HILL3_RNG rnd(0,1)
+  #const HILL3_FLIP (HILL3_RNG * 180)
+  #const HILLT1 (T1 - 30 + HILL3_FLIP)
+  #const HILLT2 (T2 + 30 + HILL3_FLIP)
+  #const HILLT3 (T1 + T2 / 2 + HILL3_FLIP)
+  #FOR($i, 1, 4)
+    #TRIG(HILLT$i)
+    #const A$i (HILL_R + 2 * COS_HILLT$i + 50)
+    #const B$i (HILL_R + 2 * SIN_HILLT$i + 50)
+  #END_FOR
+  #const B4 0
+  #const B4 0
+elseif HILLS_4
+  #const A1 (HILL_R + 1 * COS_HILL_THETA + 50)
+  #const B1 (HILL_R + 1 * SIN_HILL_THETA + 50)
+  #const A2 (HILL_R + 1 * -1 * SIN_HILL_THETA + 50)
+  #const B2 (HILL_R + 1 * COS_HILL_THETA + 50)
+  #const A3 (HILL_R + 1 * -1 * COS_HILL_THETA + 50)
+  #const B3 (HILL_R + 1 * -1 * SIN_HILL_THETA + 50)
+  #const A4 (HILL_R + 1 * SIN_HILL_THETA + 50)
+  #const B4 (HILL_R + 1 * -1 * COS_HILL_THETA + 50)
+endif
+
+/* Generates coordinates for forests next to each player. */
+#const FOREST_R 20
+#FOR($i, 1, 3)
+  #const U$i (FOREST_R * COS_T$i + 50)
+  #const V$i (FOREST_R * SIN_T$i + 50)
+#END_FOR
+
+/* Random number of Rugs. */
+#const NUM_RUMS rnd(2,4)
+
+<PLAYER_SETUP>
+direct_placement
+behavior_version 2
+ai_info_map_type NOMAD 1 0 0
+nomad_resources
+
+/* Outlines behind water rock formations. */
+effect_amount SET_ATTRIBUTE DLC_ROCKBEACH ATTR_OCCLUSION_MODE 2
+
+/* Bird LoS to 0 */
+effect_amount GAIA_SET_ATTRIBUTE MACAW ATTR_LINE_OF_SIGHT 0
+
+/* TTL5: Siege Tower Changes */
+if BLACK_WALKABLE
+else
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_GARRISON_CAPACITY -5
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_HITPOINTS -45
+endif
+
+<LAND_GENERATION>
+base_terrain WATER
+enable_waves 1
+
+/* Desert Ring */
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 84 50 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 84 52 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 84 53 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 84 55 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 83 57 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 83 58 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 83 60 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 82 61 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 81 63 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 81 65 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 80 66 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 79 67 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 78 69 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 77 70 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 76 72 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 75 73 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 74 74 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 73 75 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 72 76 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 70 77 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 69 78 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 67 79 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 66 80 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 65 81 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 63 81 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 61 82 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 60 83 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 58 83 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 57 83 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 55 84 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 53 84 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 52 84 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 50 84 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 48 84 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 47 84 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 45 84 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 43 83 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 42 83 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 40 83 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 39 82 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 37 81 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 35 81 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 34 80 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 33 79 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 31 78 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 30 77 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 28 76 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 27 75 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 26 74 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 25 73 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 24 72 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 23 70 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 22 69 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 21 67 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 20 66 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 19 65 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 19 63 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 18 61 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 17 60 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 17 58 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 17 57 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 16 55 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 16 53 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 16 52 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 16 50 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 16 50 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 16 48 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 16 47 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 16 45 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 17 43 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 17 42 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 17 40 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 18 39 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 19 37 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 19 35 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 20 34 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 21 33 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 22 31 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 23 30 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 24 28 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 25 27 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 26 26 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 27 25 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 28 24 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 30 23 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 31 22 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 33 21 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 34 20 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 35 19 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 37 19 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 39 18 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 40 17 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 42 17 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 43 17 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 45 16 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 47 16 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 48 16 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 50 16 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 52 16 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 53 16 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 55 16 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 57 17 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 58 17 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 60 17 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 61 18 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 63 19 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 65 19 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 66 20 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 67 21 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 69 22 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 70 23 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 72 24 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 73 25 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 74 26 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 75 27 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 76 28 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 77 30 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 78 31 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 79 33 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 80 34 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 81 35 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 81 37 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 82 39 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 83 40 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 83 42 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 83 43 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 84 45 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 84 47 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+L { terrain_type DESERT number_of_tiles 301 base_size 8 clumping_factor 15 land_position 84 48 top_border 4 left_border 4 right_border 4 bottom_border 4 }
+
+/* Middle Grass */
+L {
+  terrain_type RAINFOREST_GRASS
+  land_position 50 50
+  land_id 1000
+}
+
+/* Player Lands */
+#FOR($i, 1, 3)
+  L {
+    land_position X$i Y$i
+    terrain_type DESERT
+    assign_to AT_TEAM -10 0 0
+    number_of_tiles 0
+    base_size 0
+  }
+#END_FOR
+
+/* Middle Hills */
+if HILLS_2
+  #FOR($i, 1, 3)
+    L {
+      land_position A$i B$i
+      terrain_type RAINFOREST_GRASS
+      base_size rnd(3,4)
+      number_of_tiles rnd(150,175)
+      base_elevation 4
+    }
+  #END_FOR
+elseif HILLS_3
+  #FOR($i, 1, 4)
+    L {
+      land_position A$i B$i
+      terrain_type RAINFOREST_GRASS
+      base_size 3
+      number_of_tiles rnd(115,135)
+      base_elevation 4
+    }
+  #END_FOR
+elseif HILLS_4
+  #FOR($i, 1, 5)
+    L {
+      land_position A$i B$i
+      terrain_type RAINFOREST_GRASS
+      base_size 3
+      number_of_tiles rnd(75,90)
+      base_elevation 3
+    }
+  #END_FOR
+endif
+
+/* Player Forest and Gold Lands */
+#FOR($i, 1, 3)
+  L {
+    land_position U$i V$i
+    terrain_type FOREST
+    base_size 2
+    number_of_tiles 50
+    clumping_factor 25
+  }
+#END_FOR
+
+/* Relic Lands */
+#FOR($i, 1, 3)
+  L {
+    land_position RELIC_X$i RELIC_Y$i
+    base_size 0
+    number_of_tiles 1
+    terrain_type GRASS2
+    land_id 3$i
+  }
+#END_FOR
+
+<ELEVATION_GENERATION>
+create_elevation 3 {
+  enable_balanced_elevation
+  base_terrain RAINFOREST_GRASS
+  number_of_tiles 250
+  number_of_clumps 10
+}
+
+<TERRAIN_GENERATION>
+/* Covers water at the tops of hils. */
+#REPEAT(8)
+  create_terrain RAINFOREST_GRASS {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8192
+    height_limits 1 7
+  }
+#END_REPEAT
+
+/* Covers "holes" in the middle terrain generation. */
+#REPEAT(8)
+  create_terrain SNOW {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_other_terrain_types 3
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain DESERT {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_specific_terrain SNOW 5
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain WATER {
+    base_terrain SNOW
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+/* Terrain layering for the transition between desert and rainforest. */
+#REPEAT(8)
+  create_terrain SNOW {
+    base_terrain DESERT
+    land_percent 100
+    number_of_clumps 4096
+    spacing_to_specific_terrain RAINFOREST_GRASS 2
+    spacing_to_specific_terrain FOREST 2
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain DLC_QUICKSAND {
+    base_terrain DESERT
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain DESERT {
+    base_terrain SNOW
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain RAINFOREST_GRASS {
+    base_terrain DLC_QUICKSAND
+    land_percent 100
+    number_of_clumps 4096
+    terrain_mask 2
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain DIRT {
+    base_terrain RAINFOREST_GRASS
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_other_terrain_types 5
+  }
+#END_REPEAT
+
+create_terrain DIRT3 {
+  base_terrain RAINFOREST_GRASS
+  number_of_clumps 16
+  number_of_tiles 350
+  scale_by_groups
+  height_limits 0 2
+  terrain_mask 1
+}
+
+#REPEAT(8)
+  create_terrain RAINFOREST_GRASS {
+    base_terrain DIRT
+    land_percent 100
+    number_of_clumps 4096
+  }
+#END_REPEAT
+
+/* Outside Beach Forests */
+create_terrain PALM_DESERT {
+  base_terrain DESERT
+  number_of_tiles 500
+  number_of_clumps 30
+  clumping_factor 25
+  spacing_to_specific_terrain GRASS2 1
+  spacing_to_specific_terrain WATER 4
+  spacing_to_specific_terrain FOREST 4
+  spacing_to_specific_terrain RAINFOREST_GRASS 4
+  set_avoid_player_start_areas
+}
+
+/* Covers the Relic areas. */
+#REPEAT(8)
+  create_terrain DESERT {
+    base_terrain GRASS2
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+/* Middle Forests */
+create_terrain DLC_RAINFOREST {
+  base_terrain RAINFOREST_GRASS
+  number_of_tiles 300
+  number_of_clumps 8
+  spacing_to_other_terrain_types 3
+  clumping_factor 25
+}
+
+create_terrain JUNGLE {
+  base_terrain RAINFOREST_GRASS
+  number_of_tiles 60
+  number_of_clumps 8
+  spacing_to_other_terrain_types 4
+  clumping_factor 25
+  set_avoid_player_start_areas 25
+}
+
+#REPEAT(8)
+  create_terrain DLC_RAINFOREST {
+    base_terrain JUNGLE
+    land_percent 100
+    number_of_clumps 4096
+  }
+  create_terrain DLC_RAINFOREST {
+    base_terrain FOREST
+    land_percent 100
+    number_of_clumps 4096
+  }
+#END_REPEAT
+
+/* Middle Terrain Masking */
+#REPEAT(8)
+  create_terrain GRASS2 {
+    base_terrain RAINFOREST_GRASS
+    land_percent 100
+    number_of_clumps 4096
+    terrain_mask 1
+    height_limits 3 3
+  }
+#END_REPEAT
+
+create_terrain LEAVES {
+  base_terrain RAINFOREST_GRASS
+  land_percent 2
+  number_of_clumps 6
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+create_terrain GRASS {
+  base_terrain RAINFOREST_GRASS
+  land_percent 3
+  number_of_clumps 12
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+create_terrain UNDERBRUSH_JUNGLE {
+  base_terrain RAINFOREST_GRASS
+  land_percent 2
+  number_of_clumps 2
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+/* Layers quicksand on the desert. */
+#REPEAT(8)
+  create_terrain DLC_QUICKSAND {
+    base_terrain DESERT
+    land_percent 100
+    number_of_clumps 4096
+    terrain_mask 1
+  }
+  create_terrain DIRT3 {
+    base_terrain PALM_DESERT
+    land_percent 100
+    number_of_clumps 4096
+    terrain_mask 1
+  }
+#END_REPEAT
+
+/* Water terrain masking. */
+#REPEAT(8)
+  create_terrain DLC_WATER5 {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 4096
+    spacing_to_other_terrain_types 3
+  }
+#END_REPEAT
+
+create_terrain DLC_WATER4 {
+  base_terrain DLC_WATER5
+  land_percent 10
+  number_of_clumps 32
+  set_scale_by_groups
+  spacing_to_other_terrain_types 1
+  terrain_mask 2
+}
+
+create_terrain SHALLOW {
+  base_terrain DLC_WATER5
+  land_percent 4
+  number_of_clumps 24
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+#REPEAT(8)
+  create_terrain DLC_WATER5 {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 4096
+  }
+#END_REPEAT
+
+create_terrain WATER {
+  base_terrain DLC_WATER5
+  land_percent 3
+  number_of_clumps 12
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+<OBJECTS_GENERATION>
+/* Object Groups */
+create_object_group SHIPWRECKS {
+  add_object SHIPWRECK 50
+  add_object SHIPWRECK2 50
+}
+
+create_object_group HUNT {
+  add_object DLC_ELEPHANT 50
+  add_object DLC_RHINO 50
+}
+
+create_object_group PREDATOR {
+  add_object DLC_TIGER 50
+  add_object DLC_KOMODO 50
+}
+
+/* Placeholders */
+/* Beach placeholders. */
+create_object PHON {
+  number_of_objects 28224
+  terrain_to_place_on BEACH
+  actor_area beach3
+  actor_area_radius 3
+}
+
+create_object PHON {
+  number_of_objects 28224
+  terrain_to_place_on BEACH
+  actor_area beach5
+  actor_area_radius 5
+}
+
+/* Middle ring placeholders. */
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on RAINFOREST_GRASS
+  layer_to_place_on DLC_QUICKSAND
+  actor_area transition_ring_4
+  actor_area_radius 4
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on RAINFOREST_GRASS
+  layer_to_place_on DLC_QUICKSAND
+  actor_area transition_ring_6
+  actor_area_radius 6
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on RAINFOREST_GRASS
+  layer_to_place_on DLC_QUICKSAND
+  actor_area transition_ring_8
+  actor_area_radius 8
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on RAINFOREST_GRASS
+  layer_to_place_on DLC_QUICKSAND
+  actor_area transition_ring_15
+  actor_area_radius 15
+}
+
+/* Birds */
+create_object MACAW {
+  number_of_objects 7
+}
+
+/* Player Objects */
+create_object BONFIRE {
+  set_place_for_every_player
+  set_gaia_object_only
+  max_distance_to_players 0
+  actor_area bonfire
+  actor_area_radius 0
+}
+
+create_object VILLAGER {
+  max_distance_to_other_zones 4
+  max_distance_to_players 5
+  set_place_for_every_player
+  set_circular_placement
+  avoid_actor_area bonfire
+  actor_area vil0
+  actor_area_radius 0
+}
+
+create_object RUGS {
+  number_of_objects NUM_RUMS
+  set_place_for_every_player
+  max_distance_to_players 5
+  set_circular_placement
+  set_gaia_object_only
+  avoid_actor_area bonfire
+  avoid_actor_area vil0
+  terrain_to_place_on DESERT
+  avoid_actor_area beach3
+  temp_min_distance_group_placement 1
+}
+
+/* Keep the player buffalo forwards for Scouting. */
+create_object DLC_WATERBUFFALO {
+  number_of_objects 2
+  set_place_for_every_player
+  max_distance_to_players 8
+  set_circular_placement
+  avoid_forest_zone 1
+  find_closest_to_map_center
+  set_loose_grouping
+  actor_area player_buffalo
+  actor_area_radius 12
+}
+
+/* Outside Relics */
+#FOR($i, 1, 3)
+  create_object RELIC {
+    place_on_specific_land_id 3$i
+    max_distance_to_players 7
+    avoid_forest_zone 1
+    set_circular_placement
+    min_distance_group_placement 1
+    actor_area outer_relic
+    actor_area_radius 15
+  }
+#END_FOR
+
+/* Scouting Ship */
+create_object FISHING_SHIP {
+  set_place_for_every_player
+  find_closest
+  terrain_to_place_on DLC_WATER5
+  avoid_actor_area beach3
+  min_distance_group_placement 3
+}
+
+/* Shipwreck aesthetics. */
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  find_closest
+  terrain_to_place_on BEACH
+  min_distance_group_placement 2
+  second_object SHIPWRECKS
+}
+
+/* Captain Fin */
+/* Fish */
+create_object SHORE_FISH {
+  number_of_objects 1024
+  temp_min_distance_group_placement 6
+  min_distance_group_placement 2
+}
+
+/* Player-specific Fish */
+create_object PHOFF {
+  set_place_for_every_player
+  set_gaia_object_only
+  second_object SALMON
+  find_closest
+  terrain_to_place_on DLC_WATER5
+  avoid_actor_area beach5
+  min_distance_group_placement 4
+  actor_area start_salmon
+  actor_area_radius 12
+}
+
+/* Big Fish: Salmon and Dorado */
+create_object SALMON {
+  number_of_objects 1024
+  temp_min_distance_group_placement 12
+  min_distance_group_placement 4
+  max_distance_to_other_zones 6
+  avoid_actor_area start_salmon
+}
+
+create_object DORADO {
+  number_of_objects 1024
+  temp_min_distance_group_placement 10
+  min_distance_group_placement 4
+  max_distance_to_other_zones 6
+}
+
+/* Sea Rocks */
+create_object DLC_ROCKBEACH {
+  number_of_objects 2
+  set_scaling_to_map_size
+  layer_to_place_on SHALLOW
+  min_distance_to_map_edge 3
+  temp_min_distance_group_placement 30
+  min_distance_group_placement 4
+  avoid_actor_area beach5
+}
+
+create_object SEA_ROCKS_2 {
+  number_of_objects 8
+  set_scaling_to_map_size
+  layer_to_place_on SHALLOW
+  min_distance_to_map_edge 2
+  temp_min_distance_group_placement 12
+}
+
+/* Main Gold */
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  terrain_to_place_on RAINFOREST_GRASS
+  place_on_forest_zone
+  find_closest
+  actor_area main_gold_placement
+  actor_area_radius 3
+}
+
+create_object GOLD {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 7
+  set_tight_grouping
+  group_placement_radius 2
+  avoid_forest_zone 3
+  min_distance_group_placement 3
+  actor_area_to_place_in main_gold_placement
+  actor_area main_gold
+  actor_area_radius 12
+}
+
+/* Remaining Gold around the center. */
+create_object GOLD {
+  number_of_objects 4
+  number_of_groups 16
+  set_tight_grouping
+  group_placement_radius 1
+  avoid_forest_zone 2
+  min_distance_group_placement 2
+  avoid_actor_area main_gold
+  layer_to_place_on DLC_QUICKSAND
+  terrain_to_place_on RAINFOREST_GRASS
+  temp_min_distance_group_placement 12
+}
+
+/* Stone */
+/*
+ * Several create object commandss are used with decreasing distances
+ * to forests. This sequence favors placing stone mines that avoid forests
+ * while filling in gaps to improve the fairness in the distribution of the
+ * stone tiles.
+ */
+create_object STONE {
+  number_of_objects 64
+  terrain_to_place_on DESERT
+  min_distance_to_players 15
+  set_circular_placement
+  temp_min_distance_group_placement 20
+  min_distance_group_placement 2
+  avoid_forest_zone 4
+  avoid_actor_area beach3
+  avoid_actor_area transition_ring_8
+  actor_area stone
+  actor_area_radius 20
+}
+
+create_object STONE {
+  number_of_objects 64
+  terrain_to_place_on DESERT
+  min_distance_to_players 15
+  set_circular_placement
+  temp_min_distance_group_placement 20
+  min_distance_group_placement 2
+  avoid_forest_zone 3
+  avoid_actor_area beach3
+  avoid_actor_area transition_ring_8
+  avoid_actor_area stone
+  actor_area stone
+  actor_area_radius 20
+}
+
+create_object STONE {
+  number_of_objects 64
+  terrain_to_place_on DESERT
+  min_distance_to_players 15
+  set_circular_placement
+  temp_min_distance_group_placement 20
+  min_distance_group_placement 2
+  avoid_forest_zone 2
+  avoid_actor_area beach3
+  avoid_actor_area transition_ring_8
+  avoid_actor_area stone
+}
+
+/* Elephants and Rhinos */
+create_object HUNT {
+  terrain_to_place_on RAINFOREST_GRASS
+  layer_to_place_on DLC_QUICKSAND
+  avoid_forest_zone 1
+  temp_min_distance_group_placement 15
+  number_of_objects 32
+}
+
+/* Water Buffalo */
+create_object DLC_WATERBUFFALO {
+  number_of_objects 2
+  number_of_groups 32
+  set_loose_grouping
+  group_placement_radius 2
+  min_distance_group_placement 3
+  temp_min_distance_group_placement 20
+  terrain_to_place_on DESERT
+  max_distance_to_other_zones 8
+  avoid_forest_zone 1
+  set_circular_placement
+  avoid_actor_area transition_ring_6
+  avoid_actor_area main_gold
+  avoid_actor_area player_buffalo
+}
+
+/* Deer */
+create_object DEER {
+  number_of_objects 4
+  number_of_groups 32
+  set_tight_grouping
+  avoid_actor_area transition_ring_6
+  max_distance_to_other_zones 4
+  min_distance_to_players 18
+  set_circular_placement
+  terrain_to_place_on DESERT
+  avoid_forest_zone 4
+  min_distance_group_placement 4
+  temp_min_distance_group_placement 20
+  avoid_actor_area main_gold
+}
+
+/* Inner Relics */
+create_object RELIC {
+  set_gaia_object_only
+  set_place_for_every_player
+  min_distance_to_players 35
+  find_closest
+  set_circular_placement
+  terrain_to_place_on RAINFOREST_GRASS
+  avoid_forest_zone 1
+  enable_tile_shuffling
+  avoid_actor_area transition_ring_4
+  avoid_actor_area outer_relic
+  actor_area player_relic_0
+  actor_area_radius 0
+}
+
+/* Various Relic avoidance distances. */
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in player_relic_0
+  actor_area player_relic_12
+  actor_area_radius 12
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in player_relic_0
+  actor_area player_relic_15
+  actor_area_radius 15
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in player_relic_0
+  actor_area player_relic_18
+  actor_area_radius 18
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in player_relic_0
+  actor_area player_relic_20
+  actor_area_radius 20
+}
+
+/* Attempt decreasing avoidance distances until the Relic is placed. */
+create_object RELIC {
+  min_distance_to_players 35
+  terrain_to_place_on RAINFOREST_GRASS
+  avoid_forest_zone 1
+  avoid_actor_area transition_ring_4
+  avoid_actor_area outer_relic
+  avoid_actor_area player_relic_20
+  min_distance_group_placement 1
+  actor_area final_relic
+  actor_area_radius 2048
+}
+
+create_object RELIC {
+  min_distance_to_players 35
+  terrain_to_place_on RAINFOREST_GRASS
+  avoid_forest_zone 1
+  avoid_actor_area transition_ring_4
+  avoid_actor_area outer_relic
+  avoid_actor_area player_relic_18
+  avoid_actor_area final_relic
+  min_distance_group_placement 1
+  actor_area final_relic
+  actor_area_radius 2048
+}
+
+create_object RELIC {
+  min_distance_to_players 35
+  terrain_to_place_on RAINFOREST_GRASS
+  avoid_forest_zone 1
+  avoid_actor_area transition_ring_4
+  avoid_actor_area outer_relic
+  avoid_actor_area player_relic_15
+  avoid_actor_area final_relic
+  min_distance_group_placement 1
+  actor_area final_relic
+  actor_area_radius 2048
+}
+
+create_object RELIC {
+  min_distance_to_players 35
+  terrain_to_place_on RAINFOREST_GRASS
+  avoid_forest_zone 1
+  avoid_actor_area transition_ring_4
+  avoid_actor_area outer_relic
+  avoid_actor_area player_relic_12
+  avoid_actor_area final_relic
+  min_distance_group_placement 1
+  actor_area final_relic
+  actor_area_radius 2048
+}
+
+/* Test for the final Relic. */
+create_object MONK {
+  number_of_objects 99999
+  avoid_actor_area final_relic
+}
+
+/* Aesthetic plants, increasing in density towards the middle. */
+create_object PLANT_RAINFOREST {
+  number_of_objects 3
+  set_scaling_to_map_size
+  avoid_forest_zone 2
+  terrain_to_place_on DESERT
+  actor_area_to_place_in transition_ring_15
+  avoid_actor_area transition_ring_4
+  min_distance_group_placement 6
+  temp_min_distance_group_placement 10
+}
+
+create_object PLANT_RAINFOREST {
+  number_of_objects 4
+  set_scaling_to_map_size
+  avoid_forest_zone 2
+  terrain_to_place_on DESERT
+  actor_area_to_place_in transition_ring_4
+  temp_min_distance_group_placement 6
+}
+

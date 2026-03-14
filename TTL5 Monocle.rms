@@ -1,0 +1,1143 @@
+#HEADER_START
+/*
+ * Monocle for TTL 5.
+ * Edited by T-West, December 2025.
+ * Based on the map by Chrazini.
+ * Only supports 1v1s on the tiny map size and Random Map game mode.
+ *
+ * Changes from the previous version:
+ * - Ponds are always 1 tile.
+ * - Pond terrains alternate medium and deep water.
+ * - Ponds alternatve Box Turtles and Shore Fish.
+ * - Connection generation ensures there is always a small path between the
+ *   players in the middle.
+ * - Outside Relics are more balanced.
+ * - Outside resources have a larger group placement radius.
+ * - Player resources have more randomness in their spawn locations.
+ */
+
+/*
+	Monocle by Chrazini
+	Created: 21-02-2020
+	Version: 1.3
+	BSV: 7.0.3
+	Compatibility: Definitive Edition
+
+	Theme: American
+	Style: Land
+	Formation: Circle
+
+	Please report bugs or requests on either:
+	Steam: https://steamcommunity.com/id/chrazini
+	Discord: Chrazini#5687
+	AoEZone: https://www.aoezone.net/members/chrazini.48855/
+	Voobly: https://www.voobly.com/profile/view/123721778
+
+	Changelog 21-02-2020 | Version 1.0
+	� Initial release.
+
+	Changelog 03-04-2020 | Version 1.1
+	� Fixed a bug that would sometimes cause the starting sheep to not generate correctly.
+
+	Changelog 09-12-2020 | Version 1.2
+	� Extra resources are now more equally distributed.
+	� Gold deposits will now generate further apart from other gold deposits.
+	� Stone deposits will now generate further apart from other stone deposits.
+	� Boars have been moved closer to the town centre.
+	� Added support for multiple game modes to be enabled at the same time.
+	� Changed the villager distribution in Empire Wars.
+	� Buildings are more distributed more adequately during Empire Wars.
+	� Playing on "Low Resources" will now activate mode-toggle.
+	� The radius of the middle has decreased.
+	� Forest in the middle has been decreased when playing Empire Wars.
+	� Shore fish should now be more evenly spread out.
+
+	Changelog 10-12-2020 | Version 1.3
+	� Added better compatibility for Regicide and Capture the Relic.
+	� Added minor aesthetic changes.
+*/
+#HEADER_END
+
+/*
+ * Defeat players if the game mode is not set to random map.
+ * Includes a check for the secondary game mode checkboxes.
+ */
+if ANTIQUITY_MODE
+  #define ADMIN_RESTART
+elseif RANDOM_MAP
+  if REGICIDE
+    #define ADMIN_RESTART
+  elseif EMPIRE_WARS
+    #define ADMIN_RESTART
+  elseif SUDDEN_DEATH
+    #define ADMIN_RESTART
+  endif
+else
+  #define ADMIN_RESTART
+endif
+if TINY_MAP
+else
+  #define ADMIN_RESTART
+endif
+if DEFAULT_RESOURCES
+else
+  #define ADMIN_RESTART
+endif
+if DARK_AGE_START
+else
+  #define ADMIN_RESTART
+endif
+if TURBO_MODE
+  #define ADMIN_RESTART
+endif
+if ADMIN_RESTART
+  <PLAYER_SETUP>
+  guard_state SABOTEUR AMOUNT_GOLD 0 1
+endif
+
+/* Placeholders */
+#const PHRELIC 1291 /* Invisible object for positioning Relics. */
+#const PHON 1543
+#const PHOFF 1902
+#const TERRAIN_BLOCKER 1613
+
+/* Scenery */
+#const ROCK_2 1323 /* Rock 2 */
+
+/* Terrains */
+#const SPAWN_TERRAIN 76
+
+#const BASE_FOREST 17
+#const BASE_TERRAIN 12
+#const BASE_BLEND_A 5
+#const BASE_BLEND_B 3
+#const BASE_BLEND_C 100
+
+#const SLOPE_PEAK 70
+#const SLOPE_TERRAIN 40
+#const SLOPE_BLEND_A 76
+#const SLOPE_BLEND_B 5
+
+#const MIDDLE_FOREST 56
+#const MIDDLE_TERRAIN 76
+#const MIDDLE_BLEND_A 5
+#const MIDDLE_BLEND_B 9
+#const MIDDLE_BLEND_C 77
+
+#const WATER_2D_SHORELESS 15
+
+/* Player Land Locations */
+#const T1 rnd(0,359)
+#const ANGLE rnd(135,225)
+#const T2 (T1 + ANGLE)
+#const R 18
+#FOR($i, 1, 3)
+  #TRIG(T$i)
+  #const X$i (R * COS_T$i + 50)
+  #const Y$i (R * SIN_T$i + 50)
+#END_FOR
+
+/* Relic Attributes */
+#const RELIC_SPACING 50
+#const RELIC_PLAYER_SPACING 35
+#const RELIC_ZONE_SPACING 8
+
+/* Spacing Distances for Inner Gold Mines */
+#const GOLD_PLAYER_DIST 20
+#const GOLD_SEPARATION 8
+#const GOLD_ROCK_DISTANCE 7
+
+<PLAYER_SETUP>
+direct_placement
+behavior_version 2
+ai_info_map_type ARABIA 0 0 0
+
+/* Draws object outlines behind the rocks. */
+effect_amount SET_ATTRIBUTE ROCK ATTR_OCCLUSION_MODE 2
+effect_amount SET_ATTRIBUTE ROCK_2 ATTR_OCCLUSION_MODE 2
+
+/* Makes the rocks 2x2 size. */
+effect_amount SET_ATTRIBUTE ROCK ATTR_RADIUS_1 1
+effect_amount SET_ATTRIBUTE ROCK ATTR_RADIUS_2 1
+
+/* Sets Bird line of sight to 0. */
+effect_amount SET_ATTRIBUTE MACAW ATTR_LINE_OF_SIGHT 0
+
+/* Placeholder object for Relics */
+effect_amount SET_ATTRIBUTE PHRELIC ATTR_DEAD_ID -1
+effect_amount SET_ATTRIBUTE PHRELIC ATTR_TERRAIN_ID 4
+effect_amount SET_ATTRIBUTE PHRELIC ATTR_LINE_OF_SIGHT 0
+effect_amount SET_ATTRIBUTE PHRELIC ATTR_HITPOINTS 0
+effect_amount SET_ATTRIBUTE PHRELIC ATTR_STORAGE_VALUE 0
+
+/*
+ * Uses universities to fill gaps with rocks.
+ * Needs to use a dead object instead of a second object due to
+ * pathfinding-related bugs introduced in the summer 2025 patch.
+ * The second object technique results in an "unable to build" adjacent to the
+ * rock.
+ */
+effect_amount GAIA_SET_ATTRIBUTE UNIVERSITY ATTR_DEAD_ID ROCK
+effect_amount GAIA_SET_ATTRIBUTE UNIVERSITY ATTR_HITPOINTS 0
+effect_amount GAIA_SET_ATTRIBUTE UNIVERSITY ATTR_DYING_GRAPHIC 0
+effect_amount GAIA_SET_ATTRIBUTE UNIVERSITY ATTR_STANDING_GRAPHIC 3358
+effect_amount GAIA_SET_ATTRIBUTE UNIVERSITY ATTR_STANDING2_GRAPHIC 0
+effect_amount GAIA_SET_ATTRIBUTE UNIVERSITY ATTR_DESTRUCTION_GRAPHIC 0
+effect_amount GAIA_SET_ATTRIBUTE UNIVERSITY ATTR_DESTRUCTION_RUBBLE_GRAPHIC 0
+effect_amount GAIA_SET_ATTRIBUTE UNIVERSITY ATTR_DYING_SOUND -1
+
+/* TTL5: Siege Tower Changes */
+if BLACK_WALKABLE
+else
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_GARRISON_CAPACITY -5
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_HITPOINTS -45
+endif
+
+<LAND_GENERATION>
+base_terrain BASE_TERRAIN
+enable_waves 0
+
+/* Creates player lands. */
+#FOR($i, 1, 3)
+  create_land {
+    land_position X$i Y$i
+    terrain_type SPAWN_TERRAIN
+    assign_to AT_TEAM -10 0 0
+  }
+#END_FOR
+
+/* Sets up the ring of hills. */
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 84 50 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 84 52 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 84 53 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 84 55 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 83 57 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 83 58 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 83 60 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 82 61 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 81 63 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 81 65 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 80 66 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 79 67 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 78 69 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 77 70 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 76 72 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 75 73 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 74 74 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 73 75 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 72 76 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 70 77 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 69 78 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 67 79 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 66 80 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 65 81 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 63 81 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 61 82 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 60 83 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 58 83 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 57 83 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 55 84 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 53 84 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 52 84 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 50 84 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 48 84 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 47 84 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 45 84 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 43 83 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 42 83 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 40 83 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 39 82 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 37 81 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 35 81 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 34 80 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 33 79 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 31 78 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 30 77 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 28 76 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 27 75 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 26 74 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 25 73 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 24 72 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 23 70 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 22 69 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 21 67 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 20 66 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 19 65 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 19 63 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 18 61 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 17 60 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 17 58 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 17 57 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 16 55 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 16 53 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 16 52 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 16 50 }
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 16 50 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 16 48 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 16 47 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 16 45 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 17 43 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 17 42 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 17 40 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 18 39 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 19 37 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 19 35 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 20 34 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 21 33 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 22 31 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 23 30 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 24 28 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 25 27 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 26 26 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 27 25 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 28 24 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 30 23 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 31 22 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 33 21 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 34 20 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 35 19 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 37 19 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 39 18 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 40 17 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 42 17 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 43 17 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 45 16 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 47 16 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 48 16 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 50 16 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 52 16 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 53 16 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 55 16 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 57 17 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 58 17 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 60 17 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 61 18 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 63 19 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 65 19 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 66 20 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 67 21 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 69 22 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 70 23 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 72 24 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 73 25 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 74 26 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 75 27 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 76 28 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 77 30 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 78 31 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 79 33 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 80 34 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 81 35 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 81 37 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 82 39 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 83 40 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 83 42 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 83 43 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 84 45 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 84 47 } 
+create_land { terrain_type SLOPE_PEAK number_of_tiles 45 base_size 3 base_elevation 4 clumping_factor 15 zone 8 land_id 500 land_position 84 48 }
+
+<ELEVATION_GENERATION>
+
+<TERRAIN_GENERATION>
+
+/* Paints the elevated ring. */
+
+/* Ensures the `SLOPE_PEAK` terrain covers all of the top. */
+#REPEAT(12)
+  create_terrain SLOPE_PEAK {
+    base_terrain BASE_TERRAIN
+    land_percent 100
+    number_of_clumps 8192
+    set_scale_by_groups
+    height_limits 4 4
+  }
+#END_REPEAT
+
+#REPEAT(12)
+  create_terrain SLOPE_PEAK {
+    base_terrain MIDDLE_TERRAIN
+    land_percent 100
+    number_of_clumps 8192
+    set_scale_by_groups
+    height_limits 4 4
+  }
+#END_REPEAT
+
+/* Rock around the top of the ring. */
+#REPEAT(8)
+  create_terrain SLOPE_TERRAIN {
+    base_terrain BASE_TERRAIN
+    land_percent 100
+    number_of_clumps 8192
+    height_limits 2 3
+  }
+  
+  create_terrain SLOPE_TERRAIN {
+    base_terrain MIDDLE_TERRAIN
+    land_percent 100
+    number_of_clumps 8192
+    height_limits 2 3
+  }
+#END_REPEAT
+
+/* Masking on the top of the rock. */
+#REPEAT(8)
+  create_terrain SLOPE_PEAK {
+    base_terrain SLOPE_TERRAIN
+    land_percent 100
+    number_of_clumps 8192
+    height_limits 3 3
+    terrain_mask 1
+  }
+#END_REPEAT
+
+/* Rock masked towards the bottom of the slope. */
+#REPEAT(8)
+  create_terrain SLOPE_TERRAIN {
+    base_terrain MIDDLE_TERRAIN
+    land_percent 100
+    number_of_clumps 8192
+    height_limits 1 1
+    terrain_mask 2
+  }
+
+  create_terrain SLOPE_TERRAIN {
+    base_terrain BASE_TERRAIN
+    land_percent 100
+    number_of_clumps 8192
+    height_limits 1 1
+    terrain_mask 2
+  }
+#END_REPEAT
+
+/* Middle Forest */
+create_terrain DLC_RAINFOREST {
+  base_terrain MIDDLE_TERRAIN
+  land_percent 4
+  number_of_clumps 26
+  set_scale_by_groups
+  set_avoid_player_start_areas
+  spacing_to_other_terrain_types 2
+}
+
+/* Outside Forest */
+create_terrain BASE_FOREST {
+  base_terrain BASE_TERRAIN
+  land_percent 6
+  number_of_clumps 16
+  set_scale_by_groups
+  spacing_to_other_terrain_types 2
+}
+
+/* Places two rings of ponds. */
+/* Selects the sides with a placeholder terrain. */
+#REPEAT(8)
+  create_terrain ROAD {
+    base_terrain SLOPE_PEAK
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_specific_terrain BASE_TERRAIN 7
+    spacing_to_specific_terrain MIDDLE_TERRAIN 6
+  }
+#END_REPEAT
+
+/* Placeholders for regular spaces between ponds.. */
+#REPEAT(16)
+  create_terrain DESERT {
+    base_terrain SLOPE_PEAK
+    number_of_tiles 4
+    spacing_to_other_terrain_types 3
+    spacing_to_specific_terrain ROAD
+    spacing_to_specific_terrain DIRT 16
+    clumping_factor 100
+  }
+
+  create_terrain DIRT {
+    base_terrain DESERT
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+/* Snow on the outside to separate inner and outer rings. */
+#REPEAT(8)
+  create_terrain SNOW {
+    base_terrain SLOPE_PEAK
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_specific_terrain MIDDLE_TERRAIN 7
+  }
+#END_REPEAT
+
+/* Water on the inner rings. */
+#REPEAT(80)
+  create_terrain WATER {
+    base_terrain SLOPE_PEAK
+    spacing_to_specific_terrain SNOW 1
+    spacing_to_specific_terrain SLOPE_TERRAIN 2
+    spacing_to_specific_terrain MED_WATER 5
+    spacing_to_specific_terrain DIRT 2
+    number_of_tiles 1
+  }
+
+  create_terrain MED_WATER {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8196
+  }
+#END_REPEAT
+
+#REPEAT(80)
+  create_terrain WATER {
+    base_terrain SLOPE_PEAK
+    spacing_to_specific_terrain SNOW 1
+    spacing_to_specific_terrain SLOPE_TERRAIN 1
+    spacing_to_specific_terrain MED_WATER 3
+    spacing_to_specific_terrain DIRT 1
+    spacing_to_specific_terrain ROAD 1
+    number_of_tiles 1
+  }
+
+  create_terrain MED_WATER {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8196
+  }
+#END_REPEAT
+
+#REPEAT(80)
+  create_terrain WATER {
+    base_terrain SLOPE_PEAK
+    spacing_to_specific_terrain SNOW 1
+    spacing_to_specific_terrain SLOPE_TERRAIN 2
+    spacing_to_specific_terrain MED_WATER 2
+    spacing_to_specific_terrain DIRT 1
+    spacing_to_specific_terrain ROAD 1
+    number_of_tiles 1
+  }
+
+  create_terrain MED_WATER {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8196
+  }
+#END_REPEAT
+
+/* Water on the outer ring. */
+#REPEAT(80)
+  create_terrain WATER {
+    base_terrain SNOW
+    /* spacing_to_specific_terrain SLOPE_PEAK 1 */
+    spacing_to_specific_terrain SLOPE_TERRAIN 2
+    spacing_to_specific_terrain MED_WATER 3
+    spacing_to_specific_terrain DLC_WATER4 5
+    spacing_to_specific_terrain DIRT 1
+    spacing_to_specific_terrain ROAD 1
+    number_of_tiles 1
+  }
+
+  create_terrain MED_WATER {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8196
+  }
+#END_REPEAT
+
+#REPEAT(80)
+  create_terrain WATER {
+    base_terrain SNOW
+    /* spacing_to_specific_terrain SLOPE_PEAK 1 */
+    spacing_to_specific_terrain SLOPE_TERRAIN 2
+    spacing_to_specific_terrain MED_WATER 2
+    spacing_to_specific_terrain DLC_WATER4 3
+    /* spacing_to_specific_terrain DIRT 1 */
+    /* spacing_to_specific_terrain ROAD 1 */
+    number_of_tiles 1
+  }
+
+  create_terrain MED_WATER {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8196
+  }
+#END_REPEAT
+
+#REPEAT(80)
+  create_terrain WATER {
+    base_terrain SNOW
+    /* spacing_to_specific_terrain SLOPE_PEAK 1 */
+    spacing_to_specific_terrain SLOPE_TERRAIN 1
+    spacing_to_specific_terrain MED_WATER 3
+    spacing_to_specific_terrain DLC_WATER4 3
+    /* spacing_to_specific_terrain DIRT 1 */
+    /* spacing_to_specific_terrain ROAD 1 */
+    number_of_tiles 1
+  }
+
+  create_terrain MED_WATER {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8196
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain SLOPE_PEAK {
+    base_terrain SNOW
+    land_percent 100
+    number_of_clumps 8192
+  }
+
+  create_terrain SLOPE_PEAK {
+    base_terrain DIRT
+    land_percent 100
+    number_of_clumps 8192
+    /* terrain_mask 1 */
+    /* TODO remove mask */
+  }
+
+  create_terrain SLOPE_PEAK {
+    base_terrain ROAD
+    land_percent 100
+    number_of_clumps 8192
+  }
+
+  create_terrain MED_WATER {
+    base_terrain DLC_WATER4
+    land_percent 100
+    number_of_clumps 8196
+  }
+#END_REPEAT
+
+
+/*
+ * Alternate medium and deep water.
+ * From testing, there are usually ~110 tiles of water, so 55 is half of them.
+ */
+#REPEAT(55)
+  create_terrain DEEP_WATER {
+    base_terrain MED_WATER
+    land_percent 100
+    terrain_mask 1
+  }
+#END_REPEAT
+
+/* Make the beach terrain. */
+#REPEAT(8)
+  create_terrain SNOW {
+    base_terrain SLOPE_PEAK
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain SLOPE_PEAK {
+    base_terrain SNOW
+    land_percent 100
+    number_of_clumps 8192
+    beach_terrain DLC_GRAVELBEACH
+  }
+#END_REPEAT
+
+/* Terrain Patches */
+create_terrain MIDDLE_BLEND_A {
+  base_terrain MIDDLE_TERRAIN
+  land_percent 8
+  number_of_clumps 4
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+create_terrain MIDDLE_BLEND_B {
+  base_terrain MIDDLE_TERRAIN
+  land_percent 4
+  number_of_clumps 4
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+create_terrain MIDDLE_BLEND_C {
+  base_terrain MIDDLE_TERRAIN
+  land_percent 1
+  number_of_clumps 4
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+create_terrain MIDDLE_BLEND_A {
+  base_terrain MIDDLE_TERRAIN
+  land_percent 8
+  number_of_clumps 12
+  set_scale_by_groups
+  terrain_mask 2
+}
+
+create_terrain MIDDLE_BLEND_C {
+  base_terrain MIDDLE_TERRAIN
+  land_percent 8
+  number_of_clumps 12
+  set_scale_by_groups
+  terrain_mask 2
+}
+
+create_terrain SLOPE_BLEND_A {
+  base_terrain SLOPE_PEAK
+  land_percent 8
+  number_of_clumps 12
+  set_scale_by_groups
+  terrain_mask 1
+  beach_terrain DLC_GRAVELBEACH
+}
+
+create_terrain SLOPE_BLEND_B {
+  base_terrain SLOPE_PEAK
+  land_percent 8
+  number_of_clumps 32
+  set_scale_by_groups
+  terrain_mask 2
+  beach_terrain DLC_GRAVELBEACH
+}
+
+create_terrain BASE_BLEND_A {
+  base_terrain BASE_TERRAIN
+  land_percent 14
+  number_of_clumps 4
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+create_terrain BASE_BLEND_B {
+  base_terrain BASE_TERRAIN
+  land_percent 4
+  number_of_clumps 4
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+create_terrain BASE_BLEND_C {
+  base_terrain BASE_TERRAIN
+  land_percent 6
+  number_of_clumps 4
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+<OBJECTS_GENERATION>
+create_object_group SMALL_FISH {
+  add_object SHORE_FISH 50
+  add_object DLC_BOXTURTLE 50
+}
+
+create_object_group HERD {
+  add_object TURKEY 50
+  add_object DLC_LLAMA 50
+}
+
+/* Birds avoid min distance issues. */
+create_object MACAW {
+  number_of_objects 6
+  set_scaling_to_map_size
+}
+
+/* Alternate Shore Fish and Box Turtles. */
+create_object SMALL_FISH {
+  number_of_objects 256
+  min_distance_group_placement 1
+}
+
+/* Find Areas that fit 4x4 buildings and block them with rocks. */
+create_object UNIVERSITY {
+  number_of_objects 14400
+  terrain_to_place_on SLOPE_PEAK
+  actor_area school_of_rock
+  actor_area_radius 12
+}
+
+create_object UNIVERSITY {
+  number_of_objects 14400
+  layer_to_place_on SLOPE_PEAK
+  actor_area school_of_rock
+  actor_area_radius 12
+}
+
+/* Tests for Mill locations. */
+/* create_object MILL {
+  number_of_objects 14400
+  terrain_to_place_on SLOPE_PEAK
+}
+
+create_object MILL {
+  number_of_objects 14400
+  layer_to_place_on SLOPE_PEAK
+} */
+
+/* Player Objects */
+create_object TOWN_CENTER {
+  set_place_for_every_player
+  max_distance_to_players 0
+}
+
+#TCCENTER
+#TCBOXES
+
+/* Player Berries and Gold */
+create_object FORAGE {
+  number_of_objects 4
+  set_place_for_every_player
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 2
+  max_distance_to_other_zones 4
+  avoid_forest_zone 3
+  avoid_actor_area box5
+  actor_area_to_place_in box7
+  actor_area forage1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 128
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in forage1
+  actor_area forage4
+  actor_area_radius 3
+}
+
+create_object PHON {
+  number_of_objects 128
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in forage1
+  actor_area forage7
+  actor_area_radius 6
+}
+
+create_object GOLD {
+  number_of_objects 2
+  number_of_groups 2
+  set_gaia_object_only
+  set_place_for_every_player
+  set_tight_grouping
+  group_placement_radius 1
+  avoid_forest_zone 3
+  avoid_actor_area box5
+  actor_area_to_place_in box7
+  avoid_actor_area forage4
+  temp_min_distance_group_placement 10
+  min_distance_group_placement 2
+  max_distance_to_other_zones 4
+}
+
+/* Player Animals */
+create_object DEER {
+  number_of_objects 4
+  set_place_for_every_player
+  set_gaia_object_only
+  set_tight_grouping
+  avoid_actor_area berries1
+  avoid_forest_zone 2
+  group_placement_radius 1
+  avoid_actor_area box5
+  actor_area_to_place_in box8
+  min_distance_group_placement 2
+  avoid_actor_area forage7
+}
+
+create_object BOAR {
+  set_place_for_every_player
+  number_of_objects 2
+  set_gaia_object_only
+  temp_min_distance_group_placement 8
+  avoid_forest_zone 1
+  avoid_actor_area box7
+  actor_area_to_place_in box10
+  min_distance_group_placement 1
+  avoid_actor_area forage1
+}
+
+create_object HERD {
+  set_place_for_every_player
+  number_of_objects 4
+  set_tight_grouping
+  min_distance_to_players 7
+  max_distance_to_players 9
+  set_circular_placement
+  group_placement_radius 1
+  avoid_actor_area forage1
+  avoid_forest_zone 2
+}
+
+/* Inner Gold Mines */
+create_object GOLD {
+  number_of_objects 8
+  terrain_to_place_on SPAWN_TERRAIN
+  max_distance_to_other_zones GOLD_ROCK_DISTANCE
+  avoid_forest_zone 1
+  min_distance_group_placement 1
+  temp_min_distance_group_placement GOLD_SEPARATION
+  min_distance_to_players GOLD_PLAYER_DIST
+  set_circular_placement
+  actor_area mid_gold
+  actor_area_radius GOLD_SEPARATION
+}
+
+create_object GOLD {
+  number_of_objects 8
+  terrain_to_place_on MIDDLE_TERRAIN
+  max_distance_to_other_zones GOLD_ROCK_DISTANCE
+  avoid_forest_zone 1
+  min_distance_group_placement 1
+  temp_min_distance_group_placement GOLD_SEPARATION
+  min_distance_to_players GOLD_PLAYER_DIST
+  set_circular_placement
+  avoid_actor_area mid_gold
+  actor_area mid_gold
+  actor_area_radius GOLD_SEPARATION
+}
+
+create_object GOLD {
+  number_of_objects 8
+  terrain_to_place_on MIDDLE_BLEND_C
+  max_distance_to_other_zones GOLD_ROCK_DISTANCE
+  avoid_forest_zone 1
+  min_distance_group_placement 1
+  temp_min_distance_group_placement GOLD_SEPARATION
+  min_distance_to_players GOLD_PLAYER_DIST
+  set_circular_placement
+  avoid_actor_area mid_gold
+  actor_area mid_gold
+  actor_area_radius GOLD_SEPARATION
+}
+
+/* Player Start Objects */
+/* Player Objects */
+create_object VILLAGER {
+  set_place_for_every_player
+  temp_min_distance_group_placement 3
+  avoid_actor_area box4
+  actor_area_to_place_in box5
+  actor_area vil2
+  actor_area_radius 2
+}
+
+create_object SCOUT {
+  set_place_for_every_player
+  avoid_actor_area vil2
+  avoid_actor_area box6
+  actor_area_to_place_in box7
+  avoid_forest_zone 1
+  min_distance_group_placement 1
+}
+
+/* Player straggler trees */
+create_object DLC_RAINTREE {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 2
+  avoid_actor_area box2
+  actor_area_to_place_in box3
+  min_distance_group_placement 1
+  temp_min_distance_group_placement 5
+  actor_area straggler2
+  actor_area_radius 2
+}
+
+create_object DLC_RAINTREE {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 3
+  avoid_actor_area box5
+  actor_area_to_place_in box7
+  avoid_forest_zone 1
+  min_distance_group_placement 1
+  temp_min_distance_group_placement 5
+  avoid_actor_area straggler2
+  avoid_actor_area forage1
+}
+
+/* Relics */
+#FOR($i, 0, 5)
+  create_object PHRELIC {
+    avoid_actor_area relic_success
+    number_of_objects 4
+    terrain_to_place_on BASE_TERRAIN
+    min_distance_to_players RELIC_PLAYER_SPACING
+    set_circular_placement
+    max_distance_to_other_zones RELIC_ZONE_SPACING
+    avoid_forest_zone 1
+    min_distance_to_map_edge 1
+    temp_min_distance_group_placement RELIC_SPACING
+
+    actor_area relic_spot_$i
+    actor_area_radius 0
+  }
+
+  create_object PHRELIC {
+    avoid_actor_area relic_success
+    number_of_objects 32
+    actor_area_to_place_in relic_spot_$i
+    actor_area relic_spacing_$i
+    actor_area_radius RELIC_SPACING
+  }
+
+  create_object PHRELIC {
+    avoid_actor_area relic_success
+    terrain_to_place_on BASE_TERRAIN
+    min_distance_to_players RELIC_PLAYER_SPACING
+    set_circular_placement
+    max_distance_to_other_zones RELIC_ZONE_SPACING
+    avoid_forest_zone 1
+    min_distance_to_map_edge 1
+    avoid_actor_area relic_spacing_$i
+
+    actor_area relic_end_$i
+    actor_area_radius 0
+  }
+
+  create_object PHRELIC {
+    avoid_actor_area relic_success
+    actor_area_to_place_in relic_end_$i
+    actor_area relic_success_$i
+    actor_area_radius 120
+  }
+
+  create_object PHRELIC {
+    avoid_actor_area relic_success
+    avoid_actor_area relic_success_$i
+    actor_area relic_failure_$i
+    actor_area_radius 120
+  }
+
+  create_object RELIC {
+    avoid_actor_area relic_success
+    number_of_objects 16
+    min_distance_group_placement 2
+    avoid_actor_area relic_failure_$i
+    actor_area_to_place_in relic_spot_$i
+  }
+  
+  create_object RELIC {
+    avoid_actor_area relic_success
+    min_distance_group_placement 2
+    avoid_actor_area relic_failure_$i
+    actor_area_to_place_in relic_end_$i
+  }
+
+  create_object PHRELIC {
+    avoid_actor_area relic_success
+    avoid_actor_area relic_failure_$i
+    actor_area relic_success
+    actor_area_radius 120
+  }
+#END_FOR
+
+/* Backup Relic case */
+create_object RELIC {
+  avoid_actor_area relic_success
+  number_of_objects 5
+  temp_min_distance_group_placement 35
+  min_distance_to_players 24
+  set_circular_placement
+  avoid_forest_zone 1
+  min_distance_to_map_edge 1
+  max_distance_to_other_zones 3
+  terrain_to_place_on BASE_TERRAIN
+  min_distance_group_placement 2
+}
+
+/* Outside resources */
+/* TODO better balance outside gold and stone */
+create_object GOLD {
+  number_of_objects 4
+  number_of_groups 1024
+  set_tight_grouping
+  group_placement_radius 2
+  temp_min_distance_group_placement 24
+  terrain_to_place_on BASE_TERRAIN
+  max_distance_to_other_zones 4
+  avoid_forest_zone 3
+  min_distance_to_map_edge 3
+  min_distance_group_placement 3
+  actor_area outside_gold
+  actor_area_radius 8
+}
+
+create_object STONE {
+  number_of_objects 4
+  number_of_groups 1024
+  set_tight_grouping
+  group_placement_radius 1
+  temp_min_distance_group_placement 27
+  /* temp_min_distance_group_placement 29 */
+  terrain_to_place_on BASE_TERRAIN
+  max_distance_to_other_zones 3
+  avoid_forest_zone 2
+  min_distance_to_map_edge 2
+  avoid_actor_area outside_gold
+  min_distance_group_placement 2
+  actor_area outside_stone
+  actor_area_radius 10
+}
+
+create_object FORAGE {
+  number_of_objects 4
+  number_of_groups 1024
+  set_tight_grouping
+  group_placement_radius 1
+  temp_min_distance_group_placement 32
+  terrain_to_place_on BASE_TERRAIN
+  max_distance_to_other_zones 4
+  avoid_forest_zone 2
+  min_distance_to_map_edge 2
+  avoid_actor_area outside_gold
+  avoid_actor_area outside_stone
+  min_distance_group_placement 2
+  actor_area outside_berries
+  actor_area_radius 12
+}
+
+create_object DEER {
+  number_of_objects 4
+  number_of_groups 1024
+  set_loose_grouping
+  temp_min_distance_group_placement 32
+  terrain_to_place_on BASE_TERRAIN
+  max_distance_to_other_zones 3
+  avoid_forest_zone 1
+  min_distance_to_map_edge 1
+  avoid_actor_area outside_berries
+  min_distance_group_placement 4
+}
+
+/* Straggler Trees */
+create_object JUNGLETREE {
+  number_of_objects 16
+  set_scaling_to_map_size
+  max_distance_to_other_zones 4
+  avoid_forest_zone 2
+  temp_min_distance_group_placement 8
+  terrain_to_place_on BASE_TERRAIN
+  min_distance_group_placement 1
+}
+
+/* Aesthetics: Rocks and Skeletons on Hill Top */
+create_object ROCK_2 {
+  /* number_of_objects 12 */
+  number_of_objects 8
+  set_scaling_to_map_size
+  temp_min_distance_group_placement 15
+  min_distance_group_placement 1
+  terrain_to_place_on SLOPE_PEAK
+  avoid_actor_area school_of_rock
+}
+
+create_object SKELETON {
+  number_of_objects 16
+  set_scaling_to_map_size
+  temp_min_distance_group_placement 6
+  min_distance_group_placement 1
+  terrain_to_place_on SLOPE_PEAK
+}

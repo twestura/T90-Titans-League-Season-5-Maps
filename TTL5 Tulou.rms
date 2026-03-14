@@ -1,0 +1,956 @@
+#HEADER_START
+/*
+ * Tulou for TTL 5.
+ * Edited by T-West, December 2025.
+ * Based on the map Tulou by Marintho, as seen in Stonghold Frenzy II.
+ */
+#HEADER_END
+
+/*
+ * Defeat players if the game mode is not set to Regicide.
+ * Includes a check for the secondary game mode checkboxes.
+ * Note the game mode must be Regicide, the checkbox cannot simply be
+ * selected for another game mode.
+ */
+if ANTIQUITY_MODE
+  #define ADMIN_RESTART
+elseif DEATH_MATCH
+  #define ADMIN_RESTART
+elseif CAPTURE_THE_RELIC
+  #define ADMIN_RESTART
+elseif RANDOM_MAP
+  #define ADMIN_RESTART
+elseif TURBO_RANDOM_MAP
+  #define ADMIN_RESTART
+elseif KING_OT_HILL
+  #define ADMIN_RESTART
+elseif WONDER_RACE
+  #define ADMIN_RESTART
+elseif DEFEND_WONDER
+  #define ADMIN_RESTART
+elseif EMPIRE_WARS
+  #define ADMIN_RESTART
+elseif BATTLE_ROYALE
+  #define ADMIN_RESTART
+elseif SUDDEN_DEATH
+  #define ADMIN_RESTART
+endif
+if TINY_MAP
+else
+  #define ADMIN_RESTART
+endif
+if DEFAULT_RESOURCES
+else
+  #define ADMIN_RESTART
+endif
+if DARK_AGE_START
+else
+  #define ADMIN_RESTART
+endif
+if TURBO_MODE
+  #define ADMIN_RESTART
+endif
+if ADMIN_RESTART
+  <PLAYER_SETUP>
+  guard_state SABOTEUR AMOUNT_GOLD 0 1
+endif
+
+/* Placeholders */
+#const PHON 1543
+#const PHOFF 1902
+#const TERRAIN_BLOCKER 1613
+
+/* Terrains */
+#const FARM_TERRAIM 7
+#const FARM_RICE 63
+#const MUD 76
+#const UNDERBRUSH_JUNGLE 76
+#const GREENWATER 95
+#const BROWNWATER 96
+
+/* Objects */
+#const GATE_UP 64
+#const GATE_DOWN 88
+#const PAGODA_A 1201
+#const PAGODA_B 1202
+#const PAGODA_C 1203
+#const STATUE_CIVILIZATION 1279
+#const QUEEN 1292 /* Western */
+#const RED_CROWN_CRANE 2026
+
+/* Player Land Locations */
+#const T1 rnd(0,359)
+#const ANGLE rnd(135,225)
+#const T2 (T1 + ANGLE)
+#const R 26
+#FOR($i, 1, 3)
+  #TRIG(T$i)
+  #const X$i (R * COS_T$i + 50)
+  #const Y$i (R * SIN_T$i + 50)
+#END_FOR
+
+/* 50/50 chance of Kings or Queens. */
+start_random
+  percent_chance 50 #define USE_QUEENS
+end_random
+
+<PLAYER_SETUP>
+direct_placement
+behavior_version 2
+ai_info_map_type ARENA 0 0 0
+
+/* Allow Forage and Stone to spawn freely on the outside terrain. */
+effect_amount SET_ATTRIBUTE FORAGE ATTR_TERRAIN_ID 0
+effect_amount SET_ATTRIBUTE STONE ATTR_TERRAIN_ID 0
+
+/* Set the border forests to have 200 wood (instead of the default 100 wood). */
+effect_amount SET_ATTRIBUTE JUNGLETREE ATTR_STORAGE_VALUE 200 
+
+/* Sets Bird line of sight to 0. */
+effect_amount SET_ATTRIBUTE HAWK ATTR_LINE_OF_SIGHT 0
+effect_amount SET_ATTRIBUTE RED_CROWN_CRANE ATTR_LINE_OF_SIGHT 0
+
+if USE_QUEENS
+  effect_amount SET_ATTRIBUTE QUEEN ATTR_MOVE_SPEED 1.32
+  effect_amount UPGRADE_UNIT KING QUEEN 0
+endif
+
+/* TTL5: Siege Tower Changes */
+if BLACK_WALKABLE
+else
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_GARRISON_CAPACITY -5
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_HITPOINTS -45
+endif
+
+<LAND_GENERATION>
+base_terrain LEAVES
+
+#FOR($i, 1, 3)
+  create_land {
+    land_position X$i Y$i
+    assign_to AT_TEAM -10 0 0
+    terrain_type GRASS
+    top_border 11
+    bottom_border 12
+    right_border 12
+    left_border 11
+    border_fuzziness 100
+  }
+#END_FOR
+
+/* Center Water */
+create_land { base_size 0 land_position 57 50 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 54 50 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 47 49 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 54 52 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 56 54 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 54 53 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 48 48 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 53 54 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 54 56 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 52 54 terrain_type GREENWATER number_of_tiles 0 }
+/* Savannah for center Relic. */
+create_land { base_size 1 land_position 50 50 terrain_type DLC_SAVANNAH number_of_tiles 0 }
+create_land { base_size 0 land_position 49 47 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 50 54 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 50 57 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 50 54 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 51 47 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 48 54 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 47 56 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 47 54 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 52 48 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 46 53 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 44 54 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 46 52 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 53 49 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 46 50 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 43 50 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 46 50 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 53 51 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 46 48 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 44 47 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 46 47 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 52 52 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 47 46 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 47 44 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 48 46 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 51 53 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 50 46 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 50 43 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 49 53 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 52 46 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 54 44 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 53 46 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 48 52 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 54 47 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 56 47 terrain_type GREENWATER number_of_tiles 0 }
+create_land { base_size 0 land_position 54 48 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 47 51 terrain_type GREENWATER number_of_tiles 0 }
+
+create_land { base_size 0 land_position 54 50 terrain_type GREENWATER number_of_tiles 0 }
+
+/* Consider lands corner Relics. */
+create_land { land_position 18 18 terrain_type SNOW number_of_tiles 0 base_size 1 land_id 10 }
+create_land { land_position 18 82 terrain_type SNOW number_of_tiles 0 base_size 1 land_id 10 }
+create_land { land_position 82 18 terrain_type SNOW number_of_tiles 0 base_size 1 land_id 10 }
+create_land { land_position 82 82 terrain_type SNOW number_of_tiles 0 base_size 1 land_id 10 }
+
+<ELEVATION_GENERATION>
+/* Outer elevation. */
+#REPEAT(8)
+  create_elevation 4 {
+    base_terrain LEAVES
+    number_of_tiles 14400
+    spacing 5
+    enable_balanced_elevation
+    number_of_clumps 14400
+  }
+#END_REPEAT
+
+/* Inner elevation. */
+create_elevation 1 {
+  base_terrain GRASS
+  number_of_tiles 1400
+  spacing 1
+  enable_balanced_elevation
+  number_of_clumps 50
+}
+
+<TERRAIN_GENERATION>
+/* Outside terrain and woodlines. */
+#REPEAT(8)
+  create_terrain BAMBOO {
+    base_terrain LEAVES
+    land_percent 100
+    number_of_clumps 8196
+    height_limits 3 6
+  }
+
+  create_terrain JUNGLE {
+    base_terrain LEAVES
+    land_percent 100
+    number_of_clumps 8196
+    height_limits 0 0
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain FARM_RICE {
+    base_terrain LEAVES
+    land_percent 100
+    number_of_clumps 8196
+    terrain_mask 1
+    height_limits 0 1
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain FARM_TERRAIM {
+    base_terrain LEAVES
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 1
+  }
+#END_REPEAT
+
+/* Outside patches. */
+create_terrain BROWNWATER {
+  base_terrain LEAVES
+  number_of_tiles 1000
+  number_of_clumps 25
+}
+
+create_terrain MUD {
+  base_terrain LEAVES
+  number_of_tiles 1000
+  number_of_clumps 25
+}
+
+create_terrain MUDDY_SHALLOW {
+  base_terrain LEAVES
+  number_of_tiles 1000
+  number_of_clumps 25
+}
+
+#REPEAT(8)
+  create_terrain FARM_TERRAIM {
+    base_terrain BROWNWATER
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 2
+  }
+  create_terrain FARM_TERRAIM {
+    base_terrain MUD
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 2
+  }
+  create_terrain FARM_TERRAIM {
+    base_terrain MUDDY_SHALLOW
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 2
+  }
+#END_REPEAT
+
+/* Inside Forests */
+create_terrain DLC_RAINFOREST {
+  base_terrain GRASS
+  number_of_tiles 750
+  number_of_clumps 35
+  set_avoid_player_start_areas 22
+  spacing_to_other_terrain_types 5
+}
+
+/* Changes the leaves under the forests. */
+#REPEAT(8)
+  create_terrain LEAVES {
+    base_terrain DLC_RAINFOREST
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 1
+  }
+#END_REPEAT
+
+/*
+ * Replaces the Snow placeholder with grass.
+ * Perform the replacement after forest generation to avoid the Relic spawns
+ * becoming occupied by trees.
+ */
+#REPEAT(8)
+  create_terrain GRASS {
+    base_terrain SNOW
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+/*
+ * Replaces the Grass with Jungle Road.
+ * Also adjusts the terrain in the middle while adding beaches.
+ */
+#REPEAT(8)
+  create_terrain DLC_JUNGLEROAD {
+    base_terrain GRASS
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 1
+    beach_terrain DLC_BEACH2
+  }
+  create_terrain DIRT {
+    base_terrain DLC_SAVANNAH
+    land_percent 100
+    number_of_clumps 8192
+    beach_terrain DLC_BEACH2
+  }
+#END_REPEAT
+
+<OBJECTS_GENERATION>
+/* Actor areas for the outside resources. */
+create_actor_area 12 12 stone_area 4
+create_actor_area 107 107 stone_area 4
+create_actor_area 107 13 stone_area 4
+create_actor_area 13 107 stone_area 4
+create_actor_area 60 6 stone_area 4
+create_actor_area 60 113 stone_area 4
+create_actor_area 6 60 stone_area 4
+create_actor_area 113 60 stone_area 4
+
+/* Actor Area for Shore Fish to avoid. */
+create_actor_area 60 60 shore_fish_avoider 6
+
+/* Group Corner Pagodas */
+create_object_group PAGODA_AB {
+  add_object PAGODA_A 50
+  add_object PAGODA_B 50
+}
+
+/* Outside Resources */
+/* Outside Stone */
+create_object STONE {
+  number_of_objects 5
+  number_of_groups 8
+  set_tight_grouping
+  actor_area_to_place_in stone_area
+  temp_min_distance_group_placement 25
+  group_placement_radius 2
+  avoid_forest_zone 4
+  actor_area outer_stone1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  actor_area_to_place_in outer_stone1
+  number_of_objects 1024
+  actor_area outer_stone2
+  actor_area_radius 1
+}
+
+/* Outside Berries */
+create_object FORAGE {
+  number_of_objects 4
+  number_of_groups 8
+  set_tight_grouping
+  temp_min_distance_group_placement 25
+  group_placement_radius 1
+  avoid_forest_zone 3
+  actor_area_to_place_in stone_area
+  avoid_actor_area outer_stone2
+  actor_area outer_berries1
+  actor_area_radius 1
+}
+
+/* Outside Animals */
+#REPEAT(2)
+  create_object DEER {
+    number_of_objects 2
+    number_of_groups 8
+    temp_min_distance_group_placement 25
+    actor_area_to_place_in stone_area
+    set_tight_grouping
+    avoid_forest_zone 3
+    avoid_actor_area outer_berries2
+    avoid_actor_area outer_stone2
+  }
+#END_REPEAT
+
+create_object DLC_WATERBUFFALO {
+  number_of_objects 2
+  number_of_groups 8
+  temp_min_distance_group_placement 25
+  actor_area_to_place_in stone_area
+  set_tight_grouping
+  avoid_forest_zone 3
+  avoid_actor_area outer_berries2
+  avoid_actor_area outer_stone2
+}
+
+/* Corner Relics */
+create_object RELIC {
+  place_on_specific_land_id 10
+  avoid_forest_zone 1
+  find_closest
+  min_distance_group_placement 1
+}
+
+create_object PAGODA_AB {
+  place_on_specific_land_id 10
+  avoid_forest_zone 1
+  find_closest
+  min_distance_group_placement 3
+  actor_area corner_pagodas
+  actor_area_radius 10
+}
+
+/* Birds */
+create_object HAWK {
+  number_of_objects 3
+}
+
+create_object RED_CROWN_CRANE {
+  number_of_objects 3
+}
+
+/* Avoiders for player Gold Mines. */
+create_object PHON {
+  set_place_for_every_player
+  number_of_objects 4
+  find_closest
+  min_distance_to_players 11
+  max_distance_to_players 11
+  actor_area gold_avoider
+  actor_area_radius 1
+}
+
+/*
+ * Actor Areas for positioning Gates.
+ * By using find_closest and actor areas, we're able to isloate the four tiles
+ * that are used for each Gate. The placeholders (not terrain blockers) used
+ * to place walls as a second object avoid these tiles.
+ */
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 2
+  find_closest
+  min_distance_to_players 12
+  max_distance_to_players 12
+  actor_area right_midpoints
+  actor_area_radius 0
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 2
+  find_closest
+  min_distance_to_players 12
+  max_distance_to_players 12
+  avoid_actor_area right_midpoints
+  actor_area left_midpoints
+  actor_area_radius 0
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 2
+  find_closest
+  min_distance_to_players 12
+  max_distance_to_players 12
+  actor_area right_side
+  actor_area_radius 23
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 2
+  find_closest
+  min_distance_to_players 12
+  max_distance_to_players 12
+  avoid_actor_area right_midpoints
+  actor_area left_side
+  actor_area_radius 23
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  avoid_actor_area right_side
+  find_closest
+  min_distance_to_players 12
+  max_distance_to_players 12
+  actor_area left_corner_avoider
+  actor_area_radius 9
+}
+
+create_object PHON {
+  number_of_objects 14400
+  set_place_for_every_player
+  set_gaia_object_only
+  avoid_actor_area left_side
+  find_closest
+  min_distance_to_players 12
+  max_distance_to_players 12
+  actor_area right_corner_avoider
+  actor_area_radius 10
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  avoid_actor_area right_side
+  find_closest
+  min_distance_to_players 12
+  max_distance_to_players 12
+  actor_area left_corner_far
+  actor_area_radius 22
+}
+
+create_object PHON {
+  number_of_objects 14400
+  set_place_for_every_player
+  set_gaia_object_only
+  avoid_actor_area left_side
+  find_closest
+  min_distance_to_players 12
+  max_distance_to_players 12
+  actor_area right_corner_far
+  actor_area_radius 23
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 4
+  find_closest
+  min_distance_to_players 12
+  max_distance_to_players 12
+  avoid_actor_area left_corner_far
+  avoid_actor_area right_corner_far
+  actor_area vertical_corner_avoiders
+  actor_area_radius 9
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 14400
+  min_distance_to_players 12
+  max_distance_to_players 12
+  avoid_actor_area left_corner_avoider
+  avoid_actor_area right_corner_avoider
+  avoid_actor_area vertical_corner_avoiders
+  actor_area gate_tiles
+  actor_area_radius 0
+}
+
+/* Player Basic Objects and Areas */
+create_object TOWN_CENTER {
+  set_place_for_every_player
+  max_distance_to_players 0
+}
+
+#TCCENTER
+#TCBOXES
+
+/* Player Town Objects */
+create_object VILLAGER {
+  number_of_objects 10
+  set_place_for_every_player
+  temp_min_distance_group_placement 1
+  avoid_actor_area box4
+  actor_area_to_place_in box5
+  actor_area vil1
+  actor_area_radius 1
+}
+
+create_object KING {
+  set_place_for_every_player
+  avoid_actor_area vil1
+  avoid_actor_area box4
+  actor_area_to_place_in box5
+  actor_area king1
+  actor_area_radius 1
+}
+
+create_object SCOUT {
+  set_place_for_every_player
+  avoid_actor_area vil1
+  avoid_actor_area king1
+  avoid_actor_area box4
+  actor_area_to_place_in box5
+}
+
+/*
+ * Circular Walls
+ * Uses a technique involving terrain blocking placeholders to allow for the
+ * players to control the walls at the start of the game. This technique avoids
+ * requiring the player to capture Gaia walls, thereby allowing civilization-
+ * specific bonuses to apply to the walls, such as Byzantine HP.
+ */
+create_object TERRAIN_BLOCKER {
+  number_of_objects 64
+  set_place_for_every_player
+  set_gaia_object_only
+  set_circular_placement
+  min_distance_to_players 11
+  max_distance_to_players 12
+  find_closest
+  actor_area inner_wall_0
+  actor_area_radius 0
+}
+
+create_object TERRAIN_BLOCKER {
+  number_of_objects 14400
+  set_place_for_every_player
+  set_gaia_object_only
+  set_circular_placement
+  min_distance_to_players 13
+  max_distance_to_players 14
+  actor_area outer_wall_0
+  actor_area_radius 0
+}
+
+create_object GATE_UP {
+  number_of_objects 2
+  set_place_for_every_player
+  temp_min_distance_group_placement 20
+  min_distance_to_players 12
+  max_distance_to_players 13
+  find_closest
+}
+
+create_object GATE_DOWN {
+  number_of_objects 2
+  set_place_for_every_player
+  temp_min_distance_group_placement 20
+  min_distance_to_players 12
+  max_distance_to_players 13
+  find_closest
+}
+
+create_object PHON {
+  number_of_objects 14400
+  set_place_for_every_player
+  min_distance_to_players 12
+  max_distance_to_players 13
+  set_circular_placement
+  avoid_actor_area inner_wall_0
+  avoid_actor_area outer_wall_0
+  avoid_actor_area gate_tiles
+  second_object DLC_FORTIFIED_PALISADE_WALL
+}
+
+/* Places Farms in a perfect pinwheel (T90's dream placement). */
+create_object FARM {
+  number_of_objects 4
+  set_place_for_every_player
+  find_closest
+  temp_min_distance_group_placement 3
+  avoid_actor_area farm_avoider
+}
+
+/* Regicide Tower and Houses */
+create_object DLC_FORTIFIED_TOWER {
+  set_place_for_every_player
+  find_closest_to_map_center
+  max_distance_to_players 7
+  set_circular_placement
+  actor_area tower_area2
+  actor_area_radius 2
+}
+
+create_object HOUSE {
+  number_of_objects 2
+  set_place_for_every_player
+  find_closest_to_map_center
+  actor_area_to_place_in tower_area2
+  actor_area tower_area4
+  actor_area_radius 4
+}
+
+/* Player Resources */
+create_object GOLD {
+  number_of_objects 5
+  number_of_groups 2
+  temp_min_distance_group_placement 7
+  set_place_for_every_player
+  set_gaia_object_only
+  avoid_actor_area gold_spacer
+  find_closest
+  set_circular_placement
+  min_distance_to_players 9
+  enable_tile_shuffling
+  set_tight_grouping
+  group_placement_radius 1
+  avoid_actor_area tower_area4
+  avoid_actor_area gold_avoider
+  actor_area main_gold1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in main_gold1
+  actor_area main_gold4
+  actor_area_radius 3
+}
+
+/* Spacing for the secondary Golds, neither too far forwards nor backwards. */
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on DLC_BEACH2
+  actor_area secondary_gold_avoider_beach
+  actor_area_radius 15
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on JUNGLE
+  actor_area secondary_gold_avoider_forest
+  actor_area_radius 10
+}
+
+create_object GOLD {
+  number_of_objects 4
+  set_place_for_every_player
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 2
+  min_distance_to_players 16
+  set_circular_placement
+  find_closest
+  enable_tile_shuffling
+  avoid_forest_zone 3
+  avoid_actor_area main_gold4
+  avoid_actor_area secondary_gold_avoider_beach
+  avoid_actor_area secondary_gold_avoider_forest
+  actor_area player_side_gold
+  actor_area_radius 12
+}
+
+/* Player Forage */
+create_object DLC_ORANGEBUSH {
+  number_of_objects 6
+  set_place_for_every_player
+  set_gaia_object_only
+  min_distance_to_players 7
+  set_circular_placement
+  find_closest
+  enable_tile_shuffling
+  set_tight_grouping
+  group_placement_radius 1
+  avoid_actor_area gold_avoider
+  avoid_actor_area tower_area4
+  avoid_actor_area main_gold4
+  actor_area forage1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in forage1
+  actor_area forage8
+  actor_area_radius 7
+}
+
+/* Player Deer inside of the walls, away from the berries. */
+create_object DEER {
+  number_of_objects 4
+  set_place_for_every_player
+  set_gaia_object_only
+  min_distance_to_players 7
+  max_distance_to_players 9
+  set_circular_placement
+  set_tight_grouping
+  group_placement_radius 1
+  avoid_actor_area forage8
+}
+
+/* Player Herdables */
+create_object DLC_WATERBUFFALO {
+  number_of_objects 3
+  number_of_groups 2
+  temp_min_distance_group_placement 5
+  set_place_for_every_player
+  min_distance_to_players 7
+  max_distance_to_players 9
+  set_circular_placement
+  set_loose_grouping
+}
+
+/* Player Boars, outside walls. */
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on DLC_BEACH2
+  actor_area boar_avoider_beach
+  actor_area_radius 12
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on JUNGLE
+  actor_area boar_avoider_forest
+  actor_area_radius 8
+}
+
+create_object BOAR {
+  number_of_objects 2
+  set_place_for_every_player
+  set_gaia_object_only
+  temp_min_distance_group_placement 12
+  min_distance_to_players 18
+  set_circular_placement
+  enable_tile_shuffling
+  find_closest
+  avoid_forest_zone 3
+  avoid_actor_area boar_avoider_beach
+  avoid_actor_area boar_avoider_forest
+}
+
+/* Player Base Straggler Trees */
+create_object DLC_RAINTREE {
+  number_of_objects 3
+  set_place_for_every_player
+  set_gaia_object_only
+  avoid_actor_area box2
+  actor_area_to_place_in box3
+  temp_min_distance_group_placement 3
+  avoid_actor_area main_gold1
+  avoid_actor_area forage1
+}
+
+/* Middle Fish */
+create_object DLC_BOXTURTLE {
+  number_of_objects 12
+  avoid_actor_area shore_fish_avoider
+  actor_area box_turtle7
+  actor_area_radius 7
+}
+
+/* Middle Relic */
+create_object RELIC {
+  terrain_to_place_on DIRT
+}
+
+create_object PAGODA_C {
+  terrain_to_place_on DIRT
+}
+
+/* Neutral Resources */
+create_object GOLD {
+  number_of_objects 4
+  number_of_groups 8
+  set_tight_grouping
+  temp_min_distance_group_placement 25
+  terrain_to_place_on GRASS
+  avoid_forest_zone 2
+  min_distance_to_players 25
+  set_circular_placement
+  avoid_actor_area corner_pagodas
+  avoid_actor_area player_side_gold
+  max_distance_to_other_zones 7
+  actor_area neutral_gold
+  actor_area_radius 5
+}
+
+create_object DLC_ORANGEBUSH {
+  number_of_objects 2
+  number_of_groups 11
+  temp_min_distance_group_placement 25
+  terrain_to_place_on GRASS
+  set_loose_grouping
+  avoid_actor_area corner_pagodas
+  avoid_actor_area player_side_gold
+  avoid_actor_area neutral_gold
+  max_distance_to_other_zones 7
+  min_distance_to_players 30
+  set_circular_placement
+  avoid_forest_zone 2
+  actor_area middle_forage
+  actor_area_radius 5
+}
+
+/* Theming Statues */
+create_object STATUE_CIVILIZATION {
+  number_of_objects 11
+  temp_min_distance_group_placement 30
+  terrain_to_place_on GRASS
+  avoid_forest_zone 2
+  avoid_actor_area corner_pagodas
+  avoid_actor_area player_side_gold
+  avoid_actor_area neutral_gold
+  avoid_actor_area middle_forage
+  avoid_actor_area box_turtle7
+  min_distance_to_players 25
+  set_circular_placement
+}

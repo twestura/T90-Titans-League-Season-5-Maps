@@ -1,0 +1,1325 @@
+#HEADER_START
+/*
+ * Valley for TTL 5.
+ * Edited by T-West, November 2025.
+ * Based on the original map by Forgotten Empires.
+ */
+#HEADER_END
+
+/*
+ * Defeat players if the game mode is not set to random map.
+ * Includes a check for the secondary game mode checkboxes.
+ */
+if ANTIQUITY_MODE
+  #define ADMIN_RESTART
+elseif RANDOM_MAP
+  if REGICIDE
+    #define ADMIN_RESTART
+  elseif EMPIRE_WARS
+    #define ADMIN_RESTART
+  elseif SUDDEN_DEATH
+    #define ADMIN_RESTART
+  endif
+else
+  #define ADMIN_RESTART
+endif
+if TINY_MAP
+else
+  #define ADMIN_RESTART
+endif
+if DEFAULT_RESOURCES
+else
+  #define ADMIN_RESTART
+endif
+if DARK_AGE_START
+else
+  #define ADMIN_RESTART
+endif
+if TURBO_MODE
+  #define ADMIN_RESTART
+endif
+if ADMIN_RESTART
+  <PLAYER_SETUP>
+  guard_state SABOTEUR AMOUNT_GOLD 0 1
+endif
+
+/* Placeholders */
+#const PHON 1543
+#const PHONL 1544
+#const PHONN 1546
+#const PHONW 1547
+#const PHOFF 1902
+#const TERRAIN_BLOCKER 1613
+
+/* Terrains */
+#const MUD 76
+#const UNDERBRUSH_LEAVES 71
+#const UNDERBRUSH_SNOW 72
+#const UNDERBRUSH_JUNGLE 77
+#const RAINFOREST_GRASS 83
+#const WATER_GREEN 95
+
+/* Objects */
+#const PANDA_ROCK 2082
+
+/* Land Position Constants */
+#const T1 rnd(0,359)
+#const OFFSET rnd(135,224)
+#const T2 (T1 + OFFSET)
+#const R 30
+#FOR($i, 1, 3)
+  #TRIG(T$i)
+  #const X$i (R * COS_T$i + 50)
+  #const Y$i (R * SIN_T$i + 50)
+#END_FOR
+
+/* Terrain Placeholders */
+#const T_PLAYER1 GRASS
+#const T_PLAYER2 GRASS2
+
+/* Theme Selection */
+start_random
+  percent_chance 30 #define ALPINE_MAP
+  percent_chance 30 #define ASIAN_MAP
+  percent_chance 20 #define FROZEN_MAP
+  percent_chance 20 #define SWAMP_MAP
+end_random
+
+if ALPINE_MAP
+  #const SHORE BEACH
+  #const VALLEY_EDGE DIRT3
+  #const FOREST_PRIMARY PINE_FOREST
+  #const FOREST_SECONDARY FOREST
+  #const FOREST_TERTIARY SNOW_FOREST
+  #const TERRAIN_PRIMARY GRASS
+  #const TERRAIN_MASK_1 GRASS2
+  #const TERRAIN_MASK_2 DLC_DRYGRASS
+  #const TERRAIN_MASK_3 SNOW_SOFT
+  #const POND_WATER MED_WATER
+  #const HUNT DLC_IBEX
+  #const BIRD1 DLC_VULTURE
+  #const BIRD2 1056 /* Falcon */
+  #const HERDABLE SHEEP
+  #const STRAGGLER_PLAYER PINETREE
+elseif ASIAN_MAP
+  #const SHORE DLC_BEACH2
+  #const VALLEY_EDGE DIRT3
+  #const FOREST_PRIMARY JUNGLE
+  #const FOREST_SECONDARY BIRCH_FOREST 
+  #const FOREST_TERTIARY MEDITERRANEAN_FOREST
+  #const TERRAIN_PRIMARY GRASS2
+  #const TERRAIN_MASK_1 GRASS_FLOWERS_1
+  #const TERRAIN_MASK_2 GRASS_FLOWERS_2
+  #const TERRAIN_MASK_3 UNDERBRUSH_LEAVES
+  #const POND_WATER DLC_WATER5
+  #const HUNT DEER
+  #const BIRD1 2026 /* Red Crown Crane */
+  #const BIRD2 HAWK
+  #const HERDABLE SHEEP
+  #const STRAGGLER_PLAYER PEACH_BLOSSOM_TREE
+elseif FROZEN_MAP
+  #const SHORE ICYSHORE
+  #const VALLEY_EDGE MUD
+  #const FOREST_PRIMARY SNOW_FOREST
+  #const FOREST_SECONDARY DLC_FORESTSNOWAUTUMN
+  #const FOREST_TERTIARY DLC_FORESTDEAD
+  #const TERRAIN_PRIMARY SNOW
+  #const TERRAIN_MASK_1 GRASS2
+  #const TERRAIN_MASK_2 UNDERBRUSH_SNOW
+  #const TERRAIN_MASK_3 LEAVES
+  #const POND_WATER DEEP_WATER
+  #const HUNT DEER
+  #const BIRD1 HAWK
+  #const BIRD2 1056 /* Falcon */
+  #const HERDABLE DLC_GOAT
+  #const STRAGGLER_PLAYER SNOWPINETREE
+elseif SWAMP_MAP
+  #const SHORE DLC_BEACH3
+  #const VALLEY_EDGE MUD
+  #const FOREST_PRIMARY BAMBOO
+  #const FOREST_SECONDARY DLC_RAINFOREST
+  #const FOREST_TERTIARY JUNGLE
+  #const TERRAIN_PRIMARY RAINFOREST_GRASS
+  #const TERRAIN_MASK_1 DLC_MOORLAND
+  #const TERRAIN_MASK_2 UNDERBRUSH_JUNGLE
+  #const TERRAIN_MASK_3 MUDDY_SHALLOW
+  #const POND_WATER WATER_GREEN
+  #const HUNT DEER
+  #const BIRD1 DLC_STORK
+  #const BIRD2 2490 /* Owl */
+  #const HERDABLE DLC_PIG
+  #const STRAGGLER_PLAYER BAMBOO_TREE
+endif
+
+/* Randomizes the number of ponds that receive two Shore Fish. */
+#const NUM_SECOND_FISH rnd(4,8)
+
+/* Allows animals to be placed on the beach/ice of the valley.. */
+effect_amount SET_ATTRIBUTE HUNT ATTR_TERRAIN_ID 7
+
+/* Prohibits Docks from being constructed, allows them only on Black terrain. */
+effect_amount SET_ATTRIBUTE DOCK ATTR_TERRAIN_ID 47
+
+<PLAYER_SETUP>
+direct_placement
+behavior_version 2
+ai_info_map_type VALLEY 0 0 0
+
+/* Sets Bird Line of Sight to 0. */
+effect_amount SET_ATTRIBUTE BIRD1 ATTR_LINE_OF_SIGHT 0
+effect_amount SET_ATTRIBUTE BIRD2 ATTR_LINE_OF_SIGHT 0
+
+/* Tree swapping. */
+if ASIAN_MAP
+  effect_amount GAIA_UPGRADE_UNIT JUNGLETREE ASIAN_MAPLE_GREEN_TREE 0
+  effect_amount GAIA_UPGRADE_UNIT CYPRESS_TREE PEACH_BLOSSOM_TREE 0
+  effect_amount GAIA_UPGRADE_UNIT ITALIAN_PINETREE PEACH_BLOSSOM_TREE 0
+  effect_amount GAIA_UPGRADE_UNIT OLIVE_TREE PEACH_BLOSSOM_TREE 0
+elseif SWAMP_MAP
+  effect_amount GAIA_UPGRADE_UNIT JUNGLETREE DLC_DEADTREE 0
+endif
+
+/* TTL5: Siege Tower Changes */
+if BLACK_WALKABLE
+else
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_GARRISON_CAPACITY -5
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_HITPOINTS -45
+endif
+
+<LAND_GENERATION>
+base_terrain VALLEY_EDGE
+enable_waves 0
+
+#FOR($i, 1, 3)
+  create_land {
+    land_position X$i Y$i
+    terrain_type T_PLAYER$i
+    base_size 15
+    base_elevation 3
+    other_zone_avoidance_distance 21
+    set_circular_base
+    assign_to AT_TEAM -10 0 0
+    zone $i
+  }
+#END_FOR
+
+<ELEVATION_GENERATION>
+#FOR($i, 1, 3)
+  create_elevation 5 {
+    base_terrain T_PLAYER$i
+    enable_balanced_elevation
+    number_of_tiles 500
+    number_of_clumps 10
+  }
+#END_FOR
+
+#REPEAT(128)
+  create_elevation 7 {
+    base_terrain DLC_BLACK
+    enable_balanced_elevation
+    number_of_tiles 14400
+    number_of_clumps 14400
+  }
+#END_REPEAT
+
+<TERRAIN_GENERATION>
+/* Places Shore Terrain in the middle of the Valley. */
+create_terrain SHORE {
+  base_terrain VALLEY_EDGE
+  spacing_to_other_terrain_types 4
+  set_flat_terrain_only
+  height_limits 0 0
+  land_percent 100
+  number_of_clumps 8192
+}
+
+/* Removes singleton tiles of middle terrain from the outside of the map. */
+#REPEAT(8)
+  create_terrain T_PLAYER1 {
+    spacing_to_specific_terrain T_PLAYER2 5
+    base_terrain VALLEY_EDGE
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_specific_terrain SHORE 8
+  }
+  create_terrain T_PLAYER2 {
+    spacing_to_specific_terrain T_PLAYER1 5
+    base_terrain VALLEY_EDGE
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_specific_terrain SHORE 8
+  }
+#END_REPEAT
+
+/* Keep the ponds spaced apart. */
+#REPEAT(10)
+  create_terrain MED_WATER {
+    base_terrain SHORE
+    number_of_tiles 8
+    spacing_to_specific_terrain WATER 10
+    spacing_to_specific_terrain VALLEY_EDGE 1
+  }
+
+  #REPEAT(8)
+    create_terrain WATER {
+      base_terrain MED_WATER
+      land_percent 100
+      number_of_clumps 8192
+    }
+  #END_REPEAT
+#END_REPEAT
+
+/* Forests */
+#FOR($i, 1, 3)
+  /* Near-Player Woodlines */
+  #REPEAT(8)
+    create_terrain ROAD {
+      base_terrain T_PLAYER$i
+      land_percent 100
+      number_of_clumps 8192
+      set_avoid_player_start_areas 28
+    }
+  #END_REPEAT
+
+  create_terrain FOREST {
+    base_terrain T_PLAYER$i
+    number_of_tiles 150
+    number_of_clumps 2
+    clumping_factor 25
+    spacing_to_specific_terrain VALLEY_EDGE 5
+    spacing_to_specific_terrain ROAD 1
+    set_avoid_player_start_areas 15
+  }
+
+  /* Remaining Woodlines */
+  /* Primary and Secondary */
+  #REPEAT(8)
+    create_terrain T_PLAYER$i {
+      base_terrain ROAD
+      land_percent 100
+      number_of_clumps 8192
+    }
+  #END_REPEAT
+
+  create_terrain PINE_FOREST {
+    base_terrain T_PLAYER$i
+    spacing_to_other_terrain_types 5
+    set_avoid_player_start_areas 25
+    number_of_tiles 400
+    number_of_clumps 6
+    clumping_factor 25
+  }
+  
+  /* Tertiary */
+  create_terrain PALM_DESERT {
+    base_terrain T_PLAYER$i
+    spacing_to_specific_terrain VALLEY_EDGE 3
+    spacing_to_specific_terrain FOREST 8
+    spacing_to_specific_terrain PINE_FOREST 8
+    set_avoid_player_start_areas 22
+    number_of_tiles 64
+    number_of_clumps 4
+    clumping_factor 25
+  }
+#END_FOR
+
+/* Themed Terrain Replacements */
+#REPEAT(8)
+  create_terrain FOREST_PRIMARY {
+    base_terrain FOREST
+    land_percent 100
+    number_of_clumps 8192
+  }
+  create_terrain FOREST_PRIMARY {
+    base_terrain PINE_FOREST
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain FOREST_SECONDARY {
+    base_terrain FOREST_PRIMARY
+    land_percent 100
+  }
+#END_REPEAT
+
+/* Replace Tertiary Forests after the other forests. */
+#REPEAT(8)
+  create_terrain FOREST_TERTIARY {
+    base_terrain PALM_DESERT
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+/* Forest Masking */
+if ALPINE_MAP
+  create_terrain FOREST_PRIMARY {
+    base_terrain FOREST_TERTIARY
+    number_of_tiles 64
+    number_of_clumps 64
+  }
+  create_terrain FOREST_TERTIARY {
+    base_terrain FOREST_PRIMARY
+    number_of_tiles 128
+    number_of_clumps 128
+  }
+elseif FROZEN_MAP
+  create_terrain FOREST_TERTIARY {
+    base_terrain FOREST_PRIMARY
+    number_of_tiles 128
+    number_of_clumps 128
+  }
+  create_terrain FOREST_TERTIARY {
+    base_terrain FOREST_SECONDARY
+    number_of_tiles 128
+    number_of_clumps 128
+  }
+elseif SWAMP_MAP
+  create_terrain LUSH_BAMBOO_FOREST {
+    base_terrain BAMBOO
+    spacing_to_other_terrain_types 1
+    number_of_tiles 180
+    number_of_clumps 180
+  }
+  #REPEAT(8)
+    create_terrain UNDERBRUSH_JUNGLE {
+      base_terrain FOREST_TERTIARY
+      land_percent 100
+      number_of_clumps 8192
+      terrain_mask 1
+    }
+  #END_REPEAT
+endif
+
+/* Base Terrain Replacement */
+#FOR($i, 1, 3)
+  #REPEAT(8)
+    create_terrain TERRAIN_PRIMARY {
+      base_terrain T_PLAYER$i
+      land_percent 100
+      number_of_clumps 8192
+    }
+  #END_REPEAT
+#END_FOR
+
+/* Middle Masking */
+create_terrain TERRAIN_PRIMARY {
+  base_terrain VALLEY_EDGE
+  land_percent 2
+  number_of_clumps 16
+  terrain_mask 2
+  height_limits 0 2
+  spacing_to_specific_terrain SHORE 4
+}
+
+#REPEAT(8)
+  create_terrain TERRAIN_PRIMARY {
+    base_terrain VALLEY_EDGE
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_specific_terrain SHORE 4
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain TERRAIN_PRIMARY {
+    base_terrain VALLEY_EDGE
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_specific_terrain SHORE 3
+    terrain_mask 2
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain TERRAIN_PRIMARY {
+    base_terrain VALLEY_EDGE
+    land_percent 100
+    number_of_clumps 8192
+    if FROZEN_MAP
+    else
+      spacing_to_specific_terrain SHORE 2
+    endif
+    terrain_mask 1
+  }
+#END_REPEAT
+
+/* Terrain Masking */
+create_terrain TERRAIN_MASK_1 {
+  base_terrain TERRAIN_PRIMARY
+  spacing_to_specific_terrain SHORE 6
+  land_percent 10
+  number_of_clumps 12
+  if ASIAN_MAP
+  else
+    terrain_mask 1
+  endif
+}
+create_terrain TERRAIN_MASK_2 {
+  base_terrain TERRAIN_PRIMARY
+  spacing_to_specific_terrain SHORE 6
+  land_percent 8
+  number_of_clumps 12
+  if ASIAN_MAP
+  else
+    terrain_mask 1
+  endif
+}
+create_terrain TERRAIN_MASK_3 {
+  base_terrain TERRAIN_PRIMARY
+  spacing_to_specific_terrain SHORE 6
+  land_percent 6
+  number_of_clumps 16
+  terrain_mask 1
+}
+
+/* Water Terrain and Masking */
+#REPEAT(8)
+  create_terrain POND_WATER {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+<OBJECTS_GENERATION>
+/* Object Groups */
+if ALPINE_MAP
+  create_object_group HARES {
+    add_object HARE_B 50
+    add_object ARCTIC_HARE 50
+  }
+  create_object_group CHICKENS {
+    add_object WILD_CHICKEN_A 34
+    add_object WILD_CHICKEN_B 33
+    add_object WILD_CHICKEN_C 33
+  }
+  create_object_group PREDATORS {
+    add_object WOLF 50
+    add_object DLC_BEAR 50
+  }
+  create_object_group STRAGGLER_MAP {
+    add_object PINETREE 50
+    add_object OAKTREE 50
+  }
+elseif ASIAN_MAP
+  create_object_group HARES {
+    add_object HARE_A 50
+    add_object HARE_B 50
+  }
+  create_object_group CHICKENS {
+    add_object WILD_CHICKEN_A 50
+    add_object WILD_CHICKEN_C 50
+  }
+  create_object_group PREDATORS {
+    add_object DLC_TIGER 50
+    add_object BLACK_BEAR 50
+  }
+  create_object_group STRAGGLER_MAP {
+    add_object PEACH_BLOSSOM_TREE 50
+    add_object ASIAN_MAPLE_GREEN_TREE 50
+  }
+elseif FROZEN_MAP
+  create_object_group HARES {
+    add_object ARCTIC_HARE 34
+    add_object HARE_A 25
+    add_object HARE_B 25
+  }
+  create_object_group CHICKENS {
+    add_object WILD_CHICKEN_A 34
+    add_object WILD_CHICKEN_B 33
+    add_object WILD_CHICKEN_C 33
+  }
+  create_object_group PREDATORS {
+    add_object ARCTIC_WOLF 34
+    add_object POLAR_BEAR 33
+    add_object DLC_SNOWLEOPARD 33
+  }
+  create_object_group STRAGGLER_MAP {
+    add_object SNOWPINETREE 34
+    add_object DLC_AUTUMNSNOWTREE 33
+    add_object DLC_DEADTREE 33
+  }
+elseif SWAMP_MAP
+  create_object_group HARES {
+    add_object HARE_A 50
+    add_object HARE_B 50
+  }
+  create_object_group CHICKENS {
+    add_object WILD_CHICKEN_A 50
+    add_object WILD_CHICKEN_C 50
+  }
+  create_object_group PREDATORS {
+    add_object DLC_CROCODILE 50
+    add_object DLC_KOMODO 50
+  }
+  create_object_group STRAGGLER_MAP {
+    add_object WILLOW_TREE 50
+    add_object BAMBOO_TREE 50
+  }
+endif
+
+/* Placeholders */
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on POND_WATER
+  actor_area water2
+  actor_area_radius 2
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on SHORE
+  actor_area beach1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on SHORE
+  actor_area beach9
+  actor_area_radius 9
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on SHORE
+  actor_area beach12
+  actor_area_radius 12
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on SHORE
+  actor_area beach15
+  actor_area_radius 15
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on VALLEY_EDGE
+  avoid_actor_area beach1
+  actor_area beach_avoider
+  actor_area_radius 0
+}
+
+/* Birds */
+create_object BIRD1 {
+  number_of_objects 4
+}
+
+create_object BIRD2 {
+  number_of_objects 4
+}
+
+/* Player TC and Areas */
+create_object TOWN_CENTER {
+  set_place_for_every_player
+  max_distance_to_players 0
+}
+
+#TCCENTER
+#TCBOXES
+
+/* Middle Objects */
+create_object SHORE_FISH {
+  number_of_objects 10
+  temp_min_distance_group_placement 7
+  actor_area shore_fish_1
+  actor_area_radius 1
+}
+
+create_object SHORE_FISH {
+  number_of_objects NUM_SECOND_FISH
+  temp_min_distance_group_placement 7
+  avoid_actor_area shore_fish_1
+}
+
+/* Singleton pushable Deer in the middle. */
+create_object HUNT {
+  number_of_objects 8
+  temp_min_distance_group_placement 18
+  terrain_to_place_on SHORE
+  avoid_actor_area water2
+  min_distance_group_placement 1
+  min_distance_to_map_edge 3
+  actor_area hunt4
+  actor_area_radius 2
+}
+
+/* Hares along the edges of the middle. */
+create_object PHONL {
+  number_of_objects 8
+  set_place_for_every_player
+  set_gaia_object_only
+  temp_min_distance_group_placement 12
+  min_distance_to_map_edge 2
+  terrain_to_place_on VALLEY_EDGE
+  avoid_actor_area beach_avoider
+  actor_area hare_area
+  actor_area_radius 2
+  avoid_actor_area hunt4
+}
+
+#REPEAT(8)
+  create_object HARES {
+    number_of_objects 14400
+    set_place_for_every_player
+    set_gaia_object_only
+    temp_min_distance_group_placement 5
+    actor_area_to_place_in hare_area
+    actor_area hare2
+    actor_area_radius 2
+    avoid_actor_area hunt4
+  }
+#END_REPEAT
+
+/* Chickens in between the Hares. */
+create_object PHONN {
+  number_of_objects 14400
+  max_distance_to_other_zones 2
+  temp_min_distance_group_placement 12
+  min_distance_to_map_edge 2
+  terrain_to_place_on SHORE
+  avoid_actor_area hare2
+  avoid_actor_area water2
+  actor_area chicken_area
+  actor_area_radius 2
+  avoid_actor_area hunt4
+}
+
+#REPEAT(6)
+  create_object PHON {
+    second_object CHICKENS
+    terrain_to_place_on SHORE
+    number_of_objects 14400
+    temp_min_distance_group_placement 5
+    actor_area_to_place_in chicken_area
+    avoid_actor_area hare3
+    avoid_actor_area chicken0
+    actor_area chicken0
+    actor_area_radius 0
+    avoid_actor_area hunt4
+  }
+#END_REPEAT
+
+/* Player Objects */
+/* Forage */
+create_object FORAGE {
+  number_of_objects 6
+  set_place_for_every_player
+  set_gaia_object_only
+  set_tight_grouping
+  avoid_forest_zone 5
+  set_circular_placement
+  min_distance_to_players 14
+  max_distance_to_players 15
+  avoid_actor_area beach15
+  actor_area forage1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in forage1
+  actor_area forage3
+  actor_area_radius 2
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in forage1
+  actor_area forage7
+  actor_area_radius 6
+}
+
+/* Main Gold */
+create_object GOLD {
+  number_of_objects 7
+  set_place_for_every_player
+  set_gaia_object_only
+  set_tight_grouping
+  avoid_forest_zone 5
+  set_circular_placement
+  min_distance_to_players 16
+  max_distance_to_players 18
+  avoid_actor_area beach15
+  avoid_actor_area forage7
+  actor_area main_gold1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in main_gold1
+  actor_area main_gold3
+  actor_area_radius 2
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in main_gold1
+  actor_area main_gold8
+  actor_area_radius 7
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in main_gold1
+  actor_area main_gold10
+  actor_area_radius 9
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in main_gold1
+  actor_area main_gold14
+  actor_area_radius 13
+}
+
+/* Main Stone */
+create_object STONE {
+  number_of_objects 5
+  set_place_for_every_player
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 2
+  avoid_forest_zone 4
+  set_circular_placement
+  min_distance_to_players 17
+  max_distance_to_players 23
+  avoid_actor_area beach12
+  avoid_actor_area forage7
+  avoid_actor_area main_gold10
+  actor_area main_stone1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in main_stone1
+  actor_area main_stone3
+  actor_area_radius 2
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in main_stone1
+  actor_area main_stone10
+  actor_area_radius 9
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in main_stone1
+  actor_area main_stone14
+  actor_area_radius 13
+}
+
+/* Second Gold */
+create_object GOLD {
+  number_of_objects 4
+  set_place_for_every_player
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 2
+  avoid_forest_zone 4
+  min_distance_to_map_edge 3
+  set_circular_placement
+  min_distance_to_players 20
+  max_distance_to_players 24
+  avoid_actor_area beach12
+  avoid_actor_area forage7
+  avoid_actor_area main_gold14
+  avoid_actor_area main_stone10
+  actor_area second_gold1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in second_gold1
+  actor_area second_gold3
+  actor_area_radius 2
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in second_gold1
+  actor_area second_gold8
+  actor_area_radius 7
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in second_gold1
+  actor_area second_gold11
+  actor_area_radius 10
+}
+
+/* Second Stone */
+create_object STONE {
+  number_of_objects 4
+  set_place_for_every_player
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 2
+  avoid_forest_zone 3
+  min_distance_to_map_edge 3
+  set_circular_placement
+  min_distance_to_players 22
+  max_distance_to_players 28
+  avoid_actor_area beach15
+  avoid_actor_area forage7
+  avoid_actor_area main_gold10
+  avoid_actor_area main_stone14
+  avoid_actor_area second_gold8
+  actor_area second_stone1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in second_stone1
+  actor_area second_stone8
+  actor_area_radius 7
+}
+
+/* Third Gold */
+create_object GOLD {
+  number_of_objects 4
+  set_place_for_every_player
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 2
+  avoid_forest_zone 3
+  set_circular_placement
+  min_distance_to_players 25
+  max_distance_to_players 30
+  min_distance_to_map_edge 3
+  avoid_actor_area beach9
+  avoid_actor_area forage7
+  avoid_actor_area main_gold10
+  avoid_actor_area main_stone10
+  avoid_actor_area second_gold11
+  avoid_actor_area second_stone8
+  actor_area third_gold1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in third_gold1
+  actor_area third_gold3
+  actor_area_radius 3
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in third_gold1
+  actor_area third_gold10
+  actor_area_radius 9
+}
+
+/* Player Far Golds */
+create_object GOLD {
+  number_of_objects 3
+  number_of_groups 2
+  set_place_for_every_player
+  temp_min_distance_group_placement 20
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 1
+  avoid_forest_zone 2
+  min_distance_to_map_edge 2
+  avoid_actor_area beach9
+  set_circular_placement
+  min_distance_to_players 35
+  avoid_actor_area second_gold11
+  avoid_actor_area second_stone8
+  avoid_actor_area third_gold10
+  actor_area far_gold1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in far_gold1
+  actor_area far_gold6
+  actor_area_radius 5
+}
+
+/* Player Far Stones */
+create_object STONE {
+  number_of_objects 3
+  number_of_groups 2
+  set_place_for_every_player
+  temp_min_distance_group_placement 20
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 1
+  avoid_forest_zone 2
+  min_distance_to_map_edge 2
+  avoid_actor_area beach9
+  set_circular_placement
+  min_distance_to_players 35
+  avoid_actor_area second_gold11
+  avoid_actor_area second_stone8
+  avoid_actor_area third_gold10
+  avoid_actor_area far_gold6
+  actor_area far_stone1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 256
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in far_stone1
+  actor_area far_stone6
+  actor_area_radius 5
+}
+
+/* Player Resource Testing */
+/* create_object SABOTEUR {
+  number_of_objects 9999
+  set_place_for_every_player
+  actor_area_to_place_in forage1
+} */
+/* create_object SABOTEUR {
+  number_of_objects 9999
+  set_place_for_every_player
+  actor_area_to_place_in main_gold1
+} */
+/* create_object SABOTEUR {
+  number_of_objects 9999
+  set_place_for_every_player
+  actor_area_to_place_in main_stone1
+} */
+/* create_object SABOTEUR {
+  number_of_objects 9999
+  set_place_for_every_player
+  actor_area_to_place_in second_gold1
+} */
+/* create_object SABOTEUR {
+  number_of_objects 9999
+  set_place_for_every_player
+  actor_area_to_place_in second_stone1
+} */
+/* create_object SABOTEUR {
+  number_of_objects 9999
+  set_place_for_every_player
+  actor_area_to_place_in third_gold1
+} */
+
+/* Player Straggler Trees */
+create_object STRAGGLER_PLAYER {
+	avoid_actor_area box2
+	actor_area_to_place_in box3
+	number_of_objects 2
+	set_place_for_every_player
+	set_gaia_object_only
+	min_distance_group_placement 1
+	temp_min_distance_group_placement 5
+	actor_area player_reed
+	actor_area_radius 2
+}
+
+create_object STRAGGLER_PLAYER {
+	avoid_actor_area box4
+	actor_area_to_place_in box5
+	number_of_objects 3
+	set_place_for_every_player
+	set_gaia_object_only
+	min_distance_group_placement 1
+	temp_min_distance_group_placement 5
+	avoid_actor_area player_reed
+}
+
+/* Boar 2 */
+create_object BOAR {
+  number_of_objects 2
+  require_path 1
+  set_place_for_every_player
+  set_gaia_object_only
+  avoid_forest_zone 1
+  min_distance_to_map_edge 1
+  temp_min_distance_group_placement 8
+  set_circular_placement
+  min_distance_to_players 16
+  max_distance_to_players 22
+  actor_area player_boar
+  actor_area_radius 6
+}
+
+/* Far Sheep, each group kept 1 tile apart. */
+create_object PHON {
+  number_of_objects 2
+  require_path 1
+  set_place_for_every_player
+  set_gaia_object_only
+  avoid_forest_zone 3
+  min_distance_to_map_edge 3
+  set_circular_placement
+  min_distance_to_players 16
+  max_distance_to_players 24
+  temp_min_distance_group_placement 12
+  actor_area far_sheep
+  actor_area_radius 2
+  avoid_actor_area player_boar
+  avoid_actor_area beach15
+  avoid_actor_area forage3
+  avoid_actor_area main_gold3
+  avoid_actor_area main_stone3
+  avoid_actor_area second_gold3
+  avoid_actor_area second_stone3
+  avoid_actor_area third_gold3
+}
+
+#REPEAT(2)
+  create_object HERDABLE {
+    number_of_objects 2
+    set_place_for_every_player
+    set_gaia_object_only
+    min_distance_group_placement 1
+    temp_min_distance_group_placement 9
+    actor_area_to_place_in far_sheep
+    avoid_actor_area forage1
+    avoid_actor_area main_gold1
+    avoid_actor_area main_stone1
+    avoid_actor_area second_gold1
+    avoid_actor_area second_stone1
+    avoid_actor_area third_gold1
+  }
+#END_REPEAT
+
+/* Villagers */
+create_object VILLAGER {
+  set_place_for_every_player
+  temp_min_distance_group_placement 3
+  avoid_actor_area box4
+  actor_area_to_place_in box5
+  actor_area vil2
+  actor_area_radius 2
+}
+
+/* Starting Sheep */
+create_object HERDABLE {
+  number_of_objects 4
+  set_place_for_every_player
+  set_loose_grouping
+  set_circular_placement
+  min_distance_to_players 7
+  max_distance_to_players 9
+  actor_area starting_sheep
+  actor_area_radius 4
+}
+
+/* Scout */
+create_object SCOUT {
+  set_place_for_every_player
+  avoid_forest_zone 1
+  avoid_actor_area vil2
+  avoid_actor_area starting_sheep
+  set_circular_placement
+  min_distance_to_players 7
+  max_distance_to_players 9
+}
+
+/* Relics */
+create_object RELIC {
+  number_of_objects 5
+  terrain_to_place_on SHORE
+  temp_min_distance_group_placement 15
+  min_distance_group_placement 1
+  max_distance_to_other_zones 1
+  min_distance_to_map_edge 1
+  avoid_actor_area hunt4
+}
+
+/* Predators */
+create_object PREDATORS {
+  number_of_objects 4
+  temp_min_distance_group_placement 30
+  set_circular_placement
+  min_distance_to_players 40
+  min_distance_group_placement 1
+  avoid_forest_zone 1
+  avoid_actor_area forage1
+  avoid_actor_area main_gold1
+  avoid_actor_area main_stone1
+  avoid_actor_area second_gold1
+  avoid_actor_area second_stone1
+  avoid_actor_area third_gold1
+}
+
+/* Map Stragglers */
+create_object STRAGGLER_MAP {
+  number_of_objects 18
+  temp_min_distance_group_placement 8
+  set_circular_base
+  min_distance_to_players 22
+  min_distance_group_placement 2
+  max_distance_to_other_zones 2
+  avoid_forest_zone 2
+  avoid_actor_area forage1
+  avoid_actor_area main_gold1
+  avoid_actor_area main_stone1
+  avoid_actor_area second_gold1
+  avoid_actor_area second_stone1
+  avoid_actor_area third_gold1
+  avoid_actor_area far_gold1
+  avoid_actor_area far_stone1
+}
+
+/* Scenery */
+if SWAMP_MAP
+  create_object PANDA_ROCK {
+    avoid_actor_area beach15
+    set_circular_placement
+    min_distance_to_players 50
+    min_distance_to_map_edge 4
+    avoid_forest_zone 4
+    avoid_actor_area second_gold11
+    avoid_actor_area second_stone8
+    avoid_actor_area third_gold10
+    avoid_actor_area far_gold6
+    avoid_actor_area far_stone6
+  }
+endif
+
+/* Middle Plants */
+#const PLANT_JUNGLE 1351
+#const PLANT_UNDERBRUSH_TROPICAL 1352
+#const PLANT_UNDERBRUSH 1353
+#const PLANT_RAINFOREST 1354
+#const PLANT_UNDERBRUSH_RAINFOREST 1355
+#const GRASS_GREEN 1358
+#const GRASS_DRY 1359
+#const PLANT_BUSH_GREEN 1360
+#const PLANT_BUSH_DRY 1361
+#const PLANT_SHRUB_GREEN 1362
+#const PLANT_SHRUB_DRY 1363
+#const PLANT_WEEDS 1364
+#const PLANT_DEAD 1365
+#const PLANT_FLOWERS 1366
+
+if ALPINE_MAP
+  create_object GRASS_GREEN {
+    number_of_objects 3
+    group_variance 2
+    number_of_groups 16
+    temp_min_distance_group_placement 5
+    set_loose_grouping
+    terrain_to_place_on SHORE
+    temp_min_distance_group_placement 3
+    avoid_actor_area water2
+    actor_area plant2
+    actor_area_radius 2
+    avoid_actor_area plant2
+    avoid_actor_area chicken0
+    min_distance_to_map_edge 3
+  }
+  create_object PLANT_DEAD {
+    number_of_objects 24
+    terrain_to_place_on SHORE
+    temp_min_distance_group_placement 4
+    avoid_actor_area water2
+    avoid_actor_area plant2
+    avoid_actor_area chicken0
+    min_distance_to_map_edge 1
+  }
+elseif ASIAN_MAP
+  create_object PLANT_RAINFOREST {
+    number_of_objects 3
+    group_variance 2
+    number_of_groups 16
+    temp_min_distance_group_placement 5
+    set_loose_grouping
+    terrain_to_place_on SHORE
+    temp_min_distance_group_placement 3
+    avoid_actor_area water2
+    actor_area plant2
+    actor_area_radius 2
+    avoid_actor_area plant2
+    avoid_actor_area chicken0
+    min_distance_to_map_edge 3
+  }
+  create_object PLANT_UNDERBRUSH_TROPICAL {
+    number_of_objects 16
+    terrain_to_place_on SHORE
+    temp_min_distance_group_placement 6
+    avoid_actor_area water2
+    avoid_actor_area plant2
+    avoid_actor_area chicken0
+    min_distance_to_map_edge 1
+  }
+elseif FROZEN_MAP
+  create_object PLANT_DEAD {
+    number_of_objects 32
+    terrain_to_place_on VALLEY_EDGE
+    temp_min_distance_group_placement 3
+    avoid_actor_area water2
+    avoid_actor_area chicken0
+    min_distance_to_map_edge 1
+  }
+elseif SWAMP_MAP
+  create_object PLANT_JUNGLE {
+    number_of_objects 3
+    group_variance 2
+    number_of_groups 16
+    temp_min_distance_group_placement 5
+    set_loose_grouping
+    terrain_to_place_on SHORE
+    temp_min_distance_group_placement 3
+    avoid_actor_area water2
+    actor_area plant2
+    actor_area_radius 2
+    avoid_actor_area plant2
+    avoid_actor_area chicken0
+    min_distance_to_map_edge 3
+  }
+  create_object PLANT_FLOWERS {
+    number_of_objects 24
+    terrain_to_place_on SHORE
+    temp_min_distance_group_placement 4
+    avoid_actor_area water2
+    avoid_actor_area plant2
+    avoid_actor_area chicken0
+    min_distance_to_map_edge 1
+  }
+endif

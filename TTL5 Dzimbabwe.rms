@@ -1,0 +1,804 @@
+#HEADER_START
+/*
+ * Dzimbabwe for TTL 5.
+ * Based on the map by Marintho, as used in Stronghold Frenzy II.
+ * Edited by T-West, November 2025.
+ */
+#HEADER_END
+
+/*
+ * Defeat players if the game mode is not set to random map.
+ * Includes a check for the secondary game mode checkboxes.
+ */
+if ANTIQUITY_MODE
+  #define ADMIN_RESTART
+elseif RANDOM_MAP
+  if REGICIDE
+    #define ADMIN_RESTART
+  elseif EMPIRE_WARS
+    #define ADMIN_RESTART
+  elseif SUDDEN_DEATH
+    #define ADMIN_RESTART
+  endif
+else
+  #define ADMIN_RESTART
+endif
+if TINY_MAP
+else
+  #define ADMIN_RESTART
+endif
+if DEFAULT_RESOURCES
+else
+  #define ADMIN_RESTART
+endif
+if DARK_AGE_START
+else
+  #define ADMIN_RESTART
+endif
+if TURBO_MODE
+  #define ADMIN_RESTART
+endif
+if ADMIN_RESTART
+  <PLAYER_SETUP>
+  guard_state SABOTEUR AMOUNT_GOLD 0 1
+endif
+
+#const GREENWATER 95
+#const PHON 1543
+#const PHOFF 1902
+#const TERRAIN_BLOCKER 1613
+
+/* Rotate switches the gold/stone hill from the right to the top of the map. */
+start_random
+  percent_chance 50 #define ROTATE
+end_random
+
+<PLAYER_SETUP>
+direct_placement
+behavior_version 2
+ai_info_map_type ARENA 0 0 0
+
+/* Outlines behind the African rocks. */
+effect_amount SET_ATTRIBUTE DLC_BOULDER_A ATTR_OCCLUSION_MODE 2
+effect_amount SET_ATTRIBUTE DLC_BOULDER_B ATTR_OCCLUSION_MODE 2
+effect_amount SET_ATTRIBUTE DLC_BOULDER_C ATTR_OCCLUSION_MODE 2
+
+/* Bird Line of Sight set to 0. */
+effect_amount SET_ATTRIBUTE DLC_STORK ATTR_LINE_OF_SIGHT 0
+effect_amount SET_ATTRIBUTE DLC_VULTURE ATTR_LINE_OF_SIGHT 0
+
+/* TTL5: Siege Tower Changes */
+if BLACK_WALKABLE
+else
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_GARRISON_CAPACITY -5
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_HITPOINTS -45
+endif
+
+<LAND_GENERATION>
+base_terrain DLC_SAVANNAH
+
+/* Player Lands */
+create_land {
+  terrain_type GRASS
+  base_size 16
+  number_of_tiles 0
+  base_elevation 2
+  assign_to AT_TEAM -10 0 0
+  if ROTATE
+    land_position 30 50
+  else
+    land_position 50 30
+  endif
+}
+
+create_land {
+  terrain_type DLC_ROCK
+  base_size 16
+  number_of_tiles 0
+  base_elevation 2
+  assign_to AT_TEAM -10 0 0
+  if ROTATE
+    land_position 70 50
+  else
+    land_position 50 70
+  endif
+}
+
+/* Food/hunt land. */
+create_land {
+  terrain_type DLC_NEWSHALLOW
+  border_fuzziness 15
+  if ROTATE
+    land_position 50 95
+    top_border 75
+    right_border 28
+    left_border 28
+    /* Ensure the sides run straight to the edge of the map. */
+    bottom_border -15
+  else
+    land_position 5 50
+    top_border 28
+    right_border 75
+    bottom_border 28
+  endif
+}
+
+/* Gold/Stone Mountain */
+create_land {
+  terrain_type DLC_CRACKED
+  base_elevation 0
+  land_id 4
+  border_fuzziness 5
+  if ROTATE
+    land_position 50 5
+    right_border 28
+    bottom_border 75
+    left_border 28
+    /* Ensure the sides run straight to the edge of the map. */
+    top_border -15
+  else
+    land_position 95 50
+    top_border 28
+    bottom_border 28
+    left_border 75
+  endif
+}
+
+/* Corner Forests */
+create_land { land_position 5 5 bottom_border 90 right_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 }
+create_land { land_position 5 95 top_border 90 right_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 }
+create_land { land_position 95 5 bottom_border 90 left_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 }
+create_land { land_position 95 95 top_border 90 left_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 }
+
+/* Forests behind players along the sides of the map. */
+create_land {
+  terrain_type DLC_DRAGONFOREST
+  if ROTATE
+    land_position 2 50
+    top_border 20
+    right_border 93
+    bottom_border 20
+    left_border -5
+  else
+    land_position 50 2
+    top_border -5
+    right_border 20
+    bottom_border 93
+    left_border 20
+  endif
+}
+
+create_land {
+  terrain_type MEDITERRANEAN_FOREST
+  if ROTATE
+    land_position 98 50
+    right_border -5
+    bottom_border 20
+    left_border 92
+    top_border 20
+  else
+    land_position 50 98
+    top_border 92
+    right_border 20
+    bottom_border -5
+    left_border 20
+  endif
+}
+
+<ELEVATION_GENERATION>
+#REPEAT(8)
+  create_elevation 6 {
+    base_terrain DLC_CRACKED
+    enable_balanced_elevation
+    number_of_tiles 10000
+    number_of_clumps 15
+    spacing 5
+  }
+#END_REPEAT
+
+<TERRAIN_GENERATION>
+/* Side Forests */
+
+/* Create empty spaces within the forests. */
+create_terrain LEAVES {
+  base_terrain DLC_DRAGONFOREST
+  number_of_tiles 150
+  number_of_clumps 50
+  clumping_factor 50
+}
+
+create_terrain LEAVES {
+  base_terrain MEDITERRANEAN_FOREST
+  number_of_tiles 150
+  number_of_clumps 50
+  clumping_factor 50
+}
+
+/*
+ * Replace the mediterranean forest with dragon forest, while maintaining a
+ * consistent color for the spacing terrain.
+ */
+#REPEAT(8)
+  create_terrain DLC_DRAGONFOREST {
+    base_terrain MEDITERRANEAN_FOREST
+    land_percent 100
+    number_of_clumps 8192
+  }
+
+  create_terrain DLC_SAVANNAH {
+    base_terrain LEAVES
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 1
+  }
+#END_REPEAT
+
+/* Food/hunt area inner region. */
+create_terrain DLC_MOORLAND {
+  number_of_tiles 5000
+  number_of_clumps 10
+  clumping_factor 50
+  base_terrain DLC_NEWSHALLOW
+  spacing_to_other_terrain_types 5
+}
+
+/* Player Forests */
+create_terrain DLC_DRAGONFOREST {
+  base_terrain GRASS
+  spacing_to_other_terrain_types 2
+  land_percent 2
+  number_of_clumps 40
+  clumping_factor 100
+  set_avoid_player_start_areas 17
+  set_scale_by_groups
+}
+
+create_terrain DLC_DRAGONFOREST {
+  base_terrain DLC_ROCK
+  spacing_to_other_terrain_types 2
+  land_percent 2
+  number_of_clumps 40
+  clumping_factor 100
+  set_avoid_player_start_areas 17
+  set_scale_by_groups
+}
+
+/* Player Base terrains. */
+#REPEAT(8)
+  create_terrain GRASS {
+    base_terrain DLC_ROCK
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain DLC_SAVANNAH {
+    base_terrain GRASS
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 1
+  }
+#END_REPEAT
+
+/* Terrain masks for the gold/stone hill. */
+create_terrain DLC_DIRT4 {
+  base_terrain DLC_CRACKED
+  height_limits 1 2
+  terrain_mask 1
+  land_percent 100
+  number_of_clumps 100
+}
+
+create_terrain GRASS3 {
+  base_terrain DLC_CRACKED
+  height_limits 3 4
+  terrain_mask 1
+  land_percent 100
+  number_of_clumps 100
+}
+
+create_terrain DLC_QUICKSAND {
+  base_terrain DLC_CRACKED
+  height_limits 4 5
+  terrain_mask 1
+  land_percent 100
+  number_of_clumps 100
+}
+
+/* Terrain Masking: Ridges on tops of hills */
+#REPEAT(8)
+  create_terrain DLC_DESERTGRAVEL {
+    base_terrain DLC_SAVANNAH
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 1
+    height_limits 1 2
+  }
+#END_REPEAT
+
+/* Terrain Masking: General terrain patches. */
+create_terrain MUDDY_SHALLOW {
+  base_terrain DLC_SAVANNAH
+  land_percent 2
+  number_of_clumps 20
+  terrain_mask 1
+}
+
+create_terrain LEAVES {
+  base_terrain DLC_SAVANNAH
+  land_percent 4
+  number_of_clumps 20
+  terrain_mask 1
+  spacing_to_other_terrain_types 2
+}
+
+/* Creates undockable shallow terrain. */
+#REPEAT(8)
+  create_terrain SHALLOW {
+    base_terrain DLC_NEWSHALLOW
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_other_terrain_types 2
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain GREENWATER {
+    base_terrain SHALLOW
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 1
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain DLC_BOGLAND {
+    base_terrain DLC_NEWSHALLOW
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 2
+    beach_terrain DLC_BOGLAND
+  }
+#END_REPEAT
+
+<OBJECTS_GENERATION>
+/* Birds */
+create_object DLC_STORK {
+  number_of_objects 3
+}
+
+create_object DLC_VULTURE {
+  number_of_objects 3
+}
+
+/* Player Objects */
+create_object TOWN_CENTER {
+  set_place_for_every_player
+  max_distance_to_players 0
+}
+
+#TCCENTER
+#TCBOXES
+
+/*
+ * Relics
+ * Relics are placed before walls to allow for require path.
+ * This technique ensures no Relic is trapped in a forest in the corner.
+ */
+create_object RELIC {
+  temp_min_distance_group_placement 60
+  terrain_to_place_on DLC_BAOBABFOREST
+  number_of_objects 4
+  set_place_for_every_player
+  set_gaia_object_only
+  require_path 0
+  generate_for_first_land_only
+}
+
+/* Hunt area neutral Relic. */
+create_object RELIC {
+  terrain_to_place_on DLC_MOORLAND
+  set_circular_placement
+  min_distance_to_players 50
+  min_distance_to_map_edge 1
+  min_distance_group_placement 2
+}
+
+/* Hill area neutral Relic. */
+create_object RELIC {
+  layer_to_place_on GRASS3
+  min_distance_group_placement 4
+  min_distance_to_map_edge 1
+}
+
+/* Player Objects */
+create_object VILLAGER {
+  set_place_for_every_player
+  temp_min_distance_group_placement 3
+  avoid_actor_area box4
+  actor_area_to_place_in box5
+  actor_area vil0
+  actor_area_radius 0
+}
+
+create_object PHON {
+  set_place_for_every_player
+  set_gaia_object_only
+  actor_area_to_place_in vil0
+  temp_min_distance_group_placement 1
+  number_of_objects 3
+  actor_area vil2
+  actor_area_radius 2
+}
+
+create_object WALL {
+  min_distance_to_players 17
+  max_distance_to_players 17
+  set_place_for_every_player
+  actor_area wall
+  actor_area_radius 3
+}
+
+/* Player Fixed Resources */
+/* Berries */
+create_object FORAGE {
+  set_place_for_every_player
+  set_gaia_object_only
+  min_distance_to_players 10
+  max_distance_to_players 12
+  number_of_objects 6
+  set_tight_grouping
+  group_placement_radius 2
+  avoid_forest_zone 3
+  actor_area forage1
+  actor_area_radius 1
+  avoid_actor_area wall
+}
+
+create_object PHON {
+  set_place_for_every_player
+  number_of_objects 32
+  actor_area_to_place_in forage1
+  set_gaia_object_only
+  actor_area space3
+  actor_area_radius 2
+}
+
+create_object PHON {
+  set_place_for_every_player
+  number_of_objects 32
+  actor_area_to_place_in forage1
+  set_gaia_object_only
+  actor_area forage6
+  actor_area_radius 5
+}
+
+/* Main Gold */
+create_object GOLD {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 3
+  set_tight_grouping
+  group_placement_radius 1
+  avoid_forest_zone 3
+  min_distance_to_players 8
+  max_distance_to_players 11
+  avoid_actor_area wall
+  avoid_actor_area forage6
+  actor_area main_gold1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  set_place_for_every_player
+  number_of_objects 32
+  actor_area_to_place_in main_gold1
+  set_gaia_object_only
+  actor_area space3
+  actor_area_radius 2
+}
+
+create_object PHON {
+  set_place_for_every_player
+  number_of_objects 32
+  actor_area_to_place_in main_gold1
+  set_gaia_object_only
+  actor_area main_gold8
+  actor_area_radius 7
+}
+
+/* Second Gold */
+create_object GOLD {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 2
+  set_tight_grouping
+  group_placement_radius 1
+  avoid_forest_zone 3
+  min_distance_to_players 8
+  max_distance_to_players 11
+  avoid_actor_area wall
+  avoid_actor_area forage6
+  avoid_actor_area main_gold8
+  actor_area second_gold1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  set_place_for_every_player
+  number_of_objects 32
+  actor_area_to_place_in second_gold1
+  set_gaia_object_only
+  actor_area space3
+  actor_area_radius 2
+}
+
+create_object PHON {
+  set_place_for_every_player
+  number_of_objects 32
+  actor_area_to_place_in second_gold1
+  set_gaia_object_only
+  actor_area second_gold5
+  actor_area_radius 4
+}
+
+/* Main Stone */
+create_object STONE {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 2
+  set_tight_grouping
+  group_placement_radius 1
+  avoid_forest_zone 3
+  min_distance_to_players 7
+  max_distance_to_players 11
+  avoid_actor_area wall
+  avoid_actor_area forage6
+  avoid_actor_area main_gold8
+  avoid_actor_area second_gold5
+  actor_area main_stone1
+  actor_area_radius 1
+  find_closest_to_map_edge
+}
+
+create_object PHON {
+  set_place_for_every_player
+  number_of_objects 32
+  actor_area_to_place_in main_stone1
+  set_gaia_object_only
+  actor_area space3
+  actor_area_radius 2
+}
+
+/* Straggler Trees */
+create_object DLC_ACACIATREE {
+  set_place_for_every_player
+  set_gaia_object_only
+  avoid_forest_zone 2
+  avoid_actor_area box3
+  actor_area_to_place_in box4
+  avoid_actor_area space3
+  avoid_actor_area vil2
+}
+
+create_object DLC_ACACIATREE {
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 2
+  temp_min_distance_group_placement 3
+  avoid_forest_zone 2
+  avoid_actor_area box5
+  actor_area_to_place_in box6
+  avoid_actor_area space3
+  avoid_actor_area vil2
+}
+
+/* Player Animal Resources */
+create_object BOAR {
+  max_distance_to_players 15
+  set_gaia_object_only
+  number_of_objects 2
+  min_distance_to_players 12
+  temp_min_distance_group_placement 4
+  set_place_for_every_player
+  avoid_forest_zone 2
+  avoid_actor_area forage1
+  avoid_actor_area main_gold1
+  avoid_actor_area second_gold1
+  avoid_actor_area main_stone1
+}
+
+create_object DLC_WATERBUFFALO {
+  number_of_objects 3
+  set_place_for_every_player
+  set_loose_grouping
+  min_distance_to_players 7
+  max_distance_to_players 9
+  set_circular_placement
+  avoid_actor_area vil2
+}
+
+create_object DLC_WATERBUFFALO {
+  number_of_objects 2
+  number_of_groups 2
+  set_place_for_every_player
+  set_gaia_object_only
+  set_loose_grouping
+  avoid_forest_zone 1
+  avoid_actor_area vil2
+  min_distance_to_players 10
+  max_distance_to_players 13
+  temp_min_distance_group_placement 10
+}
+
+/* Player Scouts */
+create_object SCOUT {
+  set_place_for_every_player
+  avoid_actor_area vil2
+  avoid_actor_area box6
+  actor_area_to_place_in box8
+  avoid_forest_zone 1
+  avoid_actor_area forage1
+  avoid_actor_area main_gold_1
+}
+
+/* Per-Player Zebras Outside the Walls */
+create_object DLC_ZEBRA {
+  max_distance_to_players 21
+  min_distance_to_players 19
+  set_place_for_every_player
+  set_gaia_object_only
+  number_of_objects 3
+  set_loose_grouping
+  avoid_forest_zone 3
+  find_closest_to_map_edge
+}
+
+/* Map Resources */
+/* Neutral Ostriches */
+create_object DLC_OSTRICH {
+  number_of_objects 7
+  terrain_to_place_on DLC_SAVANNAH
+  min_distance_to_players 40
+  temp_min_distance_group_placement 40
+  min_distance_group_placement 1
+}
+
+/* Hunt Area */
+create_object DLC_RHINO {
+  set_place_for_every_player
+  set_gaia_object_only
+  terrain_to_place_on SHALLOW
+  find_closest
+  min_distance_group_placement 1
+  actor_area player_rhino
+  actor_area_radius 20
+}
+
+create_object DLC_RHINO {
+  number_of_objects 2
+  temp_min_distance_group_placement 15
+  avoid_actor_area player_rhino
+  min_distance_group_placement 1
+  min_distance_to_map_edge 2
+  actor_area rhino
+  actor_area_radius 10
+  terrain_to_place_on SHALLOW
+}
+
+create_object DLC_ELEPHANT {
+  number_of_objects 7
+  min_distance_to_players 47
+  set_circular_placement
+  avoid_actor_area rhino
+  temp_min_distance_group_placement 8
+  terrain_to_place_on DLC_MOORLAND
+  min_distance_group_placement 1
+}
+
+create_object DLC_ORANGEBUSH {
+  number_of_objects 2
+  number_of_groups 7
+  temp_min_distance_group_placement 5
+  terrain_to_place_on DLC_MOORLAND
+}
+
+create_object DLC_ZEBRA {
+  number_of_objects 2
+  number_of_groups 7
+  temp_min_distance_group_placement 12
+  terrain_to_place_on DLC_MOORLAND
+}
+
+create_object DLC_CROCODILE {
+  number_of_objects 6
+  temp_min_distance_group_placement 12
+  terrain_to_place_on SHALLOW
+  min_distance_to_players 40
+}
+
+/* Moorland trees */
+create_object DLC_BAOBABTREE {
+  number_of_objects 3
+  set_loose_grouping
+  number_of_groups 20
+  terrain_to_place_on DLC_MOORLAND
+  temp_min_distance_group_placement 4
+}
+
+/* Mountain Area Gold and Stone */
+create_object GOLD {
+  number_of_objects 3
+  number_of_groups 8
+  set_tight_grouping
+  avoid_forest_zone 3
+  temp_min_distance_group_placement 15
+  terrain_to_place_on DLC_CRACKED
+  min_distance_group_placement 3
+  min_distance_to_players 25
+}
+
+create_object STONE {
+  number_of_objects 3
+  number_of_groups 8
+  set_tight_grouping
+  temp_min_distance_group_placement 15
+  min_distance_group_placement 3
+  terrain_to_place_on DLC_CRACKED
+  min_distance_to_players 25
+}
+
+/* Neutral Golds and Stones */
+create_object GOLD {
+  number_of_objects 2
+  number_of_groups 12
+  set_tight_grouping
+  avoid_forest_zone 4
+  temp_min_distance_group_placement 40
+  min_distance_to_players 25
+  terrain_to_place_on DLC_SAVANNAH
+  min_distance_group_placement 3
+}
+
+create_object STONE {
+  number_of_objects 2
+  number_of_groups 8
+  set_tight_grouping
+  avoid_forest_zone 4
+  min_distance_to_players 25
+  temp_min_distance_group_placement 40
+  terrain_to_place_on DLC_SAVANNAH
+  min_distance_group_placement 3
+}
+
+/* Mountain Boulders */
+create_object DLC_BOULDER_C {
+  number_of_objects 10
+  temp_min_distance_group_placement 20
+  terrain_to_place_on DLC_CRACKED
+  min_distance_group_placement 5
+}
+
+/* Predators */
+create_object DLC_LION {
+  number_of_objects 32
+  terrain_to_place_on DLC_SAVANNAH
+  temp_min_distance_group_placement 40
+  min_distance_group_placement 3
+  avoid_forest_zone 5
+  min_distance_to_players 40
+  avoid_actor_area player_rhino
+}
+
+/* Map Stragglers */
+create_object DLC_DRAGONTREE {
+  number_of_objects 1
+  group_variance 2
+  number_of_groups 50
+  terrain_to_place_on DLC_SAVANNAH
+  avoid_forest_zone 4
+  temp_min_distance_group_placement 10
+  avoid_actor_area wall
+  min_distance_group_placement 2
+}

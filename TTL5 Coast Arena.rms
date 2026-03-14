@@ -1,0 +1,2149 @@
+#HEADER_START
+/*
+ * Coast Arena for TTL 5.
+ * Edited by T-West, November 2025.
+ * Based on the script by TheMadCADer.
+ */
+
+/* Coastarena (10-17-23) by TheMadCADer */
+#HEADER_END
+
+/*
+ * Defeat players if the game mode is not set to random map.
+ * Includes a check for the secondary game mode checkboxes.
+ */
+if ANTIQUITY_MODE
+  #define ADMIN_RESTART
+elseif RANDOM_MAP
+  if REGICIDE
+    #define ADMIN_RESTART
+  elseif EMPIRE_WARS
+    #define ADMIN_RESTART
+  elseif SUDDEN_DEATH
+    #define ADMIN_RESTART
+  endif
+else
+  #define ADMIN_RESTART
+endif
+if TINY_MAP
+else
+  #define ADMIN_RESTART
+endif
+if DEFAULT_RESOURCES
+else
+  #define ADMIN_RESTART
+endif
+if DARK_AGE_START
+else
+  #define ADMIN_RESTART
+endif
+if TURBO_MODE
+  #define ADMIN_RESTART
+endif
+if ADMIN_RESTART
+  <PLAYER_SETUP>
+  guard_state SABOTEUR AMOUNT_GOLD 0 1
+endif
+
+/* Comment Start and End Tokens (not removed by the preprocess) */
+#const [ 69
+#const ] 70
+
+/* Placeholders */
+#const PHON 1543
+#const PHONL 1544
+#const PHOFF 1902
+#const TERRAIN_BLOCKER 1613
+
+/* Terrains */
+#const PLAYER_CENTER_LAYER DLC_DESERTGRAVEL
+#const UNDERBRUSH_JUNGLE 77
+#const RAINFOREST_GRASS 83
+
+/* Objects */
+#const GATE_UP 64
+#const GATE_DOWN 88
+#const GATE_HORI 659
+#const GATE_VERT 667
+#const SEA_WALL 788
+#const TREE_REEDS 1350
+
+#const PLANT_JUNGLE 1351
+#const PLANT_UNDERBRUSH_TROPICAL 1352
+#const PLANT_UNDERBRUSH 1353
+#const PLANT_RAINFOREST 1354
+#const PLANT_UNDERBRUSH_RAINFOREST 1355
+
+/* Player Start Areas */
+#const T1 rnd(0,359)
+#const ANGLE rnd(135,225)
+#const T2 (T1 + ANGLE % 360)
+#const R 27
+#FOR($i, 1, 3)
+  #TRIG(T$i)
+  #const X$i (R * COS_T$i + 50)
+  #const Y$i (R * SIN_T$i + 50)
+#END_FOR
+
+#const SMALL_R 25
+#const MID_T1 (T1 + T2 / 2)
+#const MID_T2 (MID_T1 + 180 % 360)
+#FOR($i, 1, 3)
+  #TRIG(MID_T$i)
+  #const MID_X$i (SMALL_R * COS_MID_T$i + 50)
+  #const MID_Y$i (SMALL_R * SIN_MID_T$i + 50)
+#END_FOR
+
+/* Start Position Calculation */
+#const D1_0 (T1 - 0) #const B1_0 (D1_0 / D1_0 - 1 * -70) [ B1_0 #const U1 92 #const V1 60 ]
+#const D2_0 (T2 - 0) #const B2_0 (D2_0 / D2_0 - 1 * -70) [ B2_0 #const U2 92 #const V2 60 ]
+#const D1_1 (T1 - 1) #const B1_1 (D1_1 / D1_1 - 1 * -70) [ B1_1 #const U1 92 #const V1 61 ]
+#const D2_1 (T2 - 1) #const B2_1 (D2_1 / D2_1 - 1 * -70) [ B2_1 #const U2 92 #const V2 61 ]
+#const D1_2 (T1 - 2) #const B1_2 (D1_2 / D1_2 - 1 * -70) [ B1_2 #const U1 92 #const V1 61 ]
+#const D2_2 (T2 - 2) #const B2_2 (D2_2 / D2_2 - 1 * -70) [ B2_2 #const U2 92 #const V2 61 ]
+#const D1_3 (T1 - 3) #const B1_3 (D1_3 / D1_3 - 1 * -70) [ B1_3 #const U1 92 #const V1 62 ]
+#const D2_3 (T2 - 3) #const B2_3 (D2_3 / D2_3 - 1 * -70) [ B2_3 #const U2 92 #const V2 62 ]
+#const D1_4 (T1 - 4) #const B1_4 (D1_4 / D1_4 - 1 * -70) [ B1_4 #const U1 92 #const V1 62 ]
+#const D2_4 (T2 - 4) #const B2_4 (D2_4 / D2_4 - 1 * -70) [ B2_4 #const U2 92 #const V2 62 ]
+#const D1_5 (T1 - 5) #const B1_5 (D1_5 / D1_5 - 1 * -70) [ B1_5 #const U1 92 #const V1 63 ]
+#const D2_5 (T2 - 5) #const B2_5 (D2_5 / D2_5 - 1 * -70) [ B2_5 #const U2 92 #const V2 63 ]
+#const D1_6 (T1 - 6) #const B1_6 (D1_6 / D1_6 - 1 * -70) [ B1_6 #const U1 92 #const V1 63 ]
+#const D2_6 (T2 - 6) #const B2_6 (D2_6 / D2_6 - 1 * -70) [ B2_6 #const U2 92 #const V2 63 ]
+#const D1_7 (T1 - 7) #const B1_7 (D1_7 / D1_7 - 1 * -70) [ B1_7 #const U1 92 #const V1 64 ]
+#const D2_7 (T2 - 7) #const B2_7 (D2_7 / D2_7 - 1 * -70) [ B2_7 #const U2 92 #const V2 64 ]
+#const D1_8 (T1 - 8) #const B1_8 (D1_8 / D1_8 - 1 * -70) [ B1_8 #const U1 92 #const V1 65 ]
+#const D2_8 (T2 - 8) #const B2_8 (D2_8 / D2_8 - 1 * -70) [ B2_8 #const U2 92 #const V2 65 ]
+#const D1_9 (T1 - 9) #const B1_9 (D1_9 / D1_9 - 1 * -70) [ B1_9 #const U1 92 #const V1 65 ]
+#const D2_9 (T2 - 9) #const B2_9 (D2_9 / D2_9 - 1 * -70) [ B2_9 #const U2 92 #const V2 65 ]
+#const D1_10 (T1 - 10) #const B1_10 (D1_10 / D1_10 - 1 * -70) [ B1_10 #const U1 92 #const V1 66 ]
+#const D2_10 (T2 - 10) #const B2_10 (D2_10 / D2_10 - 1 * -70) [ B2_10 #const U2 92 #const V2 66 ]
+#const D1_11 (T1 - 11) #const B1_11 (D1_11 / D1_11 - 1 * -70) [ B1_11 #const U1 92 #const V1 66 ]
+#const D2_11 (T2 - 11) #const B2_11 (D2_11 / D2_11 - 1 * -70) [ B2_11 #const U2 92 #const V2 66 ]
+#const D1_12 (T1 - 12) #const B1_12 (D1_12 / D1_12 - 1 * -70) [ B1_12 #const U1 92 #const V1 67 ]
+#const D2_12 (T2 - 12) #const B2_12 (D2_12 / D2_12 - 1 * -70) [ B2_12 #const U2 92 #const V2 67 ]
+#const D1_13 (T1 - 13) #const B1_13 (D1_13 / D1_13 - 1 * -70) [ B1_13 #const U1 92 #const V1 67 ]
+#const D2_13 (T2 - 13) #const B2_13 (D2_13 / D2_13 - 1 * -70) [ B2_13 #const U2 92 #const V2 67 ]
+#const D1_14 (T1 - 14) #const B1_14 (D1_14 / D1_14 - 1 * -70) [ B1_14 #const U1 91 #const V1 68 ]
+#const D2_14 (T2 - 14) #const B2_14 (D2_14 / D2_14 - 1 * -70) [ B2_14 #const U2 91 #const V2 68 ]
+#const D1_15 (T1 - 15) #const B1_15 (D1_15 / D1_15 - 1 * -70) [ B1_15 #const U1 91 #const V1 68 ]
+#const D2_15 (T2 - 15) #const B2_15 (D2_15 / D2_15 - 1 * -70) [ B2_15 #const U2 91 #const V2 68 ]
+#const D1_16 (T1 - 16) #const B1_16 (D1_16 / D1_16 - 1 * -70) [ B1_16 #const U1 91 #const V1 69 ]
+#const D2_16 (T2 - 16) #const B2_16 (D2_16 / D2_16 - 1 * -70) [ B2_16 #const U2 91 #const V2 69 ]
+#const D1_17 (T1 - 17) #const B1_17 (D1_17 / D1_17 - 1 * -70) [ B1_17 #const U1 91 #const V1 70 ]
+#const D2_17 (T2 - 17) #const B2_17 (D2_17 / D2_17 - 1 * -70) [ B2_17 #const U2 91 #const V2 70 ]
+#const D1_18 (T1 - 18) #const B1_18 (D1_18 / D1_18 - 1 * -70) [ B1_18 #const U1 91 #const V1 70 ]
+#const D2_18 (T2 - 18) #const B2_18 (D2_18 / D2_18 - 1 * -70) [ B2_18 #const U2 91 #const V2 70 ]
+#const D1_19 (T1 - 19) #const B1_19 (D1_19 / D1_19 - 1 * -70) [ B1_19 #const U1 91 #const V1 71 ]
+#const D2_19 (T2 - 19) #const B2_19 (D2_19 / D2_19 - 1 * -70) [ B2_19 #const U2 91 #const V2 71 ]
+#const D1_20 (T1 - 20) #const B1_20 (D1_20 / D1_20 - 1 * -70) [ B1_20 #const U1 90 #const V1 71 ]
+#const D2_20 (T2 - 20) #const B2_20 (D2_20 / D2_20 - 1 * -70) [ B2_20 #const U2 90 #const V2 71 ]
+#const D1_21 (T1 - 21) #const B1_21 (D1_21 / D1_21 - 1 * -70) [ B1_21 #const U1 90 #const V1 72 ]
+#const D2_21 (T2 - 21) #const B2_21 (D2_21 / D2_21 - 1 * -70) [ B2_21 #const U2 90 #const V2 72 ]
+#const D1_22 (T1 - 22) #const B1_22 (D1_22 / D1_22 - 1 * -70) [ B1_22 #const U1 90 #const V1 72 ]
+#const D2_22 (T2 - 22) #const B2_22 (D2_22 / D2_22 - 1 * -70) [ B2_22 #const U2 90 #const V2 72 ]
+#const D1_23 (T1 - 23) #const B1_23 (D1_23 / D1_23 - 1 * -70) [ B1_23 #const U1 90 #const V1 73 ]
+#const D2_23 (T2 - 23) #const B2_23 (D2_23 / D2_23 - 1 * -70) [ B2_23 #const U2 90 #const V2 73 ]
+#const D1_24 (T1 - 24) #const B1_24 (D1_24 / D1_24 - 1 * -70) [ B1_24 #const U1 90 #const V1 73 ]
+#const D2_24 (T2 - 24) #const B2_24 (D2_24 / D2_24 - 1 * -70) [ B2_24 #const U2 90 #const V2 73 ]
+#const D1_25 (T1 - 25) #const B1_25 (D1_25 / D1_25 - 1 * -70) [ B1_25 #const U1 89 #const V1 74 ]
+#const D2_25 (T2 - 25) #const B2_25 (D2_25 / D2_25 - 1 * -70) [ B2_25 #const U2 89 #const V2 74 ]
+#const D1_26 (T1 - 26) #const B1_26 (D1_26 / D1_26 - 1 * -70) [ B1_26 #const U1 89 #const V1 74 ]
+#const D2_26 (T2 - 26) #const B2_26 (D2_26 / D2_26 - 1 * -70) [ B2_26 #const U2 89 #const V2 74 ]
+#const D1_27 (T1 - 27) #const B1_27 (D1_27 / D1_27 - 1 * -70) [ B1_27 #const U1 89 #const V1 75 ]
+#const D2_27 (T2 - 27) #const B2_27 (D2_27 / D2_27 - 1 * -70) [ B2_27 #const U2 89 #const V2 75 ]
+#const D1_28 (T1 - 28) #const B1_28 (D1_28 / D1_28 - 1 * -70) [ B1_28 #const U1 89 #const V1 75 ]
+#const D2_28 (T2 - 28) #const B2_28 (D2_28 / D2_28 - 1 * -70) [ B2_28 #const U2 89 #const V2 75 ]
+#const D1_29 (T1 - 29) #const B1_29 (D1_29 / D1_29 - 1 * -70) [ B1_29 #const U1 88 #const V1 76 ]
+#const D2_29 (T2 - 29) #const B2_29 (D2_29 / D2_29 - 1 * -70) [ B2_29 #const U2 88 #const V2 76 ]
+#const D1_30 (T1 - 30) #const B1_30 (D1_30 / D1_30 - 1 * -70) [ B1_30 #const U1 88 #const V1 76 ]
+#const D2_30 (T2 - 30) #const B2_30 (D2_30 / D2_30 - 1 * -70) [ B2_30 #const U2 88 #const V2 76 ]
+#const D1_31 (T1 - 31) #const B1_31 (D1_31 / D1_31 - 1 * -70) [ B1_31 #const U1 88 #const V1 77 ]
+#const D2_31 (T2 - 31) #const B2_31 (D2_31 / D2_31 - 1 * -70) [ B2_31 #const U2 88 #const V2 77 ]
+#const D1_32 (T1 - 32) #const B1_32 (D1_32 / D1_32 - 1 * -70) [ B1_32 #const U1 87 #const V1 77 ]
+#const D2_32 (T2 - 32) #const B2_32 (D2_32 / D2_32 - 1 * -70) [ B2_32 #const U2 87 #const V2 77 ]
+#const D1_33 (T1 - 33) #const B1_33 (D1_33 / D1_33 - 1 * -70) [ B1_33 #const U1 87 #const V1 78 ]
+#const D2_33 (T2 - 33) #const B2_33 (D2_33 / D2_33 - 1 * -70) [ B2_33 #const U2 87 #const V2 78 ]
+#const D1_34 (T1 - 34) #const B1_34 (D1_34 / D1_34 - 1 * -70) [ B1_34 #const U1 87 #const V1 78 ]
+#const D2_34 (T2 - 34) #const B2_34 (D2_34 / D2_34 - 1 * -70) [ B2_34 #const U2 87 #const V2 78 ]
+#const D1_35 (T1 - 35) #const B1_35 (D1_35 / D1_35 - 1 * -70) [ B1_35 #const U1 86 #const V1 79 ]
+#const D2_35 (T2 - 35) #const B2_35 (D2_35 / D2_35 - 1 * -70) [ B2_35 #const U2 86 #const V2 79 ]
+#const D1_36 (T1 - 36) #const B1_36 (D1_36 / D1_36 - 1 * -70) [ B1_36 #const U1 86 #const V1 79 ]
+#const D2_36 (T2 - 36) #const B2_36 (D2_36 / D2_36 - 1 * -70) [ B2_36 #const U2 86 #const V2 79 ]
+#const D1_37 (T1 - 37) #const B1_37 (D1_37 / D1_37 - 1 * -70) [ B1_37 #const U1 86 #const V1 79 ]
+#const D2_37 (T2 - 37) #const B2_37 (D2_37 / D2_37 - 1 * -70) [ B2_37 #const U2 86 #const V2 79 ]
+#const D1_38 (T1 - 38) #const B1_38 (D1_38 / D1_38 - 1 * -70) [ B1_38 #const U1 85 #const V1 80 ]
+#const D2_38 (T2 - 38) #const B2_38 (D2_38 / D2_38 - 1 * -70) [ B2_38 #const U2 85 #const V2 80 ]
+#const D1_39 (T1 - 39) #const B1_39 (D1_39 / D1_39 - 1 * -70) [ B1_39 #const U1 85 #const V1 80 ]
+#const D2_39 (T2 - 39) #const B2_39 (D2_39 / D2_39 - 1 * -70) [ B2_39 #const U2 85 #const V2 80 ]
+#const D1_40 (T1 - 40) #const B1_40 (D1_40 / D1_40 - 1 * -70) [ B1_40 #const U1 85 #const V1 81 ]
+#const D2_40 (T2 - 40) #const B2_40 (D2_40 / D2_40 - 1 * -70) [ B2_40 #const U2 85 #const V2 81 ]
+#const D1_41 (T1 - 41) #const B1_41 (D1_41 / D1_41 - 1 * -70) [ B1_41 #const U1 84 #const V1 81 ]
+#const D2_41 (T2 - 41) #const B2_41 (D2_41 / D2_41 - 1 * -70) [ B2_41 #const U2 84 #const V2 81 ]
+#const D1_42 (T1 - 42) #const B1_42 (D1_42 / D1_42 - 1 * -70) [ B1_42 #const U1 84 #const V1 82 ]
+#const D2_42 (T2 - 42) #const B2_42 (D2_42 / D2_42 - 1 * -70) [ B2_42 #const U2 84 #const V2 82 ]
+#const D1_43 (T1 - 43) #const B1_43 (D1_43 / D1_43 - 1 * -70) [ B1_43 #const U1 84 #const V1 82 ]
+#const D2_43 (T2 - 43) #const B2_43 (D2_43 / D2_43 - 1 * -70) [ B2_43 #const U2 84 #const V2 82 ]
+#const D1_44 (T1 - 44) #const B1_44 (D1_44 / D1_44 - 1 * -70) [ B1_44 #const U1 83 #const V1 82 ]
+#const D2_44 (T2 - 44) #const B2_44 (D2_44 / D2_44 - 1 * -70) [ B2_44 #const U2 83 #const V2 82 ]
+#const D1_45 (T1 - 45) #const B1_45 (D1_45 / D1_45 - 1 * -70) [ B1_45 #const U1 83 #const V1 83 ]
+#const D2_45 (T2 - 45) #const B2_45 (D2_45 / D2_45 - 1 * -70) [ B2_45 #const U2 83 #const V2 83 ]
+#const D1_46 (T1 - 46) #const B1_46 (D1_46 / D1_46 - 1 * -70) [ B1_46 #const U1 82 #const V1 83 ]
+#const D2_46 (T2 - 46) #const B2_46 (D2_46 / D2_46 - 1 * -70) [ B2_46 #const U2 82 #const V2 83 ]
+#const D1_47 (T1 - 47) #const B1_47 (D1_47 / D1_47 - 1 * -70) [ B1_47 #const U1 82 #const V1 84 ]
+#const D2_47 (T2 - 47) #const B2_47 (D2_47 / D2_47 - 1 * -70) [ B2_47 #const U2 82 #const V2 84 ]
+#const D1_48 (T1 - 48) #const B1_48 (D1_48 / D1_48 - 1 * -70) [ B1_48 #const U1 82 #const V1 84 ]
+#const D2_48 (T2 - 48) #const B2_48 (D2_48 / D2_48 - 1 * -70) [ B2_48 #const U2 82 #const V2 84 ]
+#const D1_49 (T1 - 49) #const B1_49 (D1_49 / D1_49 - 1 * -70) [ B1_49 #const U1 81 #const V1 84 ]
+#const D2_49 (T2 - 49) #const B2_49 (D2_49 / D2_49 - 1 * -70) [ B2_49 #const U2 81 #const V2 84 ]
+#const D1_50 (T1 - 50) #const B1_50 (D1_50 / D1_50 - 1 * -70) [ B1_50 #const U1 81 #const V1 85 ]
+#const D2_50 (T2 - 50) #const B2_50 (D2_50 / D2_50 - 1 * -70) [ B2_50 #const U2 81 #const V2 85 ]
+#const D1_51 (T1 - 51) #const B1_51 (D1_51 / D1_51 - 1 * -70) [ B1_51 #const U1 80 #const V1 85 ]
+#const D2_51 (T2 - 51) #const B2_51 (D2_51 / D2_51 - 1 * -70) [ B2_51 #const U2 80 #const V2 85 ]
+#const D1_52 (T1 - 52) #const B1_52 (D1_52 / D1_52 - 1 * -70) [ B1_52 #const U1 80 #const V1 85 ]
+#const D2_52 (T2 - 52) #const B2_52 (D2_52 / D2_52 - 1 * -70) [ B2_52 #const U2 80 #const V2 85 ]
+#const D1_53 (T1 - 53) #const B1_53 (D1_53 / D1_53 - 1 * -70) [ B1_53 #const U1 79 #const V1 86 ]
+#const D2_53 (T2 - 53) #const B2_53 (D2_53 / D2_53 - 1 * -70) [ B2_53 #const U2 79 #const V2 86 ]
+#const D1_54 (T1 - 54) #const B1_54 (D1_54 / D1_54 - 1 * -70) [ B1_54 #const U1 79 #const V1 86 ]
+#const D2_54 (T2 - 54) #const B2_54 (D2_54 / D2_54 - 1 * -70) [ B2_54 #const U2 79 #const V2 86 ]
+#const D1_55 (T1 - 55) #const B1_55 (D1_55 / D1_55 - 1 * -70) [ B1_55 #const U1 79 #const V1 86 ]
+#const D2_55 (T2 - 55) #const B2_55 (D2_55 / D2_55 - 1 * -70) [ B2_55 #const U2 79 #const V2 86 ]
+#const D1_56 (T1 - 56) #const B1_56 (D1_56 / D1_56 - 1 * -70) [ B1_56 #const U1 78 #const V1 87 ]
+#const D2_56 (T2 - 56) #const B2_56 (D2_56 / D2_56 - 1 * -70) [ B2_56 #const U2 78 #const V2 87 ]
+#const D1_57 (T1 - 57) #const B1_57 (D1_57 / D1_57 - 1 * -70) [ B1_57 #const U1 78 #const V1 87 ]
+#const D2_57 (T2 - 57) #const B2_57 (D2_57 / D2_57 - 1 * -70) [ B2_57 #const U2 78 #const V2 87 ]
+#const D1_58 (T1 - 58) #const B1_58 (D1_58 / D1_58 - 1 * -70) [ B1_58 #const U1 77 #const V1 87 ]
+#const D2_58 (T2 - 58) #const B2_58 (D2_58 / D2_58 - 1 * -70) [ B2_58 #const U2 77 #const V2 87 ]
+#const D1_59 (T1 - 59) #const B1_59 (D1_59 / D1_59 - 1 * -70) [ B1_59 #const U1 77 #const V1 88 ]
+#const D2_59 (T2 - 59) #const B2_59 (D2_59 / D2_59 - 1 * -70) [ B2_59 #const U2 77 #const V2 88 ]
+#const D1_60 (T1 - 60) #const B1_60 (D1_60 / D1_60 - 1 * -70) [ B1_60 #const U1 76 #const V1 88 ]
+#const D2_60 (T2 - 60) #const B2_60 (D2_60 / D2_60 - 1 * -70) [ B2_60 #const U2 76 #const V2 88 ]
+#const D1_61 (T1 - 61) #const B1_61 (D1_61 / D1_61 - 1 * -70) [ B1_61 #const U1 76 #const V1 88 ]
+#const D2_61 (T2 - 61) #const B2_61 (D2_61 / D2_61 - 1 * -70) [ B2_61 #const U2 76 #const V2 88 ]
+#const D1_62 (T1 - 62) #const B1_62 (D1_62 / D1_62 - 1 * -70) [ B1_62 #const U1 75 #const V1 89 ]
+#const D2_62 (T2 - 62) #const B2_62 (D2_62 / D2_62 - 1 * -70) [ B2_62 #const U2 75 #const V2 89 ]
+#const D1_63 (T1 - 63) #const B1_63 (D1_63 / D1_63 - 1 * -70) [ B1_63 #const U1 75 #const V1 89 ]
+#const D2_63 (T2 - 63) #const B2_63 (D2_63 / D2_63 - 1 * -70) [ B2_63 #const U2 75 #const V2 89 ]
+#const D1_64 (T1 - 64) #const B1_64 (D1_64 / D1_64 - 1 * -70) [ B1_64 #const U1 74 #const V1 89 ]
+#const D2_64 (T2 - 64) #const B2_64 (D2_64 / D2_64 - 1 * -70) [ B2_64 #const U2 74 #const V2 89 ]
+#const D1_65 (T1 - 65) #const B1_65 (D1_65 / D1_65 - 1 * -70) [ B1_65 #const U1 74 #const V1 89 ]
+#const D2_65 (T2 - 65) #const B2_65 (D2_65 / D2_65 - 1 * -70) [ B2_65 #const U2 74 #const V2 89 ]
+#const D1_66 (T1 - 66) #const B1_66 (D1_66 / D1_66 - 1 * -70) [ B1_66 #const U1 73 #const V1 90 ]
+#const D2_66 (T2 - 66) #const B2_66 (D2_66 / D2_66 - 1 * -70) [ B2_66 #const U2 73 #const V2 90 ]
+#const D1_67 (T1 - 67) #const B1_67 (D1_67 / D1_67 - 1 * -70) [ B1_67 #const U1 73 #const V1 90 ]
+#const D2_67 (T2 - 67) #const B2_67 (D2_67 / D2_67 - 1 * -70) [ B2_67 #const U2 73 #const V2 90 ]
+#const D1_68 (T1 - 68) #const B1_68 (D1_68 / D1_68 - 1 * -70) [ B1_68 #const U1 72 #const V1 90 ]
+#const D2_68 (T2 - 68) #const B2_68 (D2_68 / D2_68 - 1 * -70) [ B2_68 #const U2 72 #const V2 90 ]
+#const D1_69 (T1 - 69) #const B1_69 (D1_69 / D1_69 - 1 * -70) [ B1_69 #const U1 72 #const V1 90 ]
+#const D2_69 (T2 - 69) #const B2_69 (D2_69 / D2_69 - 1 * -70) [ B2_69 #const U2 72 #const V2 90 ]
+#const D1_70 (T1 - 70) #const B1_70 (D1_70 / D1_70 - 1 * -70) [ B1_70 #const U1 71 #const V1 90 ]
+#const D2_70 (T2 - 70) #const B2_70 (D2_70 / D2_70 - 1 * -70) [ B2_70 #const U2 71 #const V2 90 ]
+#const D1_71 (T1 - 71) #const B1_71 (D1_71 / D1_71 - 1 * -70) [ B1_71 #const U1 71 #const V1 91 ]
+#const D2_71 (T2 - 71) #const B2_71 (D2_71 / D2_71 - 1 * -70) [ B2_71 #const U2 71 #const V2 91 ]
+#const D1_72 (T1 - 72) #const B1_72 (D1_72 / D1_72 - 1 * -70) [ B1_72 #const U1 70 #const V1 91 ]
+#const D2_72 (T2 - 72) #const B2_72 (D2_72 / D2_72 - 1 * -70) [ B2_72 #const U2 70 #const V2 91 ]
+#const D1_73 (T1 - 73) #const B1_73 (D1_73 / D1_73 - 1 * -70) [ B1_73 #const U1 70 #const V1 91 ]
+#const D2_73 (T2 - 73) #const B2_73 (D2_73 / D2_73 - 1 * -70) [ B2_73 #const U2 70 #const V2 91 ]
+#const D1_74 (T1 - 74) #const B1_74 (D1_74 / D1_74 - 1 * -70) [ B1_74 #const U1 69 #const V1 91 ]
+#const D2_74 (T2 - 74) #const B2_74 (D2_74 / D2_74 - 1 * -70) [ B2_74 #const U2 69 #const V2 91 ]
+#const D1_75 (T1 - 75) #const B1_75 (D1_75 / D1_75 - 1 * -70) [ B1_75 #const U1 68 #const V1 91 ]
+#const D2_75 (T2 - 75) #const B2_75 (D2_75 / D2_75 - 1 * -70) [ B2_75 #const U2 68 #const V2 91 ]
+#const D1_76 (T1 - 76) #const B1_76 (D1_76 / D1_76 - 1 * -70) [ B1_76 #const U1 68 #const V1 91 ]
+#const D2_76 (T2 - 76) #const B2_76 (D2_76 / D2_76 - 1 * -70) [ B2_76 #const U2 68 #const V2 91 ]
+#const D1_77 (T1 - 77) #const B1_77 (D1_77 / D1_77 - 1 * -70) [ B1_77 #const U1 67 #const V1 92 ]
+#const D2_77 (T2 - 77) #const B2_77 (D2_77 / D2_77 - 1 * -70) [ B2_77 #const U2 67 #const V2 92 ]
+#const D1_78 (T1 - 78) #const B1_78 (D1_78 / D1_78 - 1 * -70) [ B1_78 #const U1 67 #const V1 92 ]
+#const D2_78 (T2 - 78) #const B2_78 (D2_78 / D2_78 - 1 * -70) [ B2_78 #const U2 67 #const V2 92 ]
+#const D1_79 (T1 - 79) #const B1_79 (D1_79 / D1_79 - 1 * -70) [ B1_79 #const U1 66 #const V1 92 ]
+#const D2_79 (T2 - 79) #const B2_79 (D2_79 / D2_79 - 1 * -70) [ B2_79 #const U2 66 #const V2 92 ]
+#const D1_80 (T1 - 80) #const B1_80 (D1_80 / D1_80 - 1 * -70) [ B1_80 #const U1 66 #const V1 92 ]
+#const D2_80 (T2 - 80) #const B2_80 (D2_80 / D2_80 - 1 * -70) [ B2_80 #const U2 66 #const V2 92 ]
+#const D1_81 (T1 - 81) #const B1_81 (D1_81 / D1_81 - 1 * -70) [ B1_81 #const U1 65 #const V1 92 ]
+#const D2_81 (T2 - 81) #const B2_81 (D2_81 / D2_81 - 1 * -70) [ B2_81 #const U2 65 #const V2 92 ]
+#const D1_82 (T1 - 82) #const B1_82 (D1_82 / D1_82 - 1 * -70) [ B1_82 #const U1 65 #const V1 92 ]
+#const D2_82 (T2 - 82) #const B2_82 (D2_82 / D2_82 - 1 * -70) [ B2_82 #const U2 65 #const V2 92 ]
+#const D1_83 (T1 - 83) #const B1_83 (D1_83 / D1_83 - 1 * -70) [ B1_83 #const U1 64 #const V1 92 ]
+#const D2_83 (T2 - 83) #const B2_83 (D2_83 / D2_83 - 1 * -70) [ B2_83 #const U2 64 #const V2 92 ]
+#const D1_84 (T1 - 84) #const B1_84 (D1_84 / D1_84 - 1 * -70) [ B1_84 #const U1 63 #const V1 92 ]
+#const D2_84 (T2 - 84) #const B2_84 (D2_84 / D2_84 - 1 * -70) [ B2_84 #const U2 63 #const V2 92 ]
+#const D1_85 (T1 - 85) #const B1_85 (D1_85 / D1_85 - 1 * -70) [ B1_85 #const U1 63 #const V1 92 ]
+#const D2_85 (T2 - 85) #const B2_85 (D2_85 / D2_85 - 1 * -70) [ B2_85 #const U2 63 #const V2 92 ]
+#const D1_86 (T1 - 86) #const B1_86 (D1_86 / D1_86 - 1 * -70) [ B1_86 #const U1 62 #const V1 92 ]
+#const D2_86 (T2 - 86) #const B2_86 (D2_86 / D2_86 - 1 * -70) [ B2_86 #const U2 62 #const V2 92 ]
+#const D1_87 (T1 - 87) #const B1_87 (D1_87 / D1_87 - 1 * -70) [ B1_87 #const U1 62 #const V1 92 ]
+#const D2_87 (T2 - 87) #const B2_87 (D2_87 / D2_87 - 1 * -70) [ B2_87 #const U2 62 #const V2 92 ]
+#const D1_88 (T1 - 88) #const B1_88 (D1_88 / D1_88 - 1 * -70) [ B1_88 #const U1 61 #const V1 92 ]
+#const D2_88 (T2 - 88) #const B2_88 (D2_88 / D2_88 - 1 * -70) [ B2_88 #const U2 61 #const V2 92 ]
+#const D1_89 (T1 - 89) #const B1_89 (D1_89 / D1_89 - 1 * -70) [ B1_89 #const U1 61 #const V1 92 ]
+#const D2_89 (T2 - 89) #const B2_89 (D2_89 / D2_89 - 1 * -70) [ B2_89 #const U2 61 #const V2 92 ]
+#const D1_90 (T1 - 90) #const B1_90 (D1_90 / D1_90 - 1 * -70) [ B1_90 #const U1 60 #const V1 92 ]
+#const D2_90 (T2 - 90) #const B2_90 (D2_90 / D2_90 - 1 * -70) [ B2_90 #const U2 60 #const V2 92 ]
+#const D1_91 (T1 - 91) #const B1_91 (D1_91 / D1_91 - 1 * -70) [ B1_91 #const U1 59 #const V1 92 ]
+#const D2_91 (T2 - 91) #const B2_91 (D2_91 / D2_91 - 1 * -70) [ B2_91 #const U2 59 #const V2 92 ]
+#const D1_92 (T1 - 92) #const B1_92 (D1_92 / D1_92 - 1 * -70) [ B1_92 #const U1 59 #const V1 92 ]
+#const D2_92 (T2 - 92) #const B2_92 (D2_92 / D2_92 - 1 * -70) [ B2_92 #const U2 59 #const V2 92 ]
+#const D1_93 (T1 - 93) #const B1_93 (D1_93 / D1_93 - 1 * -70) [ B1_93 #const U1 58 #const V1 92 ]
+#const D2_93 (T2 - 93) #const B2_93 (D2_93 / D2_93 - 1 * -70) [ B2_93 #const U2 58 #const V2 92 ]
+#const D1_94 (T1 - 94) #const B1_94 (D1_94 / D1_94 - 1 * -70) [ B1_94 #const U1 58 #const V1 92 ]
+#const D2_94 (T2 - 94) #const B2_94 (D2_94 / D2_94 - 1 * -70) [ B2_94 #const U2 58 #const V2 92 ]
+#const D1_95 (T1 - 95) #const B1_95 (D1_95 / D1_95 - 1 * -70) [ B1_95 #const U1 57 #const V1 92 ]
+#const D2_95 (T2 - 95) #const B2_95 (D2_95 / D2_95 - 1 * -70) [ B2_95 #const U2 57 #const V2 92 ]
+#const D1_96 (T1 - 96) #const B1_96 (D1_96 / D1_96 - 1 * -70) [ B1_96 #const U1 57 #const V1 92 ]
+#const D2_96 (T2 - 96) #const B2_96 (D2_96 / D2_96 - 1 * -70) [ B2_96 #const U2 57 #const V2 92 ]
+#const D1_97 (T1 - 97) #const B1_97 (D1_97 / D1_97 - 1 * -70) [ B1_97 #const U1 56 #const V1 92 ]
+#const D2_97 (T2 - 97) #const B2_97 (D2_97 / D2_97 - 1 * -70) [ B2_97 #const U2 56 #const V2 92 ]
+#const D1_98 (T1 - 98) #const B1_98 (D1_98 / D1_98 - 1 * -70) [ B1_98 #const U1 55 #const V1 92 ]
+#const D2_98 (T2 - 98) #const B2_98 (D2_98 / D2_98 - 1 * -70) [ B2_98 #const U2 55 #const V2 92 ]
+#const D1_99 (T1 - 99) #const B1_99 (D1_99 / D1_99 - 1 * -70) [ B1_99 #const U1 55 #const V1 92 ]
+#const D2_99 (T2 - 99) #const B2_99 (D2_99 / D2_99 - 1 * -70) [ B2_99 #const U2 55 #const V2 92 ]
+#const D1_100 (T1 - 100) #const B1_100 (D1_100 / D1_100 - 1 * -70) [ B1_100 #const U1 54 #const V1 92 ]
+#const D2_100 (T2 - 100) #const B2_100 (D2_100 / D2_100 - 1 * -70) [ B2_100 #const U2 54 #const V2 92 ]
+#const D1_101 (T1 - 101) #const B1_101 (D1_101 / D1_101 - 1 * -70) [ B1_101 #const U1 54 #const V1 92 ]
+#const D2_101 (T2 - 101) #const B2_101 (D2_101 / D2_101 - 1 * -70) [ B2_101 #const U2 54 #const V2 92 ]
+#const D1_102 (T1 - 102) #const B1_102 (D1_102 / D1_102 - 1 * -70) [ B1_102 #const U1 53 #const V1 92 ]
+#const D2_102 (T2 - 102) #const B2_102 (D2_102 / D2_102 - 1 * -70) [ B2_102 #const U2 53 #const V2 92 ]
+#const D1_103 (T1 - 103) #const B1_103 (D1_103 / D1_103 - 1 * -70) [ B1_103 #const U1 53 #const V1 92 ]
+#const D2_103 (T2 - 103) #const B2_103 (D2_103 / D2_103 - 1 * -70) [ B2_103 #const U2 53 #const V2 92 ]
+#const D1_104 (T1 - 104) #const B1_104 (D1_104 / D1_104 - 1 * -70) [ B1_104 #const U1 52 #const V1 91 ]
+#const D2_104 (T2 - 104) #const B2_104 (D2_104 / D2_104 - 1 * -70) [ B2_104 #const U2 52 #const V2 91 ]
+#const D1_105 (T1 - 105) #const B1_105 (D1_105 / D1_105 - 1 * -70) [ B1_105 #const U1 52 #const V1 91 ]
+#const D2_105 (T2 - 105) #const B2_105 (D2_105 / D2_105 - 1 * -70) [ B2_105 #const U2 52 #const V2 91 ]
+#const D1_106 (T1 - 106) #const B1_106 (D1_106 / D1_106 - 1 * -70) [ B1_106 #const U1 51 #const V1 91 ]
+#const D2_106 (T2 - 106) #const B2_106 (D2_106 / D2_106 - 1 * -70) [ B2_106 #const U2 51 #const V2 91 ]
+#const D1_107 (T1 - 107) #const B1_107 (D1_107 / D1_107 - 1 * -70) [ B1_107 #const U1 50 #const V1 91 ]
+#const D2_107 (T2 - 107) #const B2_107 (D2_107 / D2_107 - 1 * -70) [ B2_107 #const U2 50 #const V2 91 ]
+#const D1_108 (T1 - 108) #const B1_108 (D1_108 / D1_108 - 1 * -70) [ B1_108 #const U1 50 #const V1 91 ]
+#const D2_108 (T2 - 108) #const B2_108 (D2_108 / D2_108 - 1 * -70) [ B2_108 #const U2 50 #const V2 91 ]
+#const D1_109 (T1 - 109) #const B1_109 (D1_109 / D1_109 - 1 * -70) [ B1_109 #const U1 49 #const V1 91 ]
+#const D2_109 (T2 - 109) #const B2_109 (D2_109 / D2_109 - 1 * -70) [ B2_109 #const U2 49 #const V2 91 ]
+#const D1_110 (T1 - 110) #const B1_110 (D1_110 / D1_110 - 1 * -70) [ B1_110 #const U1 49 #const V1 90 ]
+#const D2_110 (T2 - 110) #const B2_110 (D2_110 / D2_110 - 1 * -70) [ B2_110 #const U2 49 #const V2 90 ]
+#const D1_111 (T1 - 111) #const B1_111 (D1_111 / D1_111 - 1 * -70) [ B1_111 #const U1 48 #const V1 90 ]
+#const D2_111 (T2 - 111) #const B2_111 (D2_111 / D2_111 - 1 * -70) [ B2_111 #const U2 48 #const V2 90 ]
+#const D1_112 (T1 - 112) #const B1_112 (D1_112 / D1_112 - 1 * -70) [ B1_112 #const U1 48 #const V1 90 ]
+#const D2_112 (T2 - 112) #const B2_112 (D2_112 / D2_112 - 1 * -70) [ B2_112 #const U2 48 #const V2 90 ]
+#const D1_113 (T1 - 113) #const B1_113 (D1_113 / D1_113 - 1 * -70) [ B1_113 #const U1 47 #const V1 90 ]
+#const D2_113 (T2 - 113) #const B2_113 (D2_113 / D2_113 - 1 * -70) [ B2_113 #const U2 47 #const V2 90 ]
+#const D1_114 (T1 - 114) #const B1_114 (D1_114 / D1_114 - 1 * -70) [ B1_114 #const U1 47 #const V1 90 ]
+#const D2_114 (T2 - 114) #const B2_114 (D2_114 / D2_114 - 1 * -70) [ B2_114 #const U2 47 #const V2 90 ]
+#const D1_115 (T1 - 115) #const B1_115 (D1_115 / D1_115 - 1 * -70) [ B1_115 #const U1 46 #const V1 89 ]
+#const D2_115 (T2 - 115) #const B2_115 (D2_115 / D2_115 - 1 * -70) [ B2_115 #const U2 46 #const V2 89 ]
+#const D1_116 (T1 - 116) #const B1_116 (D1_116 / D1_116 - 1 * -70) [ B1_116 #const U1 46 #const V1 89 ]
+#const D2_116 (T2 - 116) #const B2_116 (D2_116 / D2_116 - 1 * -70) [ B2_116 #const U2 46 #const V2 89 ]
+#const D1_117 (T1 - 117) #const B1_117 (D1_117 / D1_117 - 1 * -70) [ B1_117 #const U1 45 #const V1 89 ]
+#const D2_117 (T2 - 117) #const B2_117 (D2_117 / D2_117 - 1 * -70) [ B2_117 #const U2 45 #const V2 89 ]
+#const D1_118 (T1 - 118) #const B1_118 (D1_118 / D1_118 - 1 * -70) [ B1_118 #const U1 45 #const V1 89 ]
+#const D2_118 (T2 - 118) #const B2_118 (D2_118 / D2_118 - 1 * -70) [ B2_118 #const U2 45 #const V2 89 ]
+#const D1_119 (T1 - 119) #const B1_119 (D1_119 / D1_119 - 1 * -70) [ B1_119 #const U1 44 #const V1 88 ]
+#const D2_119 (T2 - 119) #const B2_119 (D2_119 / D2_119 - 1 * -70) [ B2_119 #const U2 44 #const V2 88 ]
+#const D1_120 (T1 - 120) #const B1_120 (D1_120 / D1_120 - 1 * -70) [ B1_120 #const U1 44 #const V1 88 ]
+#const D2_120 (T2 - 120) #const B2_120 (D2_120 / D2_120 - 1 * -70) [ B2_120 #const U2 44 #const V2 88 ]
+#const D1_121 (T1 - 121) #const B1_121 (D1_121 / D1_121 - 1 * -70) [ B1_121 #const U1 43 #const V1 88 ]
+#const D2_121 (T2 - 121) #const B2_121 (D2_121 / D2_121 - 1 * -70) [ B2_121 #const U2 43 #const V2 88 ]
+#const D1_122 (T1 - 122) #const B1_122 (D1_122 / D1_122 - 1 * -70) [ B1_122 #const U1 43 #const V1 87 ]
+#const D2_122 (T2 - 122) #const B2_122 (D2_122 / D2_122 - 1 * -70) [ B2_122 #const U2 43 #const V2 87 ]
+#const D1_123 (T1 - 123) #const B1_123 (D1_123 / D1_123 - 1 * -70) [ B1_123 #const U1 42 #const V1 87 ]
+#const D2_123 (T2 - 123) #const B2_123 (D2_123 / D2_123 - 1 * -70) [ B2_123 #const U2 42 #const V2 87 ]
+#const D1_124 (T1 - 124) #const B1_124 (D1_124 / D1_124 - 1 * -70) [ B1_124 #const U1 42 #const V1 87 ]
+#const D2_124 (T2 - 124) #const B2_124 (D2_124 / D2_124 - 1 * -70) [ B2_124 #const U2 42 #const V2 87 ]
+#const D1_125 (T1 - 125) #const B1_125 (D1_125 / D1_125 - 1 * -70) [ B1_125 #const U1 41 #const V1 86 ]
+#const D2_125 (T2 - 125) #const B2_125 (D2_125 / D2_125 - 1 * -70) [ B2_125 #const U2 41 #const V2 86 ]
+#const D1_126 (T1 - 126) #const B1_126 (D1_126 / D1_126 - 1 * -70) [ B1_126 #const U1 41 #const V1 86 ]
+#const D2_126 (T2 - 126) #const B2_126 (D2_126 / D2_126 - 1 * -70) [ B2_126 #const U2 41 #const V2 86 ]
+#const D1_127 (T1 - 127) #const B1_127 (D1_127 / D1_127 - 1 * -70) [ B1_127 #const U1 41 #const V1 86 ]
+#const D2_127 (T2 - 127) #const B2_127 (D2_127 / D2_127 - 1 * -70) [ B2_127 #const U2 41 #const V2 86 ]
+#const D1_128 (T1 - 128) #const B1_128 (D1_128 / D1_128 - 1 * -70) [ B1_128 #const U1 40 #const V1 85 ]
+#const D2_128 (T2 - 128) #const B2_128 (D2_128 / D2_128 - 1 * -70) [ B2_128 #const U2 40 #const V2 85 ]
+#const D1_129 (T1 - 129) #const B1_129 (D1_129 / D1_129 - 1 * -70) [ B1_129 #const U1 40 #const V1 85 ]
+#const D2_129 (T2 - 129) #const B2_129 (D2_129 / D2_129 - 1 * -70) [ B2_129 #const U2 40 #const V2 85 ]
+#const D1_130 (T1 - 130) #const B1_130 (D1_130 / D1_130 - 1 * -70) [ B1_130 #const U1 39 #const V1 85 ]
+#const D2_130 (T2 - 130) #const B2_130 (D2_130 / D2_130 - 1 * -70) [ B2_130 #const U2 39 #const V2 85 ]
+#const D1_131 (T1 - 131) #const B1_131 (D1_131 / D1_131 - 1 * -70) [ B1_131 #const U1 39 #const V1 84 ]
+#const D2_131 (T2 - 131) #const B2_131 (D2_131 / D2_131 - 1 * -70) [ B2_131 #const U2 39 #const V2 84 ]
+#const D1_132 (T1 - 132) #const B1_132 (D1_132 / D1_132 - 1 * -70) [ B1_132 #const U1 38 #const V1 84 ]
+#const D2_132 (T2 - 132) #const B2_132 (D2_132 / D2_132 - 1 * -70) [ B2_132 #const U2 38 #const V2 84 ]
+#const D1_133 (T1 - 133) #const B1_133 (D1_133 / D1_133 - 1 * -70) [ B1_133 #const U1 38 #const V1 84 ]
+#const D2_133 (T2 - 133) #const B2_133 (D2_133 / D2_133 - 1 * -70) [ B2_133 #const U2 38 #const V2 84 ]
+#const D1_134 (T1 - 134) #const B1_134 (D1_134 / D1_134 - 1 * -70) [ B1_134 #const U1 38 #const V1 83 ]
+#const D2_134 (T2 - 134) #const B2_134 (D2_134 / D2_134 - 1 * -70) [ B2_134 #const U2 38 #const V2 83 ]
+#const D1_135 (T1 - 135) #const B1_135 (D1_135 / D1_135 - 1 * -70) [ B1_135 #const U1 37 #const V1 83 ]
+#const D2_135 (T2 - 135) #const B2_135 (D2_135 / D2_135 - 1 * -70) [ B2_135 #const U2 37 #const V2 83 ]
+#const D1_136 (T1 - 136) #const B1_136 (D1_136 / D1_136 - 1 * -70) [ B1_136 #const U1 37 #const V1 82 ]
+#const D2_136 (T2 - 136) #const B2_136 (D2_136 / D2_136 - 1 * -70) [ B2_136 #const U2 37 #const V2 82 ]
+#const D1_137 (T1 - 137) #const B1_137 (D1_137 / D1_137 - 1 * -70) [ B1_137 #const U1 36 #const V1 82 ]
+#const D2_137 (T2 - 137) #const B2_137 (D2_137 / D2_137 - 1 * -70) [ B2_137 #const U2 36 #const V2 82 ]
+#const D1_138 (T1 - 138) #const B1_138 (D1_138 / D1_138 - 1 * -70) [ B1_138 #const U1 36 #const V1 82 ]
+#const D2_138 (T2 - 138) #const B2_138 (D2_138 / D2_138 - 1 * -70) [ B2_138 #const U2 36 #const V2 82 ]
+#const D1_139 (T1 - 139) #const B1_139 (D1_139 / D1_139 - 1 * -70) [ B1_139 #const U1 36 #const V1 81 ]
+#const D2_139 (T2 - 139) #const B2_139 (D2_139 / D2_139 - 1 * -70) [ B2_139 #const U2 36 #const V2 81 ]
+#const D1_140 (T1 - 140) #const B1_140 (D1_140 / D1_140 - 1 * -70) [ B1_140 #const U1 35 #const V1 81 ]
+#const D2_140 (T2 - 140) #const B2_140 (D2_140 / D2_140 - 1 * -70) [ B2_140 #const U2 35 #const V2 81 ]
+#const D1_141 (T1 - 141) #const B1_141 (D1_141 / D1_141 - 1 * -70) [ B1_141 #const U1 35 #const V1 80 ]
+#const D2_141 (T2 - 141) #const B2_141 (D2_141 / D2_141 - 1 * -70) [ B2_141 #const U2 35 #const V2 80 ]
+#const D1_142 (T1 - 142) #const B1_142 (D1_142 / D1_142 - 1 * -70) [ B1_142 #const U1 35 #const V1 80 ]
+#const D2_142 (T2 - 142) #const B2_142 (D2_142 / D2_142 - 1 * -70) [ B2_142 #const U2 35 #const V2 80 ]
+#const D1_143 (T1 - 143) #const B1_143 (D1_143 / D1_143 - 1 * -70) [ B1_143 #const U1 34 #const V1 79 ]
+#const D2_143 (T2 - 143) #const B2_143 (D2_143 / D2_143 - 1 * -70) [ B2_143 #const U2 34 #const V2 79 ]
+#const D1_144 (T1 - 144) #const B1_144 (D1_144 / D1_144 - 1 * -70) [ B1_144 #const U1 34 #const V1 79 ]
+#const D2_144 (T2 - 144) #const B2_144 (D2_144 / D2_144 - 1 * -70) [ B2_144 #const U2 34 #const V2 79 ]
+#const D1_145 (T1 - 145) #const B1_145 (D1_145 / D1_145 - 1 * -70) [ B1_145 #const U1 34 #const V1 79 ]
+#const D2_145 (T2 - 145) #const B2_145 (D2_145 / D2_145 - 1 * -70) [ B2_145 #const U2 34 #const V2 79 ]
+#const D1_146 (T1 - 146) #const B1_146 (D1_146 / D1_146 - 1 * -70) [ B1_146 #const U1 33 #const V1 78 ]
+#const D2_146 (T2 - 146) #const B2_146 (D2_146 / D2_146 - 1 * -70) [ B2_146 #const U2 33 #const V2 78 ]
+#const D1_147 (T1 - 147) #const B1_147 (D1_147 / D1_147 - 1 * -70) [ B1_147 #const U1 33 #const V1 78 ]
+#const D2_147 (T2 - 147) #const B2_147 (D2_147 / D2_147 - 1 * -70) [ B2_147 #const U2 33 #const V2 78 ]
+#const D1_148 (T1 - 148) #const B1_148 (D1_148 / D1_148 - 1 * -70) [ B1_148 #const U1 33 #const V1 77 ]
+#const D2_148 (T2 - 148) #const B2_148 (D2_148 / D2_148 - 1 * -70) [ B2_148 #const U2 33 #const V2 77 ]
+#const D1_149 (T1 - 149) #const B1_149 (D1_149 / D1_149 - 1 * -70) [ B1_149 #const U1 32 #const V1 77 ]
+#const D2_149 (T2 - 149) #const B2_149 (D2_149 / D2_149 - 1 * -70) [ B2_149 #const U2 32 #const V2 77 ]
+#const D1_150 (T1 - 150) #const B1_150 (D1_150 / D1_150 - 1 * -70) [ B1_150 #const U1 32 #const V1 76 ]
+#const D2_150 (T2 - 150) #const B2_150 (D2_150 / D2_150 - 1 * -70) [ B2_150 #const U2 32 #const V2 76 ]
+#const D1_151 (T1 - 151) #const B1_151 (D1_151 / D1_151 - 1 * -70) [ B1_151 #const U1 32 #const V1 76 ]
+#const D2_151 (T2 - 151) #const B2_151 (D2_151 / D2_151 - 1 * -70) [ B2_151 #const U2 32 #const V2 76 ]
+#const D1_152 (T1 - 152) #const B1_152 (D1_152 / D1_152 - 1 * -70) [ B1_152 #const U1 31 #const V1 75 ]
+#const D2_152 (T2 - 152) #const B2_152 (D2_152 / D2_152 - 1 * -70) [ B2_152 #const U2 31 #const V2 75 ]
+#const D1_153 (T1 - 153) #const B1_153 (D1_153 / D1_153 - 1 * -70) [ B1_153 #const U1 31 #const V1 75 ]
+#const D2_153 (T2 - 153) #const B2_153 (D2_153 / D2_153 - 1 * -70) [ B2_153 #const U2 31 #const V2 75 ]
+#const D1_154 (T1 - 154) #const B1_154 (D1_154 / D1_154 - 1 * -70) [ B1_154 #const U1 31 #const V1 74 ]
+#const D2_154 (T2 - 154) #const B2_154 (D2_154 / D2_154 - 1 * -70) [ B2_154 #const U2 31 #const V2 74 ]
+#const D1_155 (T1 - 155) #const B1_155 (D1_155 / D1_155 - 1 * -70) [ B1_155 #const U1 31 #const V1 74 ]
+#const D2_155 (T2 - 155) #const B2_155 (D2_155 / D2_155 - 1 * -70) [ B2_155 #const U2 31 #const V2 74 ]
+#const D1_156 (T1 - 156) #const B1_156 (D1_156 / D1_156 - 1 * -70) [ B1_156 #const U1 30 #const V1 73 ]
+#const D2_156 (T2 - 156) #const B2_156 (D2_156 / D2_156 - 1 * -70) [ B2_156 #const U2 30 #const V2 73 ]
+#const D1_157 (T1 - 157) #const B1_157 (D1_157 / D1_157 - 1 * -70) [ B1_157 #const U1 30 #const V1 73 ]
+#const D2_157 (T2 - 157) #const B2_157 (D2_157 / D2_157 - 1 * -70) [ B2_157 #const U2 30 #const V2 73 ]
+#const D1_158 (T1 - 158) #const B1_158 (D1_158 / D1_158 - 1 * -70) [ B1_158 #const U1 30 #const V1 72 ]
+#const D2_158 (T2 - 158) #const B2_158 (D2_158 / D2_158 - 1 * -70) [ B2_158 #const U2 30 #const V2 72 ]
+#const D1_159 (T1 - 159) #const B1_159 (D1_159 / D1_159 - 1 * -70) [ B1_159 #const U1 30 #const V1 72 ]
+#const D2_159 (T2 - 159) #const B2_159 (D2_159 / D2_159 - 1 * -70) [ B2_159 #const U2 30 #const V2 72 ]
+#const D1_160 (T1 - 160) #const B1_160 (D1_160 / D1_160 - 1 * -70) [ B1_160 #const U1 30 #const V1 71 ]
+#const D2_160 (T2 - 160) #const B2_160 (D2_160 / D2_160 - 1 * -70) [ B2_160 #const U2 30 #const V2 71 ]
+#const D1_161 (T1 - 161) #const B1_161 (D1_161 / D1_161 - 1 * -70) [ B1_161 #const U1 29 #const V1 71 ]
+#const D2_161 (T2 - 161) #const B2_161 (D2_161 / D2_161 - 1 * -70) [ B2_161 #const U2 29 #const V2 71 ]
+#const D1_162 (T1 - 162) #const B1_162 (D1_162 / D1_162 - 1 * -70) [ B1_162 #const U1 29 #const V1 70 ]
+#const D2_162 (T2 - 162) #const B2_162 (D2_162 / D2_162 - 1 * -70) [ B2_162 #const U2 29 #const V2 70 ]
+#const D1_163 (T1 - 163) #const B1_163 (D1_163 / D1_163 - 1 * -70) [ B1_163 #const U1 29 #const V1 70 ]
+#const D2_163 (T2 - 163) #const B2_163 (D2_163 / D2_163 - 1 * -70) [ B2_163 #const U2 29 #const V2 70 ]
+#const D1_164 (T1 - 164) #const B1_164 (D1_164 / D1_164 - 1 * -70) [ B1_164 #const U1 29 #const V1 69 ]
+#const D2_164 (T2 - 164) #const B2_164 (D2_164 / D2_164 - 1 * -70) [ B2_164 #const U2 29 #const V2 69 ]
+#const D1_165 (T1 - 165) #const B1_165 (D1_165 / D1_165 - 1 * -70) [ B1_165 #const U1 29 #const V1 68 ]
+#const D2_165 (T2 - 165) #const B2_165 (D2_165 / D2_165 - 1 * -70) [ B2_165 #const U2 29 #const V2 68 ]
+#const D1_166 (T1 - 166) #const B1_166 (D1_166 / D1_166 - 1 * -70) [ B1_166 #const U1 29 #const V1 68 ]
+#const D2_166 (T2 - 166) #const B2_166 (D2_166 / D2_166 - 1 * -70) [ B2_166 #const U2 29 #const V2 68 ]
+#const D1_167 (T1 - 167) #const B1_167 (D1_167 / D1_167 - 1 * -70) [ B1_167 #const U1 28 #const V1 67 ]
+#const D2_167 (T2 - 167) #const B2_167 (D2_167 / D2_167 - 1 * -70) [ B2_167 #const U2 28 #const V2 67 ]
+#const D1_168 (T1 - 168) #const B1_168 (D1_168 / D1_168 - 1 * -70) [ B1_168 #const U1 28 #const V1 67 ]
+#const D2_168 (T2 - 168) #const B2_168 (D2_168 / D2_168 - 1 * -70) [ B2_168 #const U2 28 #const V2 67 ]
+#const D1_169 (T1 - 169) #const B1_169 (D1_169 / D1_169 - 1 * -70) [ B1_169 #const U1 28 #const V1 66 ]
+#const D2_169 (T2 - 169) #const B2_169 (D2_169 / D2_169 - 1 * -70) [ B2_169 #const U2 28 #const V2 66 ]
+#const D1_170 (T1 - 170) #const B1_170 (D1_170 / D1_170 - 1 * -70) [ B1_170 #const U1 28 #const V1 66 ]
+#const D2_170 (T2 - 170) #const B2_170 (D2_170 / D2_170 - 1 * -70) [ B2_170 #const U2 28 #const V2 66 ]
+#const D1_171 (T1 - 171) #const B1_171 (D1_171 / D1_171 - 1 * -70) [ B1_171 #const U1 28 #const V1 65 ]
+#const D2_171 (T2 - 171) #const B2_171 (D2_171 / D2_171 - 1 * -70) [ B2_171 #const U2 28 #const V2 65 ]
+#const D1_172 (T1 - 172) #const B1_172 (D1_172 / D1_172 - 1 * -70) [ B1_172 #const U1 28 #const V1 65 ]
+#const D2_172 (T2 - 172) #const B2_172 (D2_172 / D2_172 - 1 * -70) [ B2_172 #const U2 28 #const V2 65 ]
+#const D1_173 (T1 - 173) #const B1_173 (D1_173 / D1_173 - 1 * -70) [ B1_173 #const U1 28 #const V1 64 ]
+#const D2_173 (T2 - 173) #const B2_173 (D2_173 / D2_173 - 1 * -70) [ B2_173 #const U2 28 #const V2 64 ]
+#const D1_174 (T1 - 174) #const B1_174 (D1_174 / D1_174 - 1 * -70) [ B1_174 #const U1 28 #const V1 63 ]
+#const D2_174 (T2 - 174) #const B2_174 (D2_174 / D2_174 - 1 * -70) [ B2_174 #const U2 28 #const V2 63 ]
+#const D1_175 (T1 - 175) #const B1_175 (D1_175 / D1_175 - 1 * -70) [ B1_175 #const U1 28 #const V1 63 ]
+#const D2_175 (T2 - 175) #const B2_175 (D2_175 / D2_175 - 1 * -70) [ B2_175 #const U2 28 #const V2 63 ]
+#const D1_176 (T1 - 176) #const B1_176 (D1_176 / D1_176 - 1 * -70) [ B1_176 #const U1 28 #const V1 62 ]
+#const D2_176 (T2 - 176) #const B2_176 (D2_176 / D2_176 - 1 * -70) [ B2_176 #const U2 28 #const V2 62 ]
+#const D1_177 (T1 - 177) #const B1_177 (D1_177 / D1_177 - 1 * -70) [ B1_177 #const U1 28 #const V1 62 ]
+#const D2_177 (T2 - 177) #const B2_177 (D2_177 / D2_177 - 1 * -70) [ B2_177 #const U2 28 #const V2 62 ]
+#const D1_178 (T1 - 178) #const B1_178 (D1_178 / D1_178 - 1 * -70) [ B1_178 #const U1 28 #const V1 61 ]
+#const D2_178 (T2 - 178) #const B2_178 (D2_178 / D2_178 - 1 * -70) [ B2_178 #const U2 28 #const V2 61 ]
+#const D1_179 (T1 - 179) #const B1_179 (D1_179 / D1_179 - 1 * -70) [ B1_179 #const U1 28 #const V1 61 ]
+#const D2_179 (T2 - 179) #const B2_179 (D2_179 / D2_179 - 1 * -70) [ B2_179 #const U2 28 #const V2 61 ]
+#const D1_180 (T1 - 180) #const B1_180 (D1_180 / D1_180 - 1 * -70) [ B1_180 #const U1 28 #const V1 60 ]
+#const D2_180 (T2 - 180) #const B2_180 (D2_180 / D2_180 - 1 * -70) [ B2_180 #const U2 28 #const V2 60 ]
+#const D1_181 (T1 - 181) #const B1_181 (D1_181 / D1_181 - 1 * -70) [ B1_181 #const U1 28 #const V1 59 ]
+#const D2_181 (T2 - 181) #const B2_181 (D2_181 / D2_181 - 1 * -70) [ B2_181 #const U2 28 #const V2 59 ]
+#const D1_182 (T1 - 182) #const B1_182 (D1_182 / D1_182 - 1 * -70) [ B1_182 #const U1 28 #const V1 59 ]
+#const D2_182 (T2 - 182) #const B2_182 (D2_182 / D2_182 - 1 * -70) [ B2_182 #const U2 28 #const V2 59 ]
+#const D1_183 (T1 - 183) #const B1_183 (D1_183 / D1_183 - 1 * -70) [ B1_183 #const U1 28 #const V1 58 ]
+#const D2_183 (T2 - 183) #const B2_183 (D2_183 / D2_183 - 1 * -70) [ B2_183 #const U2 28 #const V2 58 ]
+#const D1_184 (T1 - 184) #const B1_184 (D1_184 / D1_184 - 1 * -70) [ B1_184 #const U1 28 #const V1 58 ]
+#const D2_184 (T2 - 184) #const B2_184 (D2_184 / D2_184 - 1 * -70) [ B2_184 #const U2 28 #const V2 58 ]
+#const D1_185 (T1 - 185) #const B1_185 (D1_185 / D1_185 - 1 * -70) [ B1_185 #const U1 28 #const V1 57 ]
+#const D2_185 (T2 - 185) #const B2_185 (D2_185 / D2_185 - 1 * -70) [ B2_185 #const U2 28 #const V2 57 ]
+#const D1_186 (T1 - 186) #const B1_186 (D1_186 / D1_186 - 1 * -70) [ B1_186 #const U1 28 #const V1 57 ]
+#const D2_186 (T2 - 186) #const B2_186 (D2_186 / D2_186 - 1 * -70) [ B2_186 #const U2 28 #const V2 57 ]
+#const D1_187 (T1 - 187) #const B1_187 (D1_187 / D1_187 - 1 * -70) [ B1_187 #const U1 28 #const V1 56 ]
+#const D2_187 (T2 - 187) #const B2_187 (D2_187 / D2_187 - 1 * -70) [ B2_187 #const U2 28 #const V2 56 ]
+#const D1_188 (T1 - 188) #const B1_188 (D1_188 / D1_188 - 1 * -70) [ B1_188 #const U1 28 #const V1 55 ]
+#const D2_188 (T2 - 188) #const B2_188 (D2_188 / D2_188 - 1 * -70) [ B2_188 #const U2 28 #const V2 55 ]
+#const D1_189 (T1 - 189) #const B1_189 (D1_189 / D1_189 - 1 * -70) [ B1_189 #const U1 28 #const V1 55 ]
+#const D2_189 (T2 - 189) #const B2_189 (D2_189 / D2_189 - 1 * -70) [ B2_189 #const U2 28 #const V2 55 ]
+#const D1_190 (T1 - 190) #const B1_190 (D1_190 / D1_190 - 1 * -70) [ B1_190 #const U1 28 #const V1 54 ]
+#const D2_190 (T2 - 190) #const B2_190 (D2_190 / D2_190 - 1 * -70) [ B2_190 #const U2 28 #const V2 54 ]
+#const D1_191 (T1 - 191) #const B1_191 (D1_191 / D1_191 - 1 * -70) [ B1_191 #const U1 28 #const V1 54 ]
+#const D2_191 (T2 - 191) #const B2_191 (D2_191 / D2_191 - 1 * -70) [ B2_191 #const U2 28 #const V2 54 ]
+#const D1_192 (T1 - 192) #const B1_192 (D1_192 / D1_192 - 1 * -70) [ B1_192 #const U1 28 #const V1 53 ]
+#const D2_192 (T2 - 192) #const B2_192 (D2_192 / D2_192 - 1 * -70) [ B2_192 #const U2 28 #const V2 53 ]
+#const D1_193 (T1 - 193) #const B1_193 (D1_193 / D1_193 - 1 * -70) [ B1_193 #const U1 28 #const V1 53 ]
+#const D2_193 (T2 - 193) #const B2_193 (D2_193 / D2_193 - 1 * -70) [ B2_193 #const U2 28 #const V2 53 ]
+#const D1_194 (T1 - 194) #const B1_194 (D1_194 / D1_194 - 1 * -70) [ B1_194 #const U1 29 #const V1 52 ]
+#const D2_194 (T2 - 194) #const B2_194 (D2_194 / D2_194 - 1 * -70) [ B2_194 #const U2 29 #const V2 52 ]
+#const D1_195 (T1 - 195) #const B1_195 (D1_195 / D1_195 - 1 * -70) [ B1_195 #const U1 29 #const V1 52 ]
+#const D2_195 (T2 - 195) #const B2_195 (D2_195 / D2_195 - 1 * -70) [ B2_195 #const U2 29 #const V2 52 ]
+#const D1_196 (T1 - 196) #const B1_196 (D1_196 / D1_196 - 1 * -70) [ B1_196 #const U1 29 #const V1 51 ]
+#const D2_196 (T2 - 196) #const B2_196 (D2_196 / D2_196 - 1 * -70) [ B2_196 #const U2 29 #const V2 51 ]
+#const D1_197 (T1 - 197) #const B1_197 (D1_197 / D1_197 - 1 * -70) [ B1_197 #const U1 29 #const V1 50 ]
+#const D2_197 (T2 - 197) #const B2_197 (D2_197 / D2_197 - 1 * -70) [ B2_197 #const U2 29 #const V2 50 ]
+#const D1_198 (T1 - 198) #const B1_198 (D1_198 / D1_198 - 1 * -70) [ B1_198 #const U1 29 #const V1 50 ]
+#const D2_198 (T2 - 198) #const B2_198 (D2_198 / D2_198 - 1 * -70) [ B2_198 #const U2 29 #const V2 50 ]
+#const D1_199 (T1 - 199) #const B1_199 (D1_199 / D1_199 - 1 * -70) [ B1_199 #const U1 29 #const V1 49 ]
+#const D2_199 (T2 - 199) #const B2_199 (D2_199 / D2_199 - 1 * -70) [ B2_199 #const U2 29 #const V2 49 ]
+#const D1_200 (T1 - 200) #const B1_200 (D1_200 / D1_200 - 1 * -70) [ B1_200 #const U1 30 #const V1 49 ]
+#const D2_200 (T2 - 200) #const B2_200 (D2_200 / D2_200 - 1 * -70) [ B2_200 #const U2 30 #const V2 49 ]
+#const D1_201 (T1 - 201) #const B1_201 (D1_201 / D1_201 - 1 * -70) [ B1_201 #const U1 30 #const V1 48 ]
+#const D2_201 (T2 - 201) #const B2_201 (D2_201 / D2_201 - 1 * -70) [ B2_201 #const U2 30 #const V2 48 ]
+#const D1_202 (T1 - 202) #const B1_202 (D1_202 / D1_202 - 1 * -70) [ B1_202 #const U1 30 #const V1 48 ]
+#const D2_202 (T2 - 202) #const B2_202 (D2_202 / D2_202 - 1 * -70) [ B2_202 #const U2 30 #const V2 48 ]
+#const D1_203 (T1 - 203) #const B1_203 (D1_203 / D1_203 - 1 * -70) [ B1_203 #const U1 30 #const V1 47 ]
+#const D2_203 (T2 - 203) #const B2_203 (D2_203 / D2_203 - 1 * -70) [ B2_203 #const U2 30 #const V2 47 ]
+#const D1_204 (T1 - 204) #const B1_204 (D1_204 / D1_204 - 1 * -70) [ B1_204 #const U1 30 #const V1 47 ]
+#const D2_204 (T2 - 204) #const B2_204 (D2_204 / D2_204 - 1 * -70) [ B2_204 #const U2 30 #const V2 47 ]
+#const D1_205 (T1 - 205) #const B1_205 (D1_205 / D1_205 - 1 * -70) [ B1_205 #const U1 31 #const V1 46 ]
+#const D2_205 (T2 - 205) #const B2_205 (D2_205 / D2_205 - 1 * -70) [ B2_205 #const U2 31 #const V2 46 ]
+#const D1_206 (T1 - 206) #const B1_206 (D1_206 / D1_206 - 1 * -70) [ B1_206 #const U1 31 #const V1 46 ]
+#const D2_206 (T2 - 206) #const B2_206 (D2_206 / D2_206 - 1 * -70) [ B2_206 #const U2 31 #const V2 46 ]
+#const D1_207 (T1 - 207) #const B1_207 (D1_207 / D1_207 - 1 * -70) [ B1_207 #const U1 31 #const V1 45 ]
+#const D2_207 (T2 - 207) #const B2_207 (D2_207 / D2_207 - 1 * -70) [ B2_207 #const U2 31 #const V2 45 ]
+#const D1_208 (T1 - 208) #const B1_208 (D1_208 / D1_208 - 1 * -70) [ B1_208 #const U1 31 #const V1 45 ]
+#const D2_208 (T2 - 208) #const B2_208 (D2_208 / D2_208 - 1 * -70) [ B2_208 #const U2 31 #const V2 45 ]
+#const D1_209 (T1 - 209) #const B1_209 (D1_209 / D1_209 - 1 * -70) [ B1_209 #const U1 32 #const V1 44 ]
+#const D2_209 (T2 - 209) #const B2_209 (D2_209 / D2_209 - 1 * -70) [ B2_209 #const U2 32 #const V2 44 ]
+#const D1_210 (T1 - 210) #const B1_210 (D1_210 / D1_210 - 1 * -70) [ B1_210 #const U1 32 #const V1 44 ]
+#const D2_210 (T2 - 210) #const B2_210 (D2_210 / D2_210 - 1 * -70) [ B2_210 #const U2 32 #const V2 44 ]
+#const D1_211 (T1 - 211) #const B1_211 (D1_211 / D1_211 - 1 * -70) [ B1_211 #const U1 32 #const V1 43 ]
+#const D2_211 (T2 - 211) #const B2_211 (D2_211 / D2_211 - 1 * -70) [ B2_211 #const U2 32 #const V2 43 ]
+#const D1_212 (T1 - 212) #const B1_212 (D1_212 / D1_212 - 1 * -70) [ B1_212 #const U1 33 #const V1 43 ]
+#const D2_212 (T2 - 212) #const B2_212 (D2_212 / D2_212 - 1 * -70) [ B2_212 #const U2 33 #const V2 43 ]
+#const D1_213 (T1 - 213) #const B1_213 (D1_213 / D1_213 - 1 * -70) [ B1_213 #const U1 33 #const V1 42 ]
+#const D2_213 (T2 - 213) #const B2_213 (D2_213 / D2_213 - 1 * -70) [ B2_213 #const U2 33 #const V2 42 ]
+#const D1_214 (T1 - 214) #const B1_214 (D1_214 / D1_214 - 1 * -70) [ B1_214 #const U1 33 #const V1 42 ]
+#const D2_214 (T2 - 214) #const B2_214 (D2_214 / D2_214 - 1 * -70) [ B2_214 #const U2 33 #const V2 42 ]
+#const D1_215 (T1 - 215) #const B1_215 (D1_215 / D1_215 - 1 * -70) [ B1_215 #const U1 34 #const V1 41 ]
+#const D2_215 (T2 - 215) #const B2_215 (D2_215 / D2_215 - 1 * -70) [ B2_215 #const U2 34 #const V2 41 ]
+#const D1_216 (T1 - 216) #const B1_216 (D1_216 / D1_216 - 1 * -70) [ B1_216 #const U1 34 #const V1 41 ]
+#const D2_216 (T2 - 216) #const B2_216 (D2_216 / D2_216 - 1 * -70) [ B2_216 #const U2 34 #const V2 41 ]
+#const D1_217 (T1 - 217) #const B1_217 (D1_217 / D1_217 - 1 * -70) [ B1_217 #const U1 34 #const V1 41 ]
+#const D2_217 (T2 - 217) #const B2_217 (D2_217 / D2_217 - 1 * -70) [ B2_217 #const U2 34 #const V2 41 ]
+#const D1_218 (T1 - 218) #const B1_218 (D1_218 / D1_218 - 1 * -70) [ B1_218 #const U1 35 #const V1 40 ]
+#const D2_218 (T2 - 218) #const B2_218 (D2_218 / D2_218 - 1 * -70) [ B2_218 #const U2 35 #const V2 40 ]
+#const D1_219 (T1 - 219) #const B1_219 (D1_219 / D1_219 - 1 * -70) [ B1_219 #const U1 35 #const V1 40 ]
+#const D2_219 (T2 - 219) #const B2_219 (D2_219 / D2_219 - 1 * -70) [ B2_219 #const U2 35 #const V2 40 ]
+#const D1_220 (T1 - 220) #const B1_220 (D1_220 / D1_220 - 1 * -70) [ B1_220 #const U1 35 #const V1 39 ]
+#const D2_220 (T2 - 220) #const B2_220 (D2_220 / D2_220 - 1 * -70) [ B2_220 #const U2 35 #const V2 39 ]
+#const D1_221 (T1 - 221) #const B1_221 (D1_221 / D1_221 - 1 * -70) [ B1_221 #const U1 36 #const V1 39 ]
+#const D2_221 (T2 - 221) #const B2_221 (D2_221 / D2_221 - 1 * -70) [ B2_221 #const U2 36 #const V2 39 ]
+#const D1_222 (T1 - 222) #const B1_222 (D1_222 / D1_222 - 1 * -70) [ B1_222 #const U1 36 #const V1 38 ]
+#const D2_222 (T2 - 222) #const B2_222 (D2_222 / D2_222 - 1 * -70) [ B2_222 #const U2 36 #const V2 38 ]
+#const D1_223 (T1 - 223) #const B1_223 (D1_223 / D1_223 - 1 * -70) [ B1_223 #const U1 36 #const V1 38 ]
+#const D2_223 (T2 - 223) #const B2_223 (D2_223 / D2_223 - 1 * -70) [ B2_223 #const U2 36 #const V2 38 ]
+#const D1_224 (T1 - 224) #const B1_224 (D1_224 / D1_224 - 1 * -70) [ B1_224 #const U1 37 #const V1 38 ]
+#const D2_224 (T2 - 224) #const B2_224 (D2_224 / D2_224 - 1 * -70) [ B2_224 #const U2 37 #const V2 38 ]
+#const D1_225 (T1 - 225) #const B1_225 (D1_225 / D1_225 - 1 * -70) [ B1_225 #const U1 37 #const V1 37 ]
+#const D2_225 (T2 - 225) #const B2_225 (D2_225 / D2_225 - 1 * -70) [ B2_225 #const U2 37 #const V2 37 ]
+#const D1_226 (T1 - 226) #const B1_226 (D1_226 / D1_226 - 1 * -70) [ B1_226 #const U1 38 #const V1 37 ]
+#const D2_226 (T2 - 226) #const B2_226 (D2_226 / D2_226 - 1 * -70) [ B2_226 #const U2 38 #const V2 37 ]
+#const D1_227 (T1 - 227) #const B1_227 (D1_227 / D1_227 - 1 * -70) [ B1_227 #const U1 38 #const V1 36 ]
+#const D2_227 (T2 - 227) #const B2_227 (D2_227 / D2_227 - 1 * -70) [ B2_227 #const U2 38 #const V2 36 ]
+#const D1_228 (T1 - 228) #const B1_228 (D1_228 / D1_228 - 1 * -70) [ B1_228 #const U1 38 #const V1 36 ]
+#const D2_228 (T2 - 228) #const B2_228 (D2_228 / D2_228 - 1 * -70) [ B2_228 #const U2 38 #const V2 36 ]
+#const D1_229 (T1 - 229) #const B1_229 (D1_229 / D1_229 - 1 * -70) [ B1_229 #const U1 39 #const V1 36 ]
+#const D2_229 (T2 - 229) #const B2_229 (D2_229 / D2_229 - 1 * -70) [ B2_229 #const U2 39 #const V2 36 ]
+#const D1_230 (T1 - 230) #const B1_230 (D1_230 / D1_230 - 1 * -70) [ B1_230 #const U1 39 #const V1 35 ]
+#const D2_230 (T2 - 230) #const B2_230 (D2_230 / D2_230 - 1 * -70) [ B2_230 #const U2 39 #const V2 35 ]
+#const D1_231 (T1 - 231) #const B1_231 (D1_231 / D1_231 - 1 * -70) [ B1_231 #const U1 40 #const V1 35 ]
+#const D2_231 (T2 - 231) #const B2_231 (D2_231 / D2_231 - 1 * -70) [ B2_231 #const U2 40 #const V2 35 ]
+#const D1_232 (T1 - 232) #const B1_232 (D1_232 / D1_232 - 1 * -70) [ B1_232 #const U1 40 #const V1 35 ]
+#const D2_232 (T2 - 232) #const B2_232 (D2_232 / D2_232 - 1 * -70) [ B2_232 #const U2 40 #const V2 35 ]
+#const D1_233 (T1 - 233) #const B1_233 (D1_233 / D1_233 - 1 * -70) [ B1_233 #const U1 41 #const V1 34 ]
+#const D2_233 (T2 - 233) #const B2_233 (D2_233 / D2_233 - 1 * -70) [ B2_233 #const U2 41 #const V2 34 ]
+#const D1_234 (T1 - 234) #const B1_234 (D1_234 / D1_234 - 1 * -70) [ B1_234 #const U1 41 #const V1 34 ]
+#const D2_234 (T2 - 234) #const B2_234 (D2_234 / D2_234 - 1 * -70) [ B2_234 #const U2 41 #const V2 34 ]
+#const D1_235 (T1 - 235) #const B1_235 (D1_235 / D1_235 - 1 * -70) [ B1_235 #const U1 41 #const V1 34 ]
+#const D2_235 (T2 - 235) #const B2_235 (D2_235 / D2_235 - 1 * -70) [ B2_235 #const U2 41 #const V2 34 ]
+#const D1_236 (T1 - 236) #const B1_236 (D1_236 / D1_236 - 1 * -70) [ B1_236 #const U1 42 #const V1 33 ]
+#const D2_236 (T2 - 236) #const B2_236 (D2_236 / D2_236 - 1 * -70) [ B2_236 #const U2 42 #const V2 33 ]
+#const D1_237 (T1 - 237) #const B1_237 (D1_237 / D1_237 - 1 * -70) [ B1_237 #const U1 42 #const V1 33 ]
+#const D2_237 (T2 - 237) #const B2_237 (D2_237 / D2_237 - 1 * -70) [ B2_237 #const U2 42 #const V2 33 ]
+#const D1_238 (T1 - 238) #const B1_238 (D1_238 / D1_238 - 1 * -70) [ B1_238 #const U1 43 #const V1 33 ]
+#const D2_238 (T2 - 238) #const B2_238 (D2_238 / D2_238 - 1 * -70) [ B2_238 #const U2 43 #const V2 33 ]
+#const D1_239 (T1 - 239) #const B1_239 (D1_239 / D1_239 - 1 * -70) [ B1_239 #const U1 43 #const V1 32 ]
+#const D2_239 (T2 - 239) #const B2_239 (D2_239 / D2_239 - 1 * -70) [ B2_239 #const U2 43 #const V2 32 ]
+#const D1_240 (T1 - 240) #const B1_240 (D1_240 / D1_240 - 1 * -70) [ B1_240 #const U1 44 #const V1 32 ]
+#const D2_240 (T2 - 240) #const B2_240 (D2_240 / D2_240 - 1 * -70) [ B2_240 #const U2 44 #const V2 32 ]
+#const D1_241 (T1 - 241) #const B1_241 (D1_241 / D1_241 - 1 * -70) [ B1_241 #const U1 44 #const V1 32 ]
+#const D2_241 (T2 - 241) #const B2_241 (D2_241 / D2_241 - 1 * -70) [ B2_241 #const U2 44 #const V2 32 ]
+#const D1_242 (T1 - 242) #const B1_242 (D1_242 / D1_242 - 1 * -70) [ B1_242 #const U1 45 #const V1 31 ]
+#const D2_242 (T2 - 242) #const B2_242 (D2_242 / D2_242 - 1 * -70) [ B2_242 #const U2 45 #const V2 31 ]
+#const D1_243 (T1 - 243) #const B1_243 (D1_243 / D1_243 - 1 * -70) [ B1_243 #const U1 45 #const V1 31 ]
+#const D2_243 (T2 - 243) #const B2_243 (D2_243 / D2_243 - 1 * -70) [ B2_243 #const U2 45 #const V2 31 ]
+#const D1_244 (T1 - 244) #const B1_244 (D1_244 / D1_244 - 1 * -70) [ B1_244 #const U1 46 #const V1 31 ]
+#const D2_244 (T2 - 244) #const B2_244 (D2_244 / D2_244 - 1 * -70) [ B2_244 #const U2 46 #const V2 31 ]
+#const D1_245 (T1 - 245) #const B1_245 (D1_245 / D1_245 - 1 * -70) [ B1_245 #const U1 46 #const V1 31 ]
+#const D2_245 (T2 - 245) #const B2_245 (D2_245 / D2_245 - 1 * -70) [ B2_245 #const U2 46 #const V2 31 ]
+#const D1_246 (T1 - 246) #const B1_246 (D1_246 / D1_246 - 1 * -70) [ B1_246 #const U1 47 #const V1 30 ]
+#const D2_246 (T2 - 246) #const B2_246 (D2_246 / D2_246 - 1 * -70) [ B2_246 #const U2 47 #const V2 30 ]
+#const D1_247 (T1 - 247) #const B1_247 (D1_247 / D1_247 - 1 * -70) [ B1_247 #const U1 47 #const V1 30 ]
+#const D2_247 (T2 - 247) #const B2_247 (D2_247 / D2_247 - 1 * -70) [ B2_247 #const U2 47 #const V2 30 ]
+#const D1_248 (T1 - 248) #const B1_248 (D1_248 / D1_248 - 1 * -70) [ B1_248 #const U1 48 #const V1 30 ]
+#const D2_248 (T2 - 248) #const B2_248 (D2_248 / D2_248 - 1 * -70) [ B2_248 #const U2 48 #const V2 30 ]
+#const D1_249 (T1 - 249) #const B1_249 (D1_249 / D1_249 - 1 * -70) [ B1_249 #const U1 48 #const V1 30 ]
+#const D2_249 (T2 - 249) #const B2_249 (D2_249 / D2_249 - 1 * -70) [ B2_249 #const U2 48 #const V2 30 ]
+#const D1_250 (T1 - 250) #const B1_250 (D1_250 / D1_250 - 1 * -70) [ B1_250 #const U1 49 #const V1 30 ]
+#const D2_250 (T2 - 250) #const B2_250 (D2_250 / D2_250 - 1 * -70) [ B2_250 #const U2 49 #const V2 30 ]
+#const D1_251 (T1 - 251) #const B1_251 (D1_251 / D1_251 - 1 * -70) [ B1_251 #const U1 49 #const V1 29 ]
+#const D2_251 (T2 - 251) #const B2_251 (D2_251 / D2_251 - 1 * -70) [ B2_251 #const U2 49 #const V2 29 ]
+#const D1_252 (T1 - 252) #const B1_252 (D1_252 / D1_252 - 1 * -70) [ B1_252 #const U1 50 #const V1 29 ]
+#const D2_252 (T2 - 252) #const B2_252 (D2_252 / D2_252 - 1 * -70) [ B2_252 #const U2 50 #const V2 29 ]
+#const D1_253 (T1 - 253) #const B1_253 (D1_253 / D1_253 - 1 * -70) [ B1_253 #const U1 50 #const V1 29 ]
+#const D2_253 (T2 - 253) #const B2_253 (D2_253 / D2_253 - 1 * -70) [ B2_253 #const U2 50 #const V2 29 ]
+#const D1_254 (T1 - 254) #const B1_254 (D1_254 / D1_254 - 1 * -70) [ B1_254 #const U1 51 #const V1 29 ]
+#const D2_254 (T2 - 254) #const B2_254 (D2_254 / D2_254 - 1 * -70) [ B2_254 #const U2 51 #const V2 29 ]
+#const D1_255 (T1 - 255) #const B1_255 (D1_255 / D1_255 - 1 * -70) [ B1_255 #const U1 52 #const V1 29 ]
+#const D2_255 (T2 - 255) #const B2_255 (D2_255 / D2_255 - 1 * -70) [ B2_255 #const U2 52 #const V2 29 ]
+#const D1_256 (T1 - 256) #const B1_256 (D1_256 / D1_256 - 1 * -70) [ B1_256 #const U1 52 #const V1 29 ]
+#const D2_256 (T2 - 256) #const B2_256 (D2_256 / D2_256 - 1 * -70) [ B2_256 #const U2 52 #const V2 29 ]
+#const D1_257 (T1 - 257) #const B1_257 (D1_257 / D1_257 - 1 * -70) [ B1_257 #const U1 53 #const V1 28 ]
+#const D2_257 (T2 - 257) #const B2_257 (D2_257 / D2_257 - 1 * -70) [ B2_257 #const U2 53 #const V2 28 ]
+#const D1_258 (T1 - 258) #const B1_258 (D1_258 / D1_258 - 1 * -70) [ B1_258 #const U1 53 #const V1 28 ]
+#const D2_258 (T2 - 258) #const B2_258 (D2_258 / D2_258 - 1 * -70) [ B2_258 #const U2 53 #const V2 28 ]
+#const D1_259 (T1 - 259) #const B1_259 (D1_259 / D1_259 - 1 * -70) [ B1_259 #const U1 54 #const V1 28 ]
+#const D2_259 (T2 - 259) #const B2_259 (D2_259 / D2_259 - 1 * -70) [ B2_259 #const U2 54 #const V2 28 ]
+#const D1_260 (T1 - 260) #const B1_260 (D1_260 / D1_260 - 1 * -70) [ B1_260 #const U1 54 #const V1 28 ]
+#const D2_260 (T2 - 260) #const B2_260 (D2_260 / D2_260 - 1 * -70) [ B2_260 #const U2 54 #const V2 28 ]
+#const D1_261 (T1 - 261) #const B1_261 (D1_261 / D1_261 - 1 * -70) [ B1_261 #const U1 55 #const V1 28 ]
+#const D2_261 (T2 - 261) #const B2_261 (D2_261 / D2_261 - 1 * -70) [ B2_261 #const U2 55 #const V2 28 ]
+#const D1_262 (T1 - 262) #const B1_262 (D1_262 / D1_262 - 1 * -70) [ B1_262 #const U1 55 #const V1 28 ]
+#const D2_262 (T2 - 262) #const B2_262 (D2_262 / D2_262 - 1 * -70) [ B2_262 #const U2 55 #const V2 28 ]
+#const D1_263 (T1 - 263) #const B1_263 (D1_263 / D1_263 - 1 * -70) [ B1_263 #const U1 56 #const V1 28 ]
+#const D2_263 (T2 - 263) #const B2_263 (D2_263 / D2_263 - 1 * -70) [ B2_263 #const U2 56 #const V2 28 ]
+#const D1_264 (T1 - 264) #const B1_264 (D1_264 / D1_264 - 1 * -70) [ B1_264 #const U1 57 #const V1 28 ]
+#const D2_264 (T2 - 264) #const B2_264 (D2_264 / D2_264 - 1 * -70) [ B2_264 #const U2 57 #const V2 28 ]
+#const D1_265 (T1 - 265) #const B1_265 (D1_265 / D1_265 - 1 * -70) [ B1_265 #const U1 57 #const V1 28 ]
+#const D2_265 (T2 - 265) #const B2_265 (D2_265 / D2_265 - 1 * -70) [ B2_265 #const U2 57 #const V2 28 ]
+#const D1_266 (T1 - 266) #const B1_266 (D1_266 / D1_266 - 1 * -70) [ B1_266 #const U1 58 #const V1 28 ]
+#const D2_266 (T2 - 266) #const B2_266 (D2_266 / D2_266 - 1 * -70) [ B2_266 #const U2 58 #const V2 28 ]
+#const D1_267 (T1 - 267) #const B1_267 (D1_267 / D1_267 - 1 * -70) [ B1_267 #const U1 58 #const V1 28 ]
+#const D2_267 (T2 - 267) #const B2_267 (D2_267 / D2_267 - 1 * -70) [ B2_267 #const U2 58 #const V2 28 ]
+#const D1_268 (T1 - 268) #const B1_268 (D1_268 / D1_268 - 1 * -70) [ B1_268 #const U1 59 #const V1 28 ]
+#const D2_268 (T2 - 268) #const B2_268 (D2_268 / D2_268 - 1 * -70) [ B2_268 #const U2 59 #const V2 28 ]
+#const D1_269 (T1 - 269) #const B1_269 (D1_269 / D1_269 - 1 * -70) [ B1_269 #const U1 59 #const V1 28 ]
+#const D2_269 (T2 - 269) #const B2_269 (D2_269 / D2_269 - 1 * -70) [ B2_269 #const U2 59 #const V2 28 ]
+#const D1_270 (T1 - 270) #const B1_270 (D1_270 / D1_270 - 1 * -70) [ B1_270 #const U1 60 #const V1 28 ]
+#const D2_270 (T2 - 270) #const B2_270 (D2_270 / D2_270 - 1 * -70) [ B2_270 #const U2 60 #const V2 28 ]
+#const D1_271 (T1 - 271) #const B1_271 (D1_271 / D1_271 - 1 * -70) [ B1_271 #const U1 61 #const V1 28 ]
+#const D2_271 (T2 - 271) #const B2_271 (D2_271 / D2_271 - 1 * -70) [ B2_271 #const U2 61 #const V2 28 ]
+#const D1_272 (T1 - 272) #const B1_272 (D1_272 / D1_272 - 1 * -70) [ B1_272 #const U1 61 #const V1 28 ]
+#const D2_272 (T2 - 272) #const B2_272 (D2_272 / D2_272 - 1 * -70) [ B2_272 #const U2 61 #const V2 28 ]
+#const D1_273 (T1 - 273) #const B1_273 (D1_273 / D1_273 - 1 * -70) [ B1_273 #const U1 62 #const V1 28 ]
+#const D2_273 (T2 - 273) #const B2_273 (D2_273 / D2_273 - 1 * -70) [ B2_273 #const U2 62 #const V2 28 ]
+#const D1_274 (T1 - 274) #const B1_274 (D1_274 / D1_274 - 1 * -70) [ B1_274 #const U1 62 #const V1 28 ]
+#const D2_274 (T2 - 274) #const B2_274 (D2_274 / D2_274 - 1 * -70) [ B2_274 #const U2 62 #const V2 28 ]
+#const D1_275 (T1 - 275) #const B1_275 (D1_275 / D1_275 - 1 * -70) [ B1_275 #const U1 63 #const V1 28 ]
+#const D2_275 (T2 - 275) #const B2_275 (D2_275 / D2_275 - 1 * -70) [ B2_275 #const U2 63 #const V2 28 ]
+#const D1_276 (T1 - 276) #const B1_276 (D1_276 / D1_276 - 1 * -70) [ B1_276 #const U1 63 #const V1 28 ]
+#const D2_276 (T2 - 276) #const B2_276 (D2_276 / D2_276 - 1 * -70) [ B2_276 #const U2 63 #const V2 28 ]
+#const D1_277 (T1 - 277) #const B1_277 (D1_277 / D1_277 - 1 * -70) [ B1_277 #const U1 64 #const V1 28 ]
+#const D2_277 (T2 - 277) #const B2_277 (D2_277 / D2_277 - 1 * -70) [ B2_277 #const U2 64 #const V2 28 ]
+#const D1_278 (T1 - 278) #const B1_278 (D1_278 / D1_278 - 1 * -70) [ B1_278 #const U1 65 #const V1 28 ]
+#const D2_278 (T2 - 278) #const B2_278 (D2_278 / D2_278 - 1 * -70) [ B2_278 #const U2 65 #const V2 28 ]
+#const D1_279 (T1 - 279) #const B1_279 (D1_279 / D1_279 - 1 * -70) [ B1_279 #const U1 65 #const V1 28 ]
+#const D2_279 (T2 - 279) #const B2_279 (D2_279 / D2_279 - 1 * -70) [ B2_279 #const U2 65 #const V2 28 ]
+#const D1_280 (T1 - 280) #const B1_280 (D1_280 / D1_280 - 1 * -70) [ B1_280 #const U1 66 #const V1 28 ]
+#const D2_280 (T2 - 280) #const B2_280 (D2_280 / D2_280 - 1 * -70) [ B2_280 #const U2 66 #const V2 28 ]
+#const D1_281 (T1 - 281) #const B1_281 (D1_281 / D1_281 - 1 * -70) [ B1_281 #const U1 66 #const V1 28 ]
+#const D2_281 (T2 - 281) #const B2_281 (D2_281 / D2_281 - 1 * -70) [ B2_281 #const U2 66 #const V2 28 ]
+#const D1_282 (T1 - 282) #const B1_282 (D1_282 / D1_282 - 1 * -70) [ B1_282 #const U1 67 #const V1 28 ]
+#const D2_282 (T2 - 282) #const B2_282 (D2_282 / D2_282 - 1 * -70) [ B2_282 #const U2 67 #const V2 28 ]
+#const D1_283 (T1 - 283) #const B1_283 (D1_283 / D1_283 - 1 * -70) [ B1_283 #const U1 67 #const V1 28 ]
+#const D2_283 (T2 - 283) #const B2_283 (D2_283 / D2_283 - 1 * -70) [ B2_283 #const U2 67 #const V2 28 ]
+#const D1_284 (T1 - 284) #const B1_284 (D1_284 / D1_284 - 1 * -70) [ B1_284 #const U1 68 #const V1 29 ]
+#const D2_284 (T2 - 284) #const B2_284 (D2_284 / D2_284 - 1 * -70) [ B2_284 #const U2 68 #const V2 29 ]
+#const D1_285 (T1 - 285) #const B1_285 (D1_285 / D1_285 - 1 * -70) [ B1_285 #const U1 68 #const V1 29 ]
+#const D2_285 (T2 - 285) #const B2_285 (D2_285 / D2_285 - 1 * -70) [ B2_285 #const U2 68 #const V2 29 ]
+#const D1_286 (T1 - 286) #const B1_286 (D1_286 / D1_286 - 1 * -70) [ B1_286 #const U1 69 #const V1 29 ]
+#const D2_286 (T2 - 286) #const B2_286 (D2_286 / D2_286 - 1 * -70) [ B2_286 #const U2 69 #const V2 29 ]
+#const D1_287 (T1 - 287) #const B1_287 (D1_287 / D1_287 - 1 * -70) [ B1_287 #const U1 70 #const V1 29 ]
+#const D2_287 (T2 - 287) #const B2_287 (D2_287 / D2_287 - 1 * -70) [ B2_287 #const U2 70 #const V2 29 ]
+#const D1_288 (T1 - 288) #const B1_288 (D1_288 / D1_288 - 1 * -70) [ B1_288 #const U1 70 #const V1 29 ]
+#const D2_288 (T2 - 288) #const B2_288 (D2_288 / D2_288 - 1 * -70) [ B2_288 #const U2 70 #const V2 29 ]
+#const D1_289 (T1 - 289) #const B1_289 (D1_289 / D1_289 - 1 * -70) [ B1_289 #const U1 71 #const V1 29 ]
+#const D2_289 (T2 - 289) #const B2_289 (D2_289 / D2_289 - 1 * -70) [ B2_289 #const U2 71 #const V2 29 ]
+#const D1_290 (T1 - 290) #const B1_290 (D1_290 / D1_290 - 1 * -70) [ B1_290 #const U1 71 #const V1 30 ]
+#const D2_290 (T2 - 290) #const B2_290 (D2_290 / D2_290 - 1 * -70) [ B2_290 #const U2 71 #const V2 30 ]
+#const D1_291 (T1 - 291) #const B1_291 (D1_291 / D1_291 - 1 * -70) [ B1_291 #const U1 72 #const V1 30 ]
+#const D2_291 (T2 - 291) #const B2_291 (D2_291 / D2_291 - 1 * -70) [ B2_291 #const U2 72 #const V2 30 ]
+#const D1_292 (T1 - 292) #const B1_292 (D1_292 / D1_292 - 1 * -70) [ B1_292 #const U1 72 #const V1 30 ]
+#const D2_292 (T2 - 292) #const B2_292 (D2_292 / D2_292 - 1 * -70) [ B2_292 #const U2 72 #const V2 30 ]
+#const D1_293 (T1 - 293) #const B1_293 (D1_293 / D1_293 - 1 * -70) [ B1_293 #const U1 73 #const V1 30 ]
+#const D2_293 (T2 - 293) #const B2_293 (D2_293 / D2_293 - 1 * -70) [ B2_293 #const U2 73 #const V2 30 ]
+#const D1_294 (T1 - 294) #const B1_294 (D1_294 / D1_294 - 1 * -70) [ B1_294 #const U1 73 #const V1 30 ]
+#const D2_294 (T2 - 294) #const B2_294 (D2_294 / D2_294 - 1 * -70) [ B2_294 #const U2 73 #const V2 30 ]
+#const D1_295 (T1 - 295) #const B1_295 (D1_295 / D1_295 - 1 * -70) [ B1_295 #const U1 74 #const V1 31 ]
+#const D2_295 (T2 - 295) #const B2_295 (D2_295 / D2_295 - 1 * -70) [ B2_295 #const U2 74 #const V2 31 ]
+#const D1_296 (T1 - 296) #const B1_296 (D1_296 / D1_296 - 1 * -70) [ B1_296 #const U1 74 #const V1 31 ]
+#const D2_296 (T2 - 296) #const B2_296 (D2_296 / D2_296 - 1 * -70) [ B2_296 #const U2 74 #const V2 31 ]
+#const D1_297 (T1 - 297) #const B1_297 (D1_297 / D1_297 - 1 * -70) [ B1_297 #const U1 75 #const V1 31 ]
+#const D2_297 (T2 - 297) #const B2_297 (D2_297 / D2_297 - 1 * -70) [ B2_297 #const U2 75 #const V2 31 ]
+#const D1_298 (T1 - 298) #const B1_298 (D1_298 / D1_298 - 1 * -70) [ B1_298 #const U1 75 #const V1 31 ]
+#const D2_298 (T2 - 298) #const B2_298 (D2_298 / D2_298 - 1 * -70) [ B2_298 #const U2 75 #const V2 31 ]
+#const D1_299 (T1 - 299) #const B1_299 (D1_299 / D1_299 - 1 * -70) [ B1_299 #const U1 76 #const V1 32 ]
+#const D2_299 (T2 - 299) #const B2_299 (D2_299 / D2_299 - 1 * -70) [ B2_299 #const U2 76 #const V2 32 ]
+#const D1_300 (T1 - 300) #const B1_300 (D1_300 / D1_300 - 1 * -70) [ B1_300 #const U1 76 #const V1 32 ]
+#const D2_300 (T2 - 300) #const B2_300 (D2_300 / D2_300 - 1 * -70) [ B2_300 #const U2 76 #const V2 32 ]
+#const D1_301 (T1 - 301) #const B1_301 (D1_301 / D1_301 - 1 * -70) [ B1_301 #const U1 77 #const V1 32 ]
+#const D2_301 (T2 - 301) #const B2_301 (D2_301 / D2_301 - 1 * -70) [ B2_301 #const U2 77 #const V2 32 ]
+#const D1_302 (T1 - 302) #const B1_302 (D1_302 / D1_302 - 1 * -70) [ B1_302 #const U1 77 #const V1 33 ]
+#const D2_302 (T2 - 302) #const B2_302 (D2_302 / D2_302 - 1 * -70) [ B2_302 #const U2 77 #const V2 33 ]
+#const D1_303 (T1 - 303) #const B1_303 (D1_303 / D1_303 - 1 * -70) [ B1_303 #const U1 78 #const V1 33 ]
+#const D2_303 (T2 - 303) #const B2_303 (D2_303 / D2_303 - 1 * -70) [ B2_303 #const U2 78 #const V2 33 ]
+#const D1_304 (T1 - 304) #const B1_304 (D1_304 / D1_304 - 1 * -70) [ B1_304 #const U1 78 #const V1 33 ]
+#const D2_304 (T2 - 304) #const B2_304 (D2_304 / D2_304 - 1 * -70) [ B2_304 #const U2 78 #const V2 33 ]
+#const D1_305 (T1 - 305) #const B1_305 (D1_305 / D1_305 - 1 * -70) [ B1_305 #const U1 79 #const V1 34 ]
+#const D2_305 (T2 - 305) #const B2_305 (D2_305 / D2_305 - 1 * -70) [ B2_305 #const U2 79 #const V2 34 ]
+#const D1_306 (T1 - 306) #const B1_306 (D1_306 / D1_306 - 1 * -70) [ B1_306 #const U1 79 #const V1 34 ]
+#const D2_306 (T2 - 306) #const B2_306 (D2_306 / D2_306 - 1 * -70) [ B2_306 #const U2 79 #const V2 34 ]
+#const D1_307 (T1 - 307) #const B1_307 (D1_307 / D1_307 - 1 * -70) [ B1_307 #const U1 79 #const V1 34 ]
+#const D2_307 (T2 - 307) #const B2_307 (D2_307 / D2_307 - 1 * -70) [ B2_307 #const U2 79 #const V2 34 ]
+#const D1_308 (T1 - 308) #const B1_308 (D1_308 / D1_308 - 1 * -70) [ B1_308 #const U1 80 #const V1 35 ]
+#const D2_308 (T2 - 308) #const B2_308 (D2_308 / D2_308 - 1 * -70) [ B2_308 #const U2 80 #const V2 35 ]
+#const D1_309 (T1 - 309) #const B1_309 (D1_309 / D1_309 - 1 * -70) [ B1_309 #const U1 80 #const V1 35 ]
+#const D2_309 (T2 - 309) #const B2_309 (D2_309 / D2_309 - 1 * -70) [ B2_309 #const U2 80 #const V2 35 ]
+#const D1_310 (T1 - 310) #const B1_310 (D1_310 / D1_310 - 1 * -70) [ B1_310 #const U1 81 #const V1 35 ]
+#const D2_310 (T2 - 310) #const B2_310 (D2_310 / D2_310 - 1 * -70) [ B2_310 #const U2 81 #const V2 35 ]
+#const D1_311 (T1 - 311) #const B1_311 (D1_311 / D1_311 - 1 * -70) [ B1_311 #const U1 81 #const V1 36 ]
+#const D2_311 (T2 - 311) #const B2_311 (D2_311 / D2_311 - 1 * -70) [ B2_311 #const U2 81 #const V2 36 ]
+#const D1_312 (T1 - 312) #const B1_312 (D1_312 / D1_312 - 1 * -70) [ B1_312 #const U1 82 #const V1 36 ]
+#const D2_312 (T2 - 312) #const B2_312 (D2_312 / D2_312 - 1 * -70) [ B2_312 #const U2 82 #const V2 36 ]
+#const D1_313 (T1 - 313) #const B1_313 (D1_313 / D1_313 - 1 * -70) [ B1_313 #const U1 82 #const V1 36 ]
+#const D2_313 (T2 - 313) #const B2_313 (D2_313 / D2_313 - 1 * -70) [ B2_313 #const U2 82 #const V2 36 ]
+#const D1_314 (T1 - 314) #const B1_314 (D1_314 / D1_314 - 1 * -70) [ B1_314 #const U1 82 #const V1 37 ]
+#const D2_314 (T2 - 314) #const B2_314 (D2_314 / D2_314 - 1 * -70) [ B2_314 #const U2 82 #const V2 37 ]
+#const D1_315 (T1 - 315) #const B1_315 (D1_315 / D1_315 - 1 * -70) [ B1_315 #const U1 83 #const V1 37 ]
+#const D2_315 (T2 - 315) #const B2_315 (D2_315 / D2_315 - 1 * -70) [ B2_315 #const U2 83 #const V2 37 ]
+#const D1_316 (T1 - 316) #const B1_316 (D1_316 / D1_316 - 1 * -70) [ B1_316 #const U1 83 #const V1 38 ]
+#const D2_316 (T2 - 316) #const B2_316 (D2_316 / D2_316 - 1 * -70) [ B2_316 #const U2 83 #const V2 38 ]
+#const D1_317 (T1 - 317) #const B1_317 (D1_317 / D1_317 - 1 * -70) [ B1_317 #const U1 84 #const V1 38 ]
+#const D2_317 (T2 - 317) #const B2_317 (D2_317 / D2_317 - 1 * -70) [ B2_317 #const U2 84 #const V2 38 ]
+#const D1_318 (T1 - 318) #const B1_318 (D1_318 / D1_318 - 1 * -70) [ B1_318 #const U1 84 #const V1 38 ]
+#const D2_318 (T2 - 318) #const B2_318 (D2_318 / D2_318 - 1 * -70) [ B2_318 #const U2 84 #const V2 38 ]
+#const D1_319 (T1 - 319) #const B1_319 (D1_319 / D1_319 - 1 * -70) [ B1_319 #const U1 84 #const V1 39 ]
+#const D2_319 (T2 - 319) #const B2_319 (D2_319 / D2_319 - 1 * -70) [ B2_319 #const U2 84 #const V2 39 ]
+#const D1_320 (T1 - 320) #const B1_320 (D1_320 / D1_320 - 1 * -70) [ B1_320 #const U1 85 #const V1 39 ]
+#const D2_320 (T2 - 320) #const B2_320 (D2_320 / D2_320 - 1 * -70) [ B2_320 #const U2 85 #const V2 39 ]
+#const D1_321 (T1 - 321) #const B1_321 (D1_321 / D1_321 - 1 * -70) [ B1_321 #const U1 85 #const V1 40 ]
+#const D2_321 (T2 - 321) #const B2_321 (D2_321 / D2_321 - 1 * -70) [ B2_321 #const U2 85 #const V2 40 ]
+#const D1_322 (T1 - 322) #const B1_322 (D1_322 / D1_322 - 1 * -70) [ B1_322 #const U1 85 #const V1 40 ]
+#const D2_322 (T2 - 322) #const B2_322 (D2_322 / D2_322 - 1 * -70) [ B2_322 #const U2 85 #const V2 40 ]
+#const D1_323 (T1 - 323) #const B1_323 (D1_323 / D1_323 - 1 * -70) [ B1_323 #const U1 86 #const V1 41 ]
+#const D2_323 (T2 - 323) #const B2_323 (D2_323 / D2_323 - 1 * -70) [ B2_323 #const U2 86 #const V2 41 ]
+#const D1_324 (T1 - 324) #const B1_324 (D1_324 / D1_324 - 1 * -70) [ B1_324 #const U1 86 #const V1 41 ]
+#const D2_324 (T2 - 324) #const B2_324 (D2_324 / D2_324 - 1 * -70) [ B2_324 #const U2 86 #const V2 41 ]
+#const D1_325 (T1 - 325) #const B1_325 (D1_325 / D1_325 - 1 * -70) [ B1_325 #const U1 86 #const V1 41 ]
+#const D2_325 (T2 - 325) #const B2_325 (D2_325 / D2_325 - 1 * -70) [ B2_325 #const U2 86 #const V2 41 ]
+#const D1_326 (T1 - 326) #const B1_326 (D1_326 / D1_326 - 1 * -70) [ B1_326 #const U1 87 #const V1 42 ]
+#const D2_326 (T2 - 326) #const B2_326 (D2_326 / D2_326 - 1 * -70) [ B2_326 #const U2 87 #const V2 42 ]
+#const D1_327 (T1 - 327) #const B1_327 (D1_327 / D1_327 - 1 * -70) [ B1_327 #const U1 87 #const V1 42 ]
+#const D2_327 (T2 - 327) #const B2_327 (D2_327 / D2_327 - 1 * -70) [ B2_327 #const U2 87 #const V2 42 ]
+#const D1_328 (T1 - 328) #const B1_328 (D1_328 / D1_328 - 1 * -70) [ B1_328 #const U1 87 #const V1 43 ]
+#const D2_328 (T2 - 328) #const B2_328 (D2_328 / D2_328 - 1 * -70) [ B2_328 #const U2 87 #const V2 43 ]
+#const D1_329 (T1 - 329) #const B1_329 (D1_329 / D1_329 - 1 * -70) [ B1_329 #const U1 88 #const V1 43 ]
+#const D2_329 (T2 - 329) #const B2_329 (D2_329 / D2_329 - 1 * -70) [ B2_329 #const U2 88 #const V2 43 ]
+#const D1_330 (T1 - 330) #const B1_330 (D1_330 / D1_330 - 1 * -70) [ B1_330 #const U1 88 #const V1 44 ]
+#const D2_330 (T2 - 330) #const B2_330 (D2_330 / D2_330 - 1 * -70) [ B2_330 #const U2 88 #const V2 44 ]
+#const D1_331 (T1 - 331) #const B1_331 (D1_331 / D1_331 - 1 * -70) [ B1_331 #const U1 88 #const V1 44 ]
+#const D2_331 (T2 - 331) #const B2_331 (D2_331 / D2_331 - 1 * -70) [ B2_331 #const U2 88 #const V2 44 ]
+#const D1_332 (T1 - 332) #const B1_332 (D1_332 / D1_332 - 1 * -70) [ B1_332 #const U1 89 #const V1 45 ]
+#const D2_332 (T2 - 332) #const B2_332 (D2_332 / D2_332 - 1 * -70) [ B2_332 #const U2 89 #const V2 45 ]
+#const D1_333 (T1 - 333) #const B1_333 (D1_333 / D1_333 - 1 * -70) [ B1_333 #const U1 89 #const V1 45 ]
+#const D2_333 (T2 - 333) #const B2_333 (D2_333 / D2_333 - 1 * -70) [ B2_333 #const U2 89 #const V2 45 ]
+#const D1_334 (T1 - 334) #const B1_334 (D1_334 / D1_334 - 1 * -70) [ B1_334 #const U1 89 #const V1 46 ]
+#const D2_334 (T2 - 334) #const B2_334 (D2_334 / D2_334 - 1 * -70) [ B2_334 #const U2 89 #const V2 46 ]
+#const D1_335 (T1 - 335) #const B1_335 (D1_335 / D1_335 - 1 * -70) [ B1_335 #const U1 89 #const V1 46 ]
+#const D2_335 (T2 - 335) #const B2_335 (D2_335 / D2_335 - 1 * -70) [ B2_335 #const U2 89 #const V2 46 ]
+#const D1_336 (T1 - 336) #const B1_336 (D1_336 / D1_336 - 1 * -70) [ B1_336 #const U1 90 #const V1 47 ]
+#const D2_336 (T2 - 336) #const B2_336 (D2_336 / D2_336 - 1 * -70) [ B2_336 #const U2 90 #const V2 47 ]
+#const D1_337 (T1 - 337) #const B1_337 (D1_337 / D1_337 - 1 * -70) [ B1_337 #const U1 90 #const V1 47 ]
+#const D2_337 (T2 - 337) #const B2_337 (D2_337 / D2_337 - 1 * -70) [ B2_337 #const U2 90 #const V2 47 ]
+#const D1_338 (T1 - 338) #const B1_338 (D1_338 / D1_338 - 1 * -70) [ B1_338 #const U1 90 #const V1 48 ]
+#const D2_338 (T2 - 338) #const B2_338 (D2_338 / D2_338 - 1 * -70) [ B2_338 #const U2 90 #const V2 48 ]
+#const D1_339 (T1 - 339) #const B1_339 (D1_339 / D1_339 - 1 * -70) [ B1_339 #const U1 90 #const V1 48 ]
+#const D2_339 (T2 - 339) #const B2_339 (D2_339 / D2_339 - 1 * -70) [ B2_339 #const U2 90 #const V2 48 ]
+#const D1_340 (T1 - 340) #const B1_340 (D1_340 / D1_340 - 1 * -70) [ B1_340 #const U1 90 #const V1 49 ]
+#const D2_340 (T2 - 340) #const B2_340 (D2_340 / D2_340 - 1 * -70) [ B2_340 #const U2 90 #const V2 49 ]
+#const D1_341 (T1 - 341) #const B1_341 (D1_341 / D1_341 - 1 * -70) [ B1_341 #const U1 91 #const V1 49 ]
+#const D2_341 (T2 - 341) #const B2_341 (D2_341 / D2_341 - 1 * -70) [ B2_341 #const U2 91 #const V2 49 ]
+#const D1_342 (T1 - 342) #const B1_342 (D1_342 / D1_342 - 1 * -70) [ B1_342 #const U1 91 #const V1 50 ]
+#const D2_342 (T2 - 342) #const B2_342 (D2_342 / D2_342 - 1 * -70) [ B2_342 #const U2 91 #const V2 50 ]
+#const D1_343 (T1 - 343) #const B1_343 (D1_343 / D1_343 - 1 * -70) [ B1_343 #const U1 91 #const V1 50 ]
+#const D2_343 (T2 - 343) #const B2_343 (D2_343 / D2_343 - 1 * -70) [ B2_343 #const U2 91 #const V2 50 ]
+#const D1_344 (T1 - 344) #const B1_344 (D1_344 / D1_344 - 1 * -70) [ B1_344 #const U1 91 #const V1 51 ]
+#const D2_344 (T2 - 344) #const B2_344 (D2_344 / D2_344 - 1 * -70) [ B2_344 #const U2 91 #const V2 51 ]
+#const D1_345 (T1 - 345) #const B1_345 (D1_345 / D1_345 - 1 * -70) [ B1_345 #const U1 91 #const V1 52 ]
+#const D2_345 (T2 - 345) #const B2_345 (D2_345 / D2_345 - 1 * -70) [ B2_345 #const U2 91 #const V2 52 ]
+#const D1_346 (T1 - 346) #const B1_346 (D1_346 / D1_346 - 1 * -70) [ B1_346 #const U1 91 #const V1 52 ]
+#const D2_346 (T2 - 346) #const B2_346 (D2_346 / D2_346 - 1 * -70) [ B2_346 #const U2 91 #const V2 52 ]
+#const D1_347 (T1 - 347) #const B1_347 (D1_347 / D1_347 - 1 * -70) [ B1_347 #const U1 92 #const V1 53 ]
+#const D2_347 (T2 - 347) #const B2_347 (D2_347 / D2_347 - 1 * -70) [ B2_347 #const U2 92 #const V2 53 ]
+#const D1_348 (T1 - 348) #const B1_348 (D1_348 / D1_348 - 1 * -70) [ B1_348 #const U1 92 #const V1 53 ]
+#const D2_348 (T2 - 348) #const B2_348 (D2_348 / D2_348 - 1 * -70) [ B2_348 #const U2 92 #const V2 53 ]
+#const D1_349 (T1 - 349) #const B1_349 (D1_349 / D1_349 - 1 * -70) [ B1_349 #const U1 92 #const V1 54 ]
+#const D2_349 (T2 - 349) #const B2_349 (D2_349 / D2_349 - 1 * -70) [ B2_349 #const U2 92 #const V2 54 ]
+#const D1_350 (T1 - 350) #const B1_350 (D1_350 / D1_350 - 1 * -70) [ B1_350 #const U1 92 #const V1 54 ]
+#const D2_350 (T2 - 350) #const B2_350 (D2_350 / D2_350 - 1 * -70) [ B2_350 #const U2 92 #const V2 54 ]
+#const D1_351 (T1 - 351) #const B1_351 (D1_351 / D1_351 - 1 * -70) [ B1_351 #const U1 92 #const V1 55 ]
+#const D2_351 (T2 - 351) #const B2_351 (D2_351 / D2_351 - 1 * -70) [ B2_351 #const U2 92 #const V2 55 ]
+#const D1_352 (T1 - 352) #const B1_352 (D1_352 / D1_352 - 1 * -70) [ B1_352 #const U1 92 #const V1 55 ]
+#const D2_352 (T2 - 352) #const B2_352 (D2_352 / D2_352 - 1 * -70) [ B2_352 #const U2 92 #const V2 55 ]
+#const D1_353 (T1 - 353) #const B1_353 (D1_353 / D1_353 - 1 * -70) [ B1_353 #const U1 92 #const V1 56 ]
+#const D2_353 (T2 - 353) #const B2_353 (D2_353 / D2_353 - 1 * -70) [ B2_353 #const U2 92 #const V2 56 ]
+#const D1_354 (T1 - 354) #const B1_354 (D1_354 / D1_354 - 1 * -70) [ B1_354 #const U1 92 #const V1 57 ]
+#const D2_354 (T2 - 354) #const B2_354 (D2_354 / D2_354 - 1 * -70) [ B2_354 #const U2 92 #const V2 57 ]
+#const D1_355 (T1 - 355) #const B1_355 (D1_355 / D1_355 - 1 * -70) [ B1_355 #const U1 92 #const V1 57 ]
+#const D2_355 (T2 - 355) #const B2_355 (D2_355 / D2_355 - 1 * -70) [ B2_355 #const U2 92 #const V2 57 ]
+#const D1_356 (T1 - 356) #const B1_356 (D1_356 / D1_356 - 1 * -70) [ B1_356 #const U1 92 #const V1 58 ]
+#const D2_356 (T2 - 356) #const B2_356 (D2_356 / D2_356 - 1 * -70) [ B2_356 #const U2 92 #const V2 58 ]
+#const D1_357 (T1 - 357) #const B1_357 (D1_357 / D1_357 - 1 * -70) [ B1_357 #const U1 92 #const V1 58 ]
+#const D2_357 (T2 - 357) #const B2_357 (D2_357 / D2_357 - 1 * -70) [ B2_357 #const U2 92 #const V2 58 ]
+#const D1_358 (T1 - 358) #const B1_358 (D1_358 / D1_358 - 1 * -70) [ B1_358 #const U1 92 #const V1 59 ]
+#const D2_358 (T2 - 358) #const B2_358 (D2_358 / D2_358 - 1 * -70) [ B2_358 #const U2 92 #const V2 59 ]
+#const D1_359 (T1 - 359) #const B1_359 (D1_359 / D1_359 - 1 * -70) [ B1_359 #const U1 92 #const V1 59 ]
+#const D2_359 (T2 - 359) #const B2_359 (D2_359 / D2_359 - 1 * -70) [ B2_359 #const U2 92 #const V2 59 ]
+/* End Position Calculation */
+
+<PLAYER_SETUP>
+direct_placement
+behavior_version 2
+ai_info_map_type ARENA 0 0 0
+
+/* Sets Bird Line of Sight to 0. */
+effect_amount SET_ATTRIBUTE MACAW ATTR_LINE_OF_SIGHT 0
+
+/* Outlines behind rocks. */
+effect_amount SET_ATTRIBUTE DLC_ROCKBEACH ATTR_OCCLUSION_MODE 2
+
+/* TTL5: Siege Tower Changes */
+if BLACK_WALKABLE
+else
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_GARRISON_CAPACITY -5
+  effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_HITPOINTS -45
+endif
+
+<LAND_GENERATION>
+base_terrain SHALLOW
+
+/* Middle terrain. */
+create_land {
+  terrain_type BEACH
+  land_position rnd(49,50) rnd(49,50)
+  land_id 10
+  number_of_tiles 0
+  base_size 50
+  set_circular_base
+}
+
+/* Player Lands */
+#FOR($i, 1, 3)
+  create_land {
+    land_position X$i Y$i
+    assign_to AT_TEAM -10 0 0
+    number_of_tiles 0
+    terrain_type BEACH
+    land_id $i
+  }
+#END_FOR
+
+/* Middle Lands */
+#FOR($i, 1, 3)
+  create_land {
+    land_position MID_X$i MID_Y$i
+    number_of_tiles 0
+    terrain_type BEACH
+    land_id 1$i
+  }
+#END_FOR
+
+<TERRAIN_GENERATION>
+/* Creates the ring of trees around the outside. */
+#REPEAT(8)
+  create_terrain PLAYER_CENTER_LAYER {
+    base_terrain BEACH
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_other_terrain_types 3
+  }
+#END_REPEAT
+#REPEAT(8)
+  create_terrain PALM_DESERT {
+    base_terrain PLAYER_CENTER_LAYER
+    land_percent 100
+    number_of_clumps 8192
+    set_avoid_player_start_areas 22
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain PLAYER_CENTER_LAYER {
+    base_terrain PALM_DESERT
+    land_percent 100
+    number_of_clumps 8192
+    if TINY_MAP
+      spacing_to_other_terrain_types 8
+    elseif SMALL_MAP
+      spacing_to_other_terrain_types 12
+    elseif MEDIUM_MAP
+      spacing_to_other_terrain_types 13
+    elseif LARGE_MAP
+      spacing_to_other_terrain_types 14
+    elseif HUGE_MAP
+      spacing_to_other_terrain_types 15
+    elseif GIGANTIC_MAP
+      spacing_to_other_terrain_types 16
+    else
+      spacing_to_other_terrain_types 17
+    endif
+  }
+#END_REPEAT
+
+/* Creates the water around the outside. */
+#REPEAT(8)
+  create_terrain DLC_WATER5 {
+    base_terrain SHALLOW
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_other_terrain_types 6
+  }
+#END_REPEAT
+
+/* Randomizes the edges of the shallows. */
+create_terrain DLC_WATER5 {
+  base_terrain SHALLOW
+  land_percent 2
+  number_of_clumps 10
+  set_scale_by_groups
+  spacing_to_other_terrain_types 4
+}
+
+/* Places Desert in the middle, keeping a masked region centered at players. */
+#REPEAT(8)
+  create_terrain DESERT {
+    base_terrain PLAYER_CENTER_LAYER
+    land_percent 100
+    number_of_clumps 8192
+    set_avoid_player_start_areas 10
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain DESERT {
+    base_terrain PLAYER_CENTER_LAYER
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 2
+  }
+#END_REPEAT
+
+/* Masks the Shallow terrain with Rajas Shallows. */
+#REPEAT(8)
+  create_terrain DLC_NEWSHALLOW {
+    base_terrain SHALLOW
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 2
+  }
+#END_REPEAT
+
+/* Masks Desert underneath Beach. */
+#REPEAT(8)
+  create_terrain DESERT {
+    base_terrain BEACH
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 2
+  }
+#END_REPEAT
+
+/* Middle Forests */
+create_terrain DLC_RAINFOREST {
+  base_terrain DESERT
+  if TINY_MAP
+    number_of_tiles 30
+    number_of_clumps 3
+  else
+    land_percent 2
+    number_of_clumps 12
+    set_scale_by_groups
+  endif
+  spacing_to_other_terrain_types 4
+  set_avoid_player_start_areas 28
+}
+
+#REPEAT(8)
+  create_terrain PALM_DESERT {
+    base_terrain DLC_RAINFOREST
+    land_percent 100
+    number_of_clumps 8192
+  }
+#END_REPEAT
+
+/* Forest Masking */
+create_terrain DLC_RAINFOREST {
+  base_terrain PALM_DESERT
+  land_percent 8
+  number_of_clumps 100
+  set_scale_by_groups
+  terrain_mask 2
+}
+
+#REPEAT(8)
+  create_terrain DLC_RAINFOREST {
+    base_terrain PALM_DESERT
+    land_percent 100
+    number_of_clumps 8192
+    terrain_mask 1
+  }
+#END_REPEAT
+
+/* Terrain Masking */
+create_terrain GRASS {
+  base_terrain DESERT
+  land_percent 5
+  number_of_clumps 12
+  set_scale_by_groups
+  terrain_mask 1
+}
+
+/* Water Masking */
+#REPEAT(8)
+  create_terrain WATER {
+    base_terrain DLC_WATER5
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_other_terrain_types 3
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain MED_WATER {
+    base_terrain WATER
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_other_terrain_types 3
+  }
+#END_REPEAT
+
+#REPEAT(8)
+  create_terrain DEEP_WATER {
+    base_terrain MED_WATER
+    land_percent 100
+    number_of_clumps 8192
+    spacing_to_other_terrain_types 3
+  }
+#END_REPEAT
+
+create_terrain DLC_WATER5 {
+  base_terrain WATER
+  land_percent 100
+  number_of_clumps 10000
+  set_scale_by_groups
+  terrain_mask 2
+}
+
+create_terrain DLC_WATER5 {
+  base_terrain MED_WATER
+  land_percent 100
+  number_of_clumps 10000
+  set_scale_by_groups
+  terrain_mask 2
+}
+
+<OBJECTS_GENERATION>
+
+/* Create Actor Areas */
+#FOR($i, 1, 3)
+  create_actor_area U$i V$i center$i 0
+
+  /* Placement tiles for Gates */
+  create_actor_area (U$i - 20) (V$i) gate_position$i 0
+  create_actor_area (U$i - 20) (V$i) gate_position_down$i 0
+  create_actor_area (U$i + 20) (V$i) gate_position$i 0
+  create_actor_area (U$i + 20) (V$i) gate_position_down$i 0
+  create_actor_area (U$i) (V$i - 20) gate_position$i 0
+  create_actor_area (U$i) (V$i - 20) gate_position_up$i 0
+  create_actor_area (U$i) (V$i + 20) gate_position$i 0
+  create_actor_area (U$i) (V$i + 20) gate_position_up$i 0
+
+  create_actor_area (U$i - 14) (V$i - 14) gate_position$i 0
+  create_actor_area (U$i - 14) (V$i - 14) gate_position_vert$i 0
+  create_actor_area (U$i - 14) (V$i + 15) gate_position$i 0
+  create_actor_area (U$i - 14) (V$i + 15) gate_position_hori$i 0
+  create_actor_area (U$i + 15) (V$i - 14) gate_position$i 0
+  create_actor_area (U$i + 15) (V$i - 14) gate_position_hori$i 0
+  create_actor_area (U$i + 15) (V$i + 15) gate_position$i 0
+  create_actor_area (U$i + 15) (V$i + 15) gate_position_vert$i 0
+
+  /* Exact tiles for each Gate for walls to avoid. */
+  /* Bottom-left and Top-right */
+  create_actor_area (U$i - 20) (V$i - 2) gate_tile 0
+  create_actor_area (U$i - 20) (V$i - 1) gate_tile 0
+  create_actor_area (U$i - 20) (V$i) gate_tile 0
+  create_actor_area (U$i - 20) (V$i + 1) gate_tile 0
+  create_actor_area (U$i + 20) (V$i - 2) gate_tile 0
+  create_actor_area (U$i + 20) (V$i - 1) gate_tile 0
+  create_actor_area (U$i + 20) (V$i) gate_tile 0
+  create_actor_area (U$i + 20) (V$i + 1) gate_tile 0
+
+  /* Top-left and Bottom-right */
+  create_actor_area (U$i - 2) (V$i - 20) gate_tile 0
+  create_actor_area (U$i - 1) (V$i - 20) gate_tile 0
+  create_actor_area (U$i) (V$i - 20) gate_tile 0
+  create_actor_area (U$i + 1) (V$i - 20) gate_tile 0
+  create_actor_area (U$i - 2) (V$i + 20) gate_tile 0
+  create_actor_area (U$i - 1) (V$i + 20) gate_tile 0
+  create_actor_area (U$i) (V$i + 20) gate_tile 0
+  create_actor_area (U$i + 1) (V$i + 20) gate_tile 0
+
+  /* Left and Right Diagonal Gates */
+  create_actor_area (U$i - 12) (V$i - 17) gate_tile 0
+  create_actor_area (U$i - 13) (V$i - 16) gate_tile 0
+  create_actor_area (U$i - 14) (V$i - 15) gate_tile 0
+  create_actor_area (U$i - 15) (V$i - 14) gate_tile 0
+  create_actor_area (U$i - 16) (V$i - 13) gate_tile 0
+  create_actor_area (U$i - 17) (V$i - 12) gate_tile 0
+
+  create_actor_area (U$i + 17) (V$i + 12) gate_tile 0
+  create_actor_area (U$i + 16) (V$i + 13) gate_tile 0
+  create_actor_area (U$i + 15) (V$i + 14) gate_tile 0
+  create_actor_area (U$i + 14) (V$i + 15) gate_tile 0
+  create_actor_area (U$i + 13) (V$i + 16) gate_tile 0
+  create_actor_area (U$i + 12) (V$i + 17) gate_tile 0
+
+  /* Top and Bottom Diagonal Gates */
+  create_actor_area (U$i - 17) (V$i + 12) gate_tile 0
+  create_actor_area (U$i - 16) (V$i + 13) gate_tile 0
+  create_actor_area (U$i - 15) (V$i + 14) gate_tile 0
+  create_actor_area (U$i - 14) (V$i + 15) gate_tile 0
+  create_actor_area (U$i - 13) (V$i + 16) gate_tile 0
+  create_actor_area (U$i - 12) (V$i + 17) gate_tile 0
+
+  create_actor_area (U$i + 12) (V$i - 17) gate_tile 0
+  create_actor_area (U$i + 13) (V$i - 16) gate_tile 0
+  create_actor_area (U$i + 14) (V$i - 15) gate_tile 0
+  create_actor_area (U$i + 15) (V$i - 14) gate_tile 0
+  create_actor_area (U$i + 16) (V$i - 13) gate_tile 0
+  create_actor_area (U$i + 17) (V$i - 12) gate_tile 0
+
+  /* Positions for Walls to avoid to stay flat on the sides. */
+  create_actor_area (U$i - 21) (V$i) wall_side_avoider 0
+  create_actor_area (U$i + 21) (V$i) wall_side_avoider 0
+  create_actor_area (U$i) (V$i - 21) wall_side_avoider 0
+  create_actor_area (U$i) (V$i + 21) wall_side_avoider 0
+#END_FOR
+
+/* Object Groups */
+create_object_group SHIPWRECKS {
+  add_object SHIPWRECK 50
+  add_object SHIPWRECK2 50
+}
+
+create_object PHON {
+  number_of_objects 14400
+  avoid_actor_area gate_position1
+  avoid_actor_area gate_position2
+  actor_area gate_avoider
+  actor_area_radius 0
+}
+
+#FOR($i, 1, 3)
+  create_object PHON {
+    set_gaia_object_only
+    number_of_objects 3
+    temp_min_distance_group_placement 5
+    avoid_actor_area gate_avoider
+    find_closest_to_map_center
+    max_distance_to_players 25
+    set_circular_placement
+    place_on_specific_land_id $i
+    actor_area player_gate_tile0
+    actor_area_radius 0
+  }
+
+  create_object PHON {
+    set_gaia_object_only
+    number_of_objects 3
+    temp_min_distance_group_placement 5
+    avoid_actor_area gate_avoider
+    find_closest_to_map_center
+    max_distance_to_players 25
+    set_circular_placement
+    place_on_specific_land_id $i
+    actor_area player_gate_tile3
+    actor_area_radius 3
+  }
+
+  create_object PHON {
+    set_gaia_object_only
+    number_of_objects 3
+    temp_min_distance_group_placement 5
+    avoid_actor_area gate_avoider
+    find_closest_to_map_center
+    max_distance_to_players 25
+    set_circular_placement
+    place_on_specific_land_id $i
+    actor_area player_gate_tile5
+    actor_area_radius 5
+  }
+
+  create_object PHON {
+    set_gaia_object_only
+    number_of_objects 5
+    temp_min_distance_group_placement 5
+    avoid_actor_area gate_avoider
+    avoid_actor_area player_gate_tile5
+    max_distance_to_players 25
+    set_circular_placement
+    place_on_specific_land_id $i
+    actor_area not_player_gate_tile0
+    actor_area_radius 0
+  }
+#END_FOR
+
+/* Placeholders */
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on BEACH
+  actor_area beach1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on BEACH
+  actor_area front_avoider
+  actor_area_radius 9
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on DLC_NEWSHALLOW
+  actor_area player_fish_avoider
+  actor_area_radius 2
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on DLC_WATER5
+  actor_area close_water2
+  actor_area_radius 2
+}
+
+create_object PHON {
+  number_of_objects 14400
+  layer_to_place_on MED_WATER
+  actor_area far_fish_avoider
+  actor_area_radius 2
+}
+
+create_object PHON {
+  number_of_objects 4
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  find_closest
+  min_distance_to_players 31
+  max_distance_to_players 31
+  actor_area sea_wall_edge_avoider
+  actor_area_radius 0
+}
+
+/* Birds */
+create_object MACAW {
+  number_of_objects 6
+  set_scaling_to_map_size
+}
+
+/* Player Objects */
+create_object TOWN_CENTER {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  max_distance_to_players 0
+}
+
+#TCCENTER2
+#TCBOXES2
+
+create_object PHON {
+  number_of_objects 14400
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_circular_placement
+  min_distance_to_players 20
+  max_distance_to_players 21
+  avoid_actor_area wall_side_avoider
+  avoid_actor_area front_avoider
+  avoid_actor_area gate_tile
+  terrain_to_place_on DESERT
+  second_object WALL
+  actor_area player_wall0
+  actor_area_radius 0
+}
+
+create_object PHON {
+  number_of_objects 14400
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_circular_placement
+  min_distance_to_players 20
+  max_distance_to_players 21
+  avoid_actor_area wall_side_avoider
+  avoid_actor_area front_avoider
+  terrain_to_place_on DESERT
+  second_object WALL
+  avoid_actor_area player_wall0
+  avoid_actor_area player_gate_tile5
+  actor_area player_wall0
+  actor_area_radius 0
+}
+
+#FOR($i, 1, 3)
+  create_object GATE_UP {
+    number_of_objects 2
+    place_on_specific_land_id $i
+    avoid_actor_area not_player_gate_tile0
+    actor_area_to_place_in gate_position_up$i
+    temp_min_distance_group_placement 5
+  }
+  create_object GATE_DOWN {
+    number_of_objects 2
+    place_on_specific_land_id $i
+    avoid_actor_area not_player_gate_tile0
+    actor_area_to_place_in gate_position_down$i
+    temp_min_distance_group_placement 5
+  }
+  create_object GATE_HORI {
+    number_of_objects 2
+    place_on_specific_land_id $i
+    avoid_actor_area not_player_gate_tile0
+    actor_area_to_place_in gate_position_hori$i
+    temp_min_distance_group_placement 5
+  }
+  create_object GATE_VERT {
+    number_of_objects 2
+    place_on_specific_land_id $i
+    avoid_actor_area not_player_gate_tile0
+    actor_area_to_place_in gate_position_vert$i
+    temp_min_distance_group_placement 5
+  }
+#END_FOR
+
+/* Test for holes along the sides of walls. */
+/* create_object KING {
+  require_path 0
+  number_of_objects 1000
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_circular_placement
+  terrain_to_place_on DESERT
+  min_distance_to_players 25
+  max_distance_to_players 28
+} */
+
+/* Player Objects */
+create_object VILLAGER {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  temp_min_distance_group_placement 3
+  avoid_actor_area box4
+  actor_area_to_place_in box5
+  actor_area vil0
+  actor_area_radius 0
+}
+
+create_object PHON {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  actor_area_to_place_in vil0
+  temp_min_distance_group_placement 1
+  number_of_objects 3
+  actor_area vil1
+  actor_area_radius 1
+}
+
+create_object PHON {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  actor_area_to_place_in vil0
+  temp_min_distance_group_placement 1
+  number_of_objects 3
+  actor_area vil2
+  actor_area_radius 2
+}
+
+create_object TERRAIN_BLOCKER {
+  number_of_objects 14400
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  set_circular_placement
+  avoid_actor_area front_avoider
+  terrain_to_place_on DESERT
+  min_distance_to_players 18
+  max_distance_to_players 23
+}
+
+/* Back Walls */
+create_object PHON {
+  number_of_objects 14400
+  layer_to_place_on BEACH
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_circular_placement
+  min_distance_to_players 30
+  max_distance_to_players 31
+  avoid_actor_area sea_wall_edge_avoider
+  second_object SEA_WALL
+  actor_area sea_wall_3
+  actor_area_radius 3
+}
+
+create_object PHON {
+  number_of_objects 14400
+  terrain_to_place_on DLC_NEWSHALLOW
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_circular_placement
+  min_distance_to_players 30
+  max_distance_to_players 31
+  avoid_actor_area sea_wall_edge_avoider
+  second_object SEA_WALL
+  actor_area sea_wall_3
+  actor_area_radius 3
+}
+
+/* Avoider object so the main Gold is not directly in the front. */
+/* create_object PHON {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  min_distance_to_players 16
+  max_distance_to_players 17
+  find_closest_to_map_center
+  set_gaia_object_only
+  second_object FLAG_A
+} */
+
+/* Player Main Resources */
+create_object GOLD {
+  number_of_objects 7
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 2
+  avoid_forest_zone 5
+  set_circular_placement
+  min_distance_to_players 16
+  max_distance_to_players 17
+  /* min_distance_group_placement 4 */
+  avoid_actor_area front_avoider
+  avoid_actor_area player_gate_tile3
+  actor_area main_gold1
+  actor_area_radius 1
+}
+
+/*
+ * Actor areas for relaxing the constraint on player main Stone distance
+ * if it doesn't spawn.
+ */
+create_object PHON {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  number_of_objects 128
+  actor_area_to_place_in main_gold1
+  actor_area main_gold12
+  actor_area_radius 11
+}
+
+create_object PHON {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  number_of_objects 128
+  actor_area_to_place_in main_gold1
+  actor_area main_gold11
+  actor_area_radius 10
+}
+
+create_object PHON {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  number_of_objects 128
+  actor_area_to_place_in main_gold1
+  actor_area main_gold10
+  actor_area_radius 9
+}
+
+/* Main Stone */
+create_object STONE {
+  number_of_objects 5
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 2
+  avoid_forest_zone 5
+  set_circular_placement
+  min_distance_to_players 16
+  max_distance_to_players 17
+  min_distance_group_placement 4
+  avoid_actor_area front_avoider
+  avoid_actor_area player_gate_tile3
+  avoid_actor_area main_gold12
+  actor_area main_stone8
+  actor_area_radius 8
+}
+
+#FOR($i, 1, 3)
+  create_object PHON {
+    place_on_specific_land_id $i
+    actor_area_to_place_in main_stone8
+    set_gaia_object_only
+    actor_area stone_success$i
+    actor_area_radius 9999
+  }
+
+  create_object STONE {
+    number_of_objects 5
+    place_on_specific_land_id $i
+    set_gaia_object_only
+    set_tight_grouping
+    group_placement_radius 2
+    avoid_forest_zone 5
+    set_circular_placement
+    min_distance_to_players 16
+    max_distance_to_players 17
+    min_distance_group_placement 4
+    avoid_actor_area front_avoider
+    avoid_actor_area player_gate_tile3
+    avoid_actor_area stone_success$i
+    avoid_actor_area main_gold11
+    actor_area main_stone8
+    actor_area_radius 8
+  }
+
+  create_object PHON {
+    place_on_specific_land_id $i
+    actor_area_to_place_in main_stone8
+    set_gaia_object_only
+    actor_area stone_success$i
+    actor_area_radius 9999
+  }
+
+  create_object STONE {
+    number_of_objects 5
+    place_on_specific_land_id $i
+    set_gaia_object_only
+    set_tight_grouping
+    group_placement_radius 2
+    avoid_forest_zone 5
+    set_circular_placement
+    min_distance_to_players 16
+    max_distance_to_players 17
+    min_distance_group_placement 4
+    avoid_actor_area front_avoider
+    avoid_actor_area player_gate_tile3
+    avoid_actor_area stone_success$i
+    avoid_actor_area main_gold10
+    actor_area main_stone8
+    actor_area_radius 8
+  }
+#END_FOR
+
+/* Gold and Stone Testing */
+/* #FOR($i, 1, 3)
+  create_object PHON {
+    place_on_specific_land_id $i
+    actor_area_to_place_in main_gold8
+    actor_area gold_success$i
+    actor_area_radius 99999
+  }
+  create_object SABOTEUR {
+    number_of_objects 500
+    temp_min_distance_group_placement 5
+    place_on_specific_land_id $i
+    avoid_actor_area gold_success$i
+  }
+  create_object PHON {
+    place_on_specific_land_id $i
+    actor_area_to_place_in main_stone8
+    actor_area stone_success$i
+    actor_area_radius 99999
+  }
+  create_object SABOTEUR {
+    number_of_objects 500
+    temp_min_distance_group_placement 5
+    place_on_specific_land_id $i
+    avoid_actor_area stone_success$i
+  }
+#END_FOR */
+
+create_object DLC_ORANGEBUSH {
+  number_of_objects 6
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  set_tight_grouping
+  group_placement_radius 2
+  avoid_forest_zone 4
+  max_distance_to_other_zones 3
+  max_distance_to_players 16
+  set_circular_placement
+  find_closest_to_map_edge
+  enable_tile_shuffling
+  min_distance_group_placement 4
+  avoid_actor_area main_gold12
+  avoid_actor_area main_stone8
+  actor_area player_forage
+  actor_area_radius 3
+}
+
+/* Shipwreck Golds */
+create_object OYSTERS {
+  number_of_objects 4
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  temp_min_distance_group_placement 6
+  terrain_to_place_on BEACH
+  avoid_actor_area sea_wall_3
+  set_circular_placement
+  max_distance_to_players 26
+  min_distance_group_placement 2
+  avoid_actor_area player_forage
+}
+
+create_object PHON {
+  number_of_objects 2
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  temp_min_distance_group_placement 5
+  min_distance_group_placement 2
+  avoid_actor_area sea_wall_3
+  second_object SHIPWRECKS
+  terrain_to_place_on BEACH
+  set_circular_placement
+  max_distance_to_players 27
+  avoid_actor_area player_forage
+}
+
+create_object PHON {
+  number_of_objects 14400
+  temp_min_distance_group_placement 5
+  avoid_actor_area sea_wall_3
+  second_object SHORE_FISH
+  terrain_to_place_on DLC_NEWSHALLOW
+  actor_area shore_fish0
+  actor_area_radius 0
+  avoid_actor_area player_forage
+}
+
+create_object PHON {
+  number_of_objects 14400
+  actor_area_to_place_in shore_fish0
+  actor_area shore_fish2
+  actor_area_radius 2
+}
+
+/* Player straggler trees */
+create_object PALMTREE {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  number_of_objects 2
+  avoid_actor_area box2
+  actor_area_to_place_in box3
+  min_distance_group_placement 1
+  temp_min_distance_group_placement 5
+  actor_area straggler2
+  actor_area_radius 2
+}
+
+create_object PALMTREE {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  number_of_objects 3
+  avoid_actor_area box5
+  actor_area_to_place_in box7
+  avoid_forest_zone 1
+  min_distance_group_placement 1
+  temp_min_distance_group_placement 5
+  avoid_actor_area straggler2
+  avoid_actor_area forage1
+  avoid_actor_area vil1
+}
+
+/* Player Scout */
+create_object SCOUT {
+  #SET_PLACE_FOR_EVERY_PLAYER
+  avoid_actor_area vil2
+  avoid_forest_zone 1
+  min_distance_to_players 7
+  max_distance_to_players 9
+  set_circular_placement
+}
+
+/* Player Animals */
+create_object BOAR {
+  number_of_objects 2
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  temp_min_distance_group_placement 8
+  terrain_to_place_on DLC_NEWSHALLOW
+  require_path 1
+  find_closest
+  enable_tile_shuffling
+  avoid_actor_area beach1
+  min_distance_group_placement 1
+  avoid_actor_area shore_fish0
+  avoid_actor_area sea_wall_3
+  actor_area boar4
+  actor_area_radius 4
+}
+
+create_object TURKEY {
+  number_of_objects 2
+  number_of_groups 2
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  set_loose_grouping
+  temp_min_distance_group_placement 10
+  min_distance_group_placement 4
+  terrain_to_place_on DLC_NEWSHALLOW
+  require_path 1
+  avoid_forest_zone 4
+  avoid_actor_area shore_fish0
+  avoid_actor_area sea_wall_3
+}
+
+create_object TURKEY {
+  number_of_objects 4
+  set_loose_grouping
+  #SET_PLACE_FOR_EVERY_PLAYER
+  min_distance_to_players 7
+  max_distance_to_players 9
+  set_circular_placement
+}
+
+/* Middle Lands: one neutral gold and stone per land. */
+#FOR($i, 1, 3)
+  create_object GOLD {
+    place_on_specific_land_id 1$i
+    number_of_objects 3
+    set_tight_grouping
+    avoid_forest_zone 2
+    group_placement_radius 1
+    max_distance_to_players 16
+    min_distance_to_players 29
+    set_circular_placement
+    actor_area placed_gold_$i_1
+    actor_area_radius 1
+  }
+
+  create_object PHON {
+    place_on_specific_land_id $i
+    number_of_objects 128
+    actor_area_to_place_in placed_gold_$i_1
+    actor_area neutral_gold
+    actor_area_radius 4
+  }
+  
+  create_object PHON {
+    place_on_specific_land_id $i
+    number_of_objects 128
+    actor_area_to_place_in placed_gold_$i_1
+    actor_area placed_gold_2
+    actor_area_radius 1
+  }
+
+  create_object PHON {
+    place_on_specific_land_id $i
+    number_of_objects 128
+    actor_area_to_place_in placed_gold_$i_1
+    actor_area placed_gold_6
+    actor_area_radius 5
+  }
+
+  create_object PHON {
+    place_on_specific_land_id $i
+    number_of_objects 128
+    actor_area_to_place_in placed_gold_$i_1
+    actor_area placed_gold_10
+    actor_area_radius 9
+  }
+
+  create_object STONE {
+    place_on_specific_land_id 1$i
+    number_of_objects 3
+    set_tight_grouping
+    avoid_forest_zone 2
+    group_placement_radius 1
+    max_distance_to_players 16
+    min_distance_to_players 29
+    set_circular_placement
+    avoid_actor_area neutral_gold
+    actor_area placed_stone_$i_1
+    actor_area_radius 1
+  }
+
+  create_object PHON {
+    place_on_specific_land_id $i
+    number_of_objects 128
+    actor_area_to_place_in placed_stone_$i_1
+    actor_area neutral_stone
+    actor_area_radius 4
+  }
+  
+  create_object PHON {
+    place_on_specific_land_id $i
+    number_of_objects 128
+    actor_area_to_place_in placed_stone_$i_1
+    actor_area placed_stone_2
+    actor_area_radius 1
+  }
+
+  create_object PHON {
+    place_on_specific_land_id $i
+    number_of_objects 128
+    actor_area_to_place_in placed_stone_$i_1
+    actor_area placed_stone_6
+    actor_area_radius 5
+  }
+
+  create_object PHON {
+    place_on_specific_land_id $i
+    number_of_objects 128
+    actor_area_to_place_in placed_stone_$i_1
+    actor_area placed_stone_10
+    actor_area_radius 9
+  }
+#END_FOR
+
+/* Player Forward Resources */
+#FOR($i, 1, 3)
+  create_object GOLD {
+    number_of_objects 4
+    place_on_specific_land_id $i
+    set_gaia_object_only
+    set_circular_placement
+    min_distance_to_players 24
+    max_distance_to_players 26
+    avoid_actor_area front_avoider
+    avoid_forest_zone 4
+    set_tight_grouping
+    group_placement_radius 2
+    min_distance_group_placement 3
+    avoid_actor_area player_gate_tile3
+    avoid_actor_area main_gold12
+    actor_area front_gold_$i
+    actor_area_radius 8
+    avoid_actor_area front_gold_1
+    avoid_actor_area front_gold_2
+    avoid_actor_area placed_gold_6
+    avoid_actor_area placed_stone_6
+  }
+
+  create_object STONE {
+    number_of_objects 4
+    place_on_specific_land_id $i
+    set_gaia_object_only
+    set_circular_placement
+    min_distance_to_players 24
+    max_distance_to_players 26
+    avoid_actor_area front_avoider
+    avoid_forest_zone 4
+    set_tight_grouping
+    group_placement_radius 2
+    min_distance_group_placement 3
+    avoid_actor_area player_gate_tile3
+    avoid_actor_area main_stone8
+    actor_area front_stone_$i
+    actor_area_radius 8
+    avoid_actor_area front_gold_1
+    avoid_actor_area front_gold_2
+    avoid_actor_area front_stone_1
+    avoid_actor_area front_stone_2
+    avoid_actor_area placed_gold_6
+    avoid_actor_area placed_stone_6
+  }
+
+  /* Front Gold and Stone Testing */
+  /* create_object PHON {
+    set_circular_placement
+    place_on_specific_land_id $i
+    actor_area_to_place_in front_gold_$i
+    actor_area front_gold_success$i
+    actor_area_radius 99999
+  }
+  create_object SABOTEUR {
+    number_of_objects 500
+    temp_min_distance_group_placement 5
+    place_on_specific_land_id $i
+    avoid_actor_area front_gold_success$i
+  }
+  create_object PHON {
+    set_circular_placement
+    place_on_specific_land_id $i
+    actor_area_to_place_in front_stone_$i
+    actor_area front_stone_success$i
+    actor_area_radius 99999
+  }
+  create_object SABOTEUR {
+    number_of_objects 500
+    temp_min_distance_group_placement 5
+    place_on_specific_land_id $i
+    avoid_actor_area front_stone_success$i
+  } */
+#END_FOR
+
+/* Neutral Middle Gold and Stones */
+create_object GOLD {
+  number_of_objects 3
+  number_of_groups 2
+  set_tight_grouping
+  avoid_forest_zone 2
+  group_placement_radius 1
+  set_circular_placement
+  min_distance_to_players 28
+  avoid_actor_area front_gold_1
+  avoid_actor_area front_gold_2
+  avoid_actor_area front_stone_1
+  avoid_actor_area front_stone_2
+  min_distance_group_placement 2
+  temp_min_distance_group_placement 10
+  avoid_actor_area placed_gold_10
+  avoid_actor_area neutral_stone
+  actor_area neutral_gold
+  actor_area_radius 4
+}
+
+create_object STONE {
+  number_of_objects 3
+  number_of_groups 2
+  set_tight_grouping
+  avoid_forest_zone 2
+  group_placement_radius 1
+  set_circular_placement
+  min_distance_to_players 28
+  avoid_actor_area front_gold_1
+  avoid_actor_area front_gold_2
+  avoid_actor_area front_stone_1
+  avoid_actor_area front_stone_2
+  min_distance_group_placement 2
+  temp_min_distance_group_placement 8
+  avoid_actor_area placed_stone_10
+  avoid_actor_area neutral_gold
+  actor_area neutral_stone
+  actor_area_radius 4
+}
+
+/* Middle Bushes */
+create_object DLC_ORANGEBUSH {
+  number_of_objects 4
+  number_of_groups 3
+  set_tight_grouping
+  avoid_forest_zone 2
+  group_placement_radius 1
+  set_circular_placement
+  min_distance_to_players 26
+  avoid_actor_area front_gold_1
+  avoid_actor_area front_gold_2
+  avoid_actor_area front_stone_1
+  avoid_actor_area front_stone_2
+  min_distance_group_placement 2
+  temp_min_distance_group_placement 12
+  avoid_actor_area neutral_gold
+  avoid_actor_area neutral_stone
+  avoid_actor_area placed_gold_2
+  avoid_actor_area placed_stone_2
+  actor_area neutral_forage
+  actor_area_radius 4
+}
+
+/* Relics */
+#FOR($i, 1, 3)
+  create_object RELIC {
+    avoid_forest_zone 3
+    set_circular_placement
+    min_distance_to_players 30
+    max_distance_to_players 15
+    terrain_to_place_on DESERT
+    place_on_specific_land_id 1$i
+    min_distance_group_placement 1
+    avoid_actor_area placed_gold_2
+    avoid_actor_area placed_stone_2
+    actor_area relic
+    actor_area_radius 12
+  }
+#END_FOR
+
+create_object RELIC {
+  number_of_objects 3
+  avoid_forest_zone 3
+  min_distance_to_players 30
+  min_distance_group_placement 1
+  set_circular_placement
+  terrain_to_place_on DESERT
+  max_distance_to_other_zones 20
+  avoid_actor_area placed_gold_2
+  avoid_actor_area placed_stone_2
+  avoid_actor_area relic
+  temp_min_distance_group_placement 14
+}
+
+/* create_object RELIC {
+  number_of_objects 5
+  avoid_forest_zone 1
+  min_distance_to_players 30
+  set_circular_placement
+  terrain_to_place_on DESERT
+  max_distance_to_other_zones 20
+  avoid_actor_area placed_gold_2
+  avoid_actor_area placed_stone_2
+  if TINY_MAP
+    temp_min_distance_group_placement 14
+  elseif SMALL_MAP
+    temp_min_distance_group_placement 15
+  elseif MEDIUM_MAP
+    temp_min_distance_group_placement 25
+  elseif LARGE_MAP
+    temp_min_distance_group_placement 30
+  elseif HUGE_MAP
+    temp_min_distance_group_placement 35
+  elseif GIGANTIC_MAP
+    temp_min_distance_group_placement 40
+  endif
+} */
+
+/* Captain Fin */
+create_object SNAPPER {
+  number_of_objects 2
+  temp_min_distance_group_placement 5
+  min_distance_group_placement 4
+  #SET_PLACE_FOR_EVERY_PLAYER
+  set_gaia_object_only
+  ignore_terrain_restrictions
+  terrain_to_place_on DLC_WATER5
+  avoid_actor_area sea_wall_3
+  avoid_actor_area player_fish_avoider
+  find_closest
+  set_circular_placement
+  enable_tile_shuffling
+  avoid_actor_area shore_fish2
+  actor_area player_fish
+  actor_area_radius 8
+}
+
+create_object SNAPPER {
+  number_of_objects 14400
+  temp_min_distance_group_placement 8
+  min_distance_group_placement 4
+  terrain_to_place_on DLC_WATER5
+  avoid_actor_area shore_fish2
+  avoid_actor_area sea_wall_3
+  avoid_actor_area player_fish
+  avoid_actor_area far_fish_avoider
+}
+
+/* Outside Stragglers */
+create_object TREE_REEDS {
+  number_of_objects 12
+  terrain_to_place_on DLC_NEWSHALLOW
+  avoid_actor_area beach1
+  avoid_actor_area close_water2
+  avoid_actor_area sea_wall_3
+  avoid_actor_area shore_fish2
+  min_distance_group_placement 2
+  temp_min_distance_group_placement 8
+  set_circular_placement
+  min_distance_to_players 35
+}
+
+/* Scenery */
+create_object DLC_ROCKBEACH {
+  number_of_objects 10
+  set_scaling_to_map_size
+  temp_min_distance_group_placement 16
+  min_distance_group_placement 4
+  min_distance_to_players 40
+  set_circular_placement
+  avoid_actor_area player_fish_avoider
+  avoid_actor_area sea_wall_3
+  avoid_actor_area shore_fish2
+  terrain_to_place_on DLC_WATER5
+  min_distance_to_map_edge 2
+}
+
+create_object SEA_ROCKS_2 {
+  number_of_objects 25
+  set_scaling_to_map_size
+  terrain_to_place_on DLC_NEWSHALLOW
+  set_circular_placement
+  min_distance_to_players 28
+  temp_min_distance_group_placement 11
+  min_distance_group_placement 2
+  avoid_actor_area beach2
+  avoid_actor_area sea_wall_3
+  avoid_actor_area shore_fish2
+}
+
+create_object SEA_ROCKS_1 {
+  number_of_objects 6
+  min_distance_to_map_edge 1
+  set_scaling_to_map_size
+  terrain_to_place_on DEEP_WATER
+  temp_min_distance_group_placement 8
+  avoid_actor_area sea_wall_3
+  avoid_actor_area shore_fish2
+}
+
+/* Plants */
+create_object PLANT_UNDERBRUSH_TROPICAL {
+  number_of_objects 4
+  set_circular_placement
+  min_distance_to_players 25
+  terrain_to_place_on DESERT
+  avoid_actor_area front_avoider
+  avoid_forest_zone 2
+  temp_min_distance_group_placement 12
+  min_distance_group_placement 6
+  avoid_actor_area neutral_gold
+  avoid_actor_area neutral_stone
+  avoid_actor_area neutral_forage
+}
+
+create_object PLANT_JUNGLE {
+  number_of_objects 4
+  set_circular_placement
+  min_distance_to_players 25
+  terrain_to_place_on DESERT
+  avoid_actor_area front_avoider
+  avoid_forest_zone 2
+  temp_min_distance_group_placement 12
+  min_distance_group_placement 6
+  avoid_actor_area neutral_gold
+  avoid_actor_area neutral_stone
+  avoid_actor_area neutral_forage
+}
+
+create_object PHON {
+  number_of_objects 6
+  group_variance 2
+  number_of_groups 6
+  set_loose_grouping
+  group_placement_radius 2
+  set_circular_placement
+  min_distance_to_players 35
+  temp_min_distance_group_placement 12
+  min_distance_group_placement 8
+  avoid_forest_zone 1
+  terrain_to_place_on DESERT
+  layer_to_place_on BEACH
+  second_object PLANT_RAINFOREST
+}
+
+create_object PHON {
+  number_of_objects 6
+  set_circular_placement
+  min_distance_to_players 35
+  temp_min_distance_group_placement 12
+  terrain_to_place_on DLC_NEWSHALLOW
+  avoid_actor_area close_water2
+  avoid_actor_area shore_fish2
+  second_object PLANT_RAINFOREST
+}
