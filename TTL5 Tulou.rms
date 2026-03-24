@@ -104,7 +104,7 @@ effect_amount SET_ATTRIBUTE FORAGE ATTR_TERRAIN_ID 0
 effect_amount SET_ATTRIBUTE STONE ATTR_TERRAIN_ID 0
 
 /* Set the border forests to have 200 wood (instead of the default 100 wood). */
-effect_amount SET_ATTRIBUTE JUNGLETREE ATTR_STORAGE_VALUE 200 
+effect_amount SET_ATTRIBUTE JUNGLETREE ATTR_STORAGE_VALUE 200
 
 /* Sets Bird line of sight to 0. */
 effect_amount SET_ATTRIBUTE HAWK ATTR_LINE_OF_SIGHT 0
@@ -909,7 +909,8 @@ create_object PAGODA_C {
 /* Neutral Resources */
 create_object GOLD {
   number_of_objects 4
-  number_of_groups 8
+  number_of_groups 6
+  /* number_of_groups 8 */
   set_tight_grouping
   temp_min_distance_group_placement 25
   terrain_to_place_on GRASS

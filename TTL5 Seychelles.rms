@@ -18,7 +18,7 @@ control. The inner sea that has more plentiful fish, or the outside waters that
 provide better access to the enemy but also opens itself up to the the resource
 and oyster-rich islands.
 
-Created and submitted by Deathcounter for Blue Carbon Cup 2 B-Tier (chosen) 
+Created and submitted by Deathcounter for Blue Carbon Cup 2 B-Tier (chosen)
 
 Submitted to Warlord 4 (Water category) S-Tier - 3rd place (not chosen)
 Submitted to LingYuan Cup
@@ -29,10 +29,10 @@ Finished: 25.10.24
 Suitable Player count: 1v1, 2v2
 Currently supported modes: RM, Regicide, QS
 
-Updated to 1v1 alongside improvements 
+Updated to 1v1 alongside improvements
 26.03.25 - 28.03.25
 
-Updated to allow QS (9 Vill) 
+Updated to allow QS (9 Vill)
 11.07.25
 */
 #HEADER_END
@@ -98,7 +98,7 @@ endif
 #const OYSTERS 2170
 #const ROCK2 1323
 #const FALCON 1056
-#const SHIPWRC 2353		
+#const SHIPWRC 2353
 #const HERDABLE_A 1245
 #const WTROFF 1547
 
@@ -117,7 +117,7 @@ elseif HUGE_MAP
 	override_map_size 255
 elseif GIGANTIC_MAP
 	override_map_size 280
-endif	 
+endif
 
 random_placement
 behavior_version 1
@@ -221,7 +221,7 @@ actorarea 12= SNAPPER (6)
 actorarea 13= DORADO (6)
 actorarea 14= OYSTERS (6)
 actorarea 15= YURT (5)
-actorarea 16= TUNA for rare DOLPHIN (11) 
+actorarea 16= TUNA for rare DOLPHIN (11)
 actorarea 17= HUGE BEACH ROCKS for better distribution (20)
 actorarea 18= HUGE BEACH ROCKS (20)
 actorarea 19= STONE on Desert (5)
@@ -260,7 +260,7 @@ if 2_PLAYER_GAME
 	percent_chance 0 #define REGULAR
 	end_random */
 	if OPPOSITE
-	
+
 		create_land {
 			terrain_type J_UNDERBRUSH
 			land_percent 100
@@ -271,7 +271,7 @@ if 2_PLAYER_GAME
 			land_id 1
 			zone 2
 		}
-		
+
 		create_player_lands {
 			terrain_type DLC_JUNGLEGRASS
 			base_size 12
@@ -309,7 +309,7 @@ if 2_PLAYER_GAME
 			percent_chance 50 #define ANGLE1
 			percent_chance 50 #define ANGLE2
 		end_random
-		
+
 		create_land {
 			terrain_type J_UNDERBRUSH
 			land_percent 100
@@ -320,10 +320,10 @@ if 2_PLAYER_GAME
 			land_id 1
 			zone 2
 		}
-	
-	
+
+
 		create_land {
-			terrain_type GRASS3 
+			terrain_type GRASS3
 			land_percent 0
 			base_size 0
 			circle_radius 28 0
@@ -344,20 +344,20 @@ if 2_PLAYER_GAME
 			other_zone_avoidance_distance 13
 			clumping_factor 20
 			assign_to_player 1
-		}	
-	
+		}
+
 		create_land {
-			terrain_type GRASS3 
+			terrain_type GRASS3
 			land_percent 0
 			circle_radius 28 0
 			base_size 0
 			assign_to_player 1
 			land_id 99
 		}
-	
+
 		if ANGLE1
 			create_land {
-				terrain_type GRASS3 
+				terrain_type GRASS3
 				land_percent 0
 				circle_radius 28 0
 				base_size 0
@@ -380,10 +380,10 @@ if 2_PLAYER_GAME
 				assign_to_player 2
 			}
 		endif
-	
+
 		if ANGLE2
 			create_land {
-				terrain_type GRASS3 
+				terrain_type GRASS3
 				land_percent 0
 				circle_radius 28 0
 				base_size 0
@@ -406,9 +406,9 @@ if 2_PLAYER_GAME
 				assign_to_player 2
 			}
 		endif
-	
+
 	elseif REGULAR
-	
+
 		create_land {
 			terrain_type J_UNDERBRUSH
 			land_percent 100
@@ -435,7 +435,7 @@ if 2_PLAYER_GAME
 			assign_to_player 1
 			zone 2
 		}
-	
+
 		create_land {
 			terrain_type DLC_JUNGLEGRASS
 			base_size 15
@@ -619,7 +619,7 @@ create_terrain PALM_DESERT {
 		number_of_tiles 150
 	endif
 	number_of_clumps 40
-	set_scale_by_groups 
+	set_scale_by_groups
 	terrain_mask 2
 }
 
@@ -637,7 +637,7 @@ create_terrain J_UNDERBRUSH {
 create_terrain DLC_WATER5 {
 	base_terrain J_UNDERBRUSH
 	land_percent 100
-	spacing_to_other_terrain_types 7 
+	spacing_to_other_terrain_types 7
 }
 
 create_terrain DLC_WATER5 {
@@ -712,7 +712,7 @@ create_terrain DLC_BEACH4 {
 create_terrain DLC_BEACH4 {
 	base_terrain DESERT
 	land_percent 100
-	number_of_clumps 150					
+	number_of_clumps 150
 	height_limits 0 0
 	terrain_mask 1
 }
@@ -938,7 +938,7 @@ create_terrain LEAVES {
 	number_of_clumps 13
 	terrain_mask 2
 	set_scale_by_groups
-}						  
+}
 
 <OBJECTS_GENERATION>
 create_actor_area MAPSIZE 0 top-corner 45
@@ -1073,17 +1073,17 @@ create_object TREE5 {
 	temp_min_distance_group_placement 6
 }
 
-create_object OLIVE_TREE { 
+create_object OLIVE_TREE {
 	number_of_objects 100
 	terrain_to_place_on DLC_RAINFOREST
 	temp_min_distance_group_placement 6
 }
-create_object OLIVE_TREE { 
+create_object OLIVE_TREE {
 	number_of_objects 100
 	terrain_to_place_on DLC_RAINFOREST
 	temp_min_distance_group_placement 6
 }
-create_object OLIVE_TREE { 
+create_object OLIVE_TREE {
 	number_of_objects 100
 	terrain_to_place_on DLC_RAINFOREST
 	temp_min_distance_group_placement 6
@@ -1394,7 +1394,7 @@ create_object DLC_ORANGEBUSH {
 	terrain_to_place_on BEACH_NN
 	temp_min_distance_group_placement 25
 	avoid_actor_area stone-100
-	avoid_actor_area gold-101																																																			
+	avoid_actor_area gold-101
 }
 
 /* Start Raintree */
@@ -1942,12 +1942,12 @@ if 9Vill_QS
       endif
     endif
   }
-				
+
   start_random
     percent_chance 50 #define LM_E
     percent_chance 50 #define LF_E
   end_random
-				
+
   if CENTRALISE_OBJECT
     if LM_E
       create_object LAZY_MALE
@@ -1961,14 +1961,14 @@ if 9Vill_QS
     set_place_for_every_player
     min_distance_to_players 1
     actor_area_to_place_in 2000 /* EW Herdable */
-  
+
     actor_area villager-1000
     actor_area_radius 0
-  
+
     avoid_actor_area villager-1000 /* Villager */
     avoid_actor_area 5102 /* Villager Avoider */
     avoid_actor_area 5103 /* Blocking Seventh Villager */
-  
+
     if CENTRALISE_OBJECT
     else
       if LM_E
@@ -1978,12 +1978,12 @@ if 9Vill_QS
       endif
     endif
   }
-				
+
   start_random
     percent_chance 50 #define LM_F
     percent_chance 50 #define LF_F
   end_random
-				
+
   if CENTRALISE_OBJECT
     if LM_F
       create_object LAZY_MALE
@@ -1997,14 +1997,14 @@ if 9Vill_QS
     set_place_for_every_player
     min_distance_to_players 1
     actor_area_to_place_in 2000 /* EW Herdable */
-  
+
     actor_area villager-1000
     actor_area_radius 0
-  
+
     avoid_actor_area villager-1000 /* Villager */
     avoid_actor_area 5102 /* Villager Avoider */
     avoid_actor_area 5103 /* Blocking Seventh Villager */
-  
+
     if CENTRALISE_OBJECT
     else
       if LM_F
@@ -2014,7 +2014,7 @@ if 9Vill_QS
       endif
     endif
   }
-				
+
 	create_object BUSH_A {
 		number_of_objects 1
 		set_gaia_object_only
@@ -2025,7 +2025,7 @@ if 9Vill_QS
 		actor_area 21
 		actor_area_radius 3
 	}
-	
+
 	create_object VILLAGER {
     set_place_for_every_player
     set_tight_grouping
@@ -2034,13 +2034,13 @@ if 9Vill_QS
     place_on_forest_zone
 	}
 else
-  create_object VILLAGER {	
+  create_object VILLAGER {
     set_place_for_every_player
     min_distance_to_players 7
     max_distance_to_players 9
     temp_min_distance_group_placement 5
     set_circular_placement
-    
+
   }
 endif
 
@@ -2063,7 +2063,7 @@ create_object SCOUT {
 	set_place_for_every_player
 	min_distance_to_players 7
 	max_distance_to_players 9
-	
+
 }
 
 if REGICIDE /* regicide objects */
@@ -2100,7 +2100,7 @@ create_object ONGRID {
 /* Player Forests */
 create_object FORESTBUILDING {
 	set_gaia_object_only
-	set_gaia_unconvertible					   
+	set_gaia_unconvertible
 	set_place_for_every_player
 	number_of_groups 3
 	number_of_objects 999
@@ -2119,7 +2119,7 @@ create_object FORESTBUILDING {
 
 create_object FORESTBUILDING {
 	set_gaia_object_only
-	set_gaia_unconvertible					   
+	set_gaia_unconvertible
 	set_place_for_every_player
 	number_of_objects 48
 	terrain_to_place_on DLC_JUNGLEGRASS
@@ -2161,7 +2161,7 @@ else
   }
 endif
 
-create_object DLC_PIG  {	
+create_object DLC_PIG  {
 	if 9Vill_QS
     number_of_objects 3
 	else
@@ -2176,7 +2176,7 @@ create_object DLC_PIG  {
 	max_distance_to_players 9
 }
 
-create_object GOLD {	
+create_object GOLD {
 	set_gaia_object_only
 	set_place_for_every_player
 	number_of_objects 7
@@ -2192,7 +2192,7 @@ create_object GOLD {
 	avoid_actor_area 15
 }
 
-create_object STONE {	
+create_object STONE {
 	set_gaia_object_only
 	set_place_for_every_player
 	number_of_objects 5
@@ -2200,7 +2200,7 @@ create_object STONE {
 	group_placement_radius 2
 	set_circular_placement
 	min_distance_to_players 15
-	find_closest 
+	find_closest
 	enable_tile_shuffling
 	actor_area 2
 	actor_area_radius 5
@@ -2208,7 +2208,7 @@ create_object STONE {
 	avoid_forest_zone 3
 }
 
-create_object DLC_ORANGEBUSH {	
+create_object DLC_ORANGEBUSH {
 	set_gaia_object_only
 	set_place_for_every_player
 	number_of_objects 6
@@ -2218,7 +2218,7 @@ create_object DLC_ORANGEBUSH {
 	group_placement_radius 1
 	set_circular_placement
 	min_distance_to_players 16
-	find_closest 
+	find_closest
 	enable_tile_shuffling
 	actor_area 3
 	actor_area_radius 1
@@ -2230,7 +2230,7 @@ create_object DLC_ORANGEBUSH {
 
 create_object ONGRID {
 	number_of_objects 128
-	set_gaia_object_only 
+	set_gaia_object_only
 	set_gaia_unconvertible
 	set_place_for_every_player
 	actor_area_to_place_in 3
@@ -2246,7 +2246,7 @@ create_object ONGRID {
 } */
 
 create_object WATERBUILDING {
-	set_gaia_object_only 
+	set_gaia_object_only
 	set_gaia_unconvertible
 	set_place_for_every_player
 	actor_area_to_place_in 3
@@ -2257,7 +2257,7 @@ create_object WATERBUILDING {
 
 create_object INVISIBLE_BLOCKER {
 	second_object DLC_BOXTURTLE
-	set_gaia_object_only 
+	set_gaia_object_only
 	set_gaia_unconvertible
 	set_place_for_every_player
 	actor_area_to_place_in 4
@@ -2266,7 +2266,7 @@ create_object INVISIBLE_BLOCKER {
 	number_of_objects 2
 }
 
-create_object ONGRID {	
+create_object ONGRID {
 	set_gaia_object_only
 	set_place_for_every_player
 	set_circular_placement
@@ -2285,18 +2285,18 @@ create_object ONGRID {
 }
 
 create_object WATERBUILDING {
-	set_gaia_object_only 
+	set_gaia_object_only
 	set_gaia_unconvertible
 	set_place_for_every_player
 	number_of_objects 3
 	actor_area_to_place_in 6
-	actor_area 7 
+	actor_area 7
 	actor_area_radius 0
 }
 
 create_object INVISIBLE_BLOCKER {
 	second_object SHORE_FISH
-	set_gaia_object_only 
+	set_gaia_object_only
 	set_gaia_unconvertible
 	set_place_for_every_player
 	actor_area_to_place_in 7
@@ -2305,7 +2305,7 @@ create_object INVISIBLE_BLOCKER {
 	number_of_objects 3
 }
 
-create_object GOLD {	
+create_object GOLD {
 	set_gaia_object_only
 	set_place_for_every_player
 	number_of_objects 3
@@ -2327,7 +2327,39 @@ create_object GOLD {
 	actor_area_radius 3
 }
 
+/* Ensure Pigs always spawn in groups of two. */
 create_object DLC_PIG {
+	number_of_objects 2
+	set_gaia_object_only
+	set_place_for_every_player
+	set_circular_placement
+	min_distance_to_players 18
+	min_distance_group_placement 1
+	enable_tile_shuffling
+	find_closest
+	temp_min_distance_group_placement 7
+	avoid_forest_zone 2
+	avoid_actor_area 1
+	avoid_actor_area 2
+	avoid_actor_area 5
+	avoid_actor_area 6
+	avoid_actor_area 8
+	avoid_actor_area 10
+	avoid_actor_area 15
+	actor_area far_pig
+	actor_area_radius 2
+}
+
+create_object DLC_PIG {
+	number_of_objects 2
+	set_gaia_object_only
+	set_place_for_every_player
+	temp_min_distance_group_placement 4
+	min_distance_group_placement 1
+	actor_area_to_place_in far_pig
+}
+
+/* create_object DLC_PIG {
 	number_of_groups 2
 	if 9Vill_QS
     number_of_objects 1
@@ -2350,7 +2382,7 @@ create_object DLC_PIG {
 	avoid_actor_area 10
 	avoid_actor_area 15
 	avoid_forest_zone 2
-}
+} */
 
 create_object DLC_RHINO {
 	number_of_objects 1
@@ -2372,7 +2404,7 @@ create_object DLC_RHINO {
 	avoid_forest_zone 2
 }
 
-create_object RELIC {	
+create_object RELIC {
 	set_gaia_object_only
 	set_place_for_every_player
 	set_circular_placement
@@ -2417,10 +2449,10 @@ create_object JUNGLETREE {
 	avoid_actor_area 5
 	avoid_actor_area 8
 	avoid_actor_area 10
-}				 
+}
 
 /* FISHIES actorarea */
-create_object ONGRID {	
+create_object ONGRID {
 	set_gaia_object_only
 	number_of_objects 999999
 	temp_min_distance_group_placement 1
@@ -2429,7 +2461,7 @@ create_object ONGRID {
 	actor_area_radius 3
 }
 
-create_object ONGRID {	
+create_object ONGRID {
 	set_gaia_object_only
 	number_of_objects 999999
 	temp_min_distance_group_placement 1
@@ -2465,7 +2497,7 @@ create_object ONGRID {
 }
 
 /* FISHIES middle */
-create_object DLC_BOXTURTLE {	
+create_object DLC_BOXTURTLE {
 	set_gaia_object_only
 	number_of_objects 999
 	temp_min_distance_group_placement 6
@@ -2588,7 +2620,7 @@ create_object OYSTERS {
 }
 
 /* FISHIES next to main island */
-create_object DLC_BOXTURTLE {	
+create_object DLC_BOXTURTLE {
 	set_gaia_object_only
 	number_of_objects 999
 	temp_min_distance_group_placement 6
@@ -2597,10 +2629,10 @@ create_object DLC_BOXTURTLE {
 	actor_area_radius 5
 }
 
-/* CROCO middle */ 
+/* CROCO middle */
 
 /* TTL5: Remove Crocodiles from the middle. */
-/* create_object ONGRID {	
+/* create_object ONGRID {
 	set_gaia_object_only
 	number_of_objects 99
 	temp_min_distance_group_placement 25
@@ -2609,8 +2641,8 @@ create_object DLC_BOXTURTLE {
 	terrain_to_place_on DLC_BEACH4
 } */
 
-/* FISHIES actorarea middle 
-create_object ONGRID {	
+/* FISHIES actorarea middle
+create_object ONGRID {
 	set_gaia_object_only
 	number_of_objects 999
 	number_of_groups 999
@@ -2623,7 +2655,7 @@ create_object ONGRID {
 
 /* Big Fish Middle */
 
-create_object WTROFF {	
+create_object WTROFF {
 	second_object SNAPPER
 	set_gaia_object_only
 	number_of_objects 999
@@ -2635,7 +2667,7 @@ create_object WTROFF {
   min_distance_group_placement 2
 }
 
-create_object WTROFF {	
+create_object WTROFF {
 	second_object DORADO
 	set_gaia_object_only
 	number_of_objects 999
@@ -2650,7 +2682,7 @@ create_object WTROFF {
 
 /* EVEN BIGGER FISHIES */
 
-create_object WTROFF {	
+create_object WTROFF {
 	second_object DOLPHIN
 	set_gaia_object_only
 	number_of_objects 999
@@ -2684,7 +2716,7 @@ create_object OYSTERS {
 	actor_area_radius 6
 }
 
-create_object WTROFF {	
+create_object WTROFF {
 	second_object TUNA
 	set_gaia_object_only
 	number_of_objects 999
@@ -2696,7 +2728,7 @@ create_object WTROFF {
 	min_distance_to_map_edge 1
 }
 
-create_object WTROFF {	
+create_object WTROFF {
 	second_object SNAPPER
 	set_gaia_object_only
 	number_of_objects 999
@@ -2710,25 +2742,25 @@ create_object WTROFF {
 /* CROCO */
 
 /* TTL5: Remove Crocodiles. */
-/* create_object DLC_CROCODILE {	
+/* create_object DLC_CROCODILE {
 	set_gaia_object_only
 	number_of_objects 8
 	temp_min_distance_group_placement 32
 	terrain_to_place_on BEACH_NN
 }
 
-create_object DLC_CROCODILE {	
+create_object DLC_CROCODILE {
 	set_gaia_object_only
 	number_of_objects 6
 	temp_min_distance_group_placement 32
 	terrain_to_place_on BEACH_NN
 } */
 
-create_object SHORE_FISH {	
+create_object SHORE_FISH {
 	set_gaia_object_only
 	number_of_objects 999
 	temp_min_distance_group_placement 14
-	terrain_to_place_on DLC_WATER5 
+	terrain_to_place_on DLC_WATER5
 	avoid_actor_area 9
 	avoid_actor_area 14
 	avoid_actor_area 23
@@ -2863,7 +2895,7 @@ create_object GRASS_PATCH {
 	layer_to_place_on DLC_WETBEACH
 	min_distance_to_map_edge 2
 }
-	
+
 create_object PATCH_GREEN {
 	number_of_groups 24
 	number_of_objects 1

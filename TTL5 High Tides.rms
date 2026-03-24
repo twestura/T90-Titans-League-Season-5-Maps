@@ -2763,15 +2763,15 @@ create_actor_area 8 111 corner-relic 2
 create_actor_area 6 113 corner-relic 2
 
 /* Lureable Avoider */
-create_actor_area 58 60 lureable-avoider 23
-create_actor_area 58 61 lureable-avoider 23
-create_actor_area 59 60 lureable-avoider 23
-create_actor_area 59 61 lureable-avoider 23
+create_actor_area 58 60 lureable-avoider 22
+create_actor_area 58 61 lureable-avoider 22
+create_actor_area 59 60 lureable-avoider 22
+create_actor_area 59 61 lureable-avoider 22
 
-create_actor_area 48 70 lureable-avoider 23
-create_actor_area 48 71 lureable-avoider 23
-create_actor_area 49 70 lureable-avoider 23
-create_actor_area 49 71 lureable-avoider 23
+create_actor_area 48 70 lureable-avoider 22
+create_actor_area 48 71 lureable-avoider 22
+create_actor_area 49 70 lureable-avoider 22
+create_actor_area 49 71 lureable-avoider 22
 
 /* Object Groups */
 create_object_group HUNT {
@@ -4708,7 +4708,7 @@ create_object TOWN_CENTER endif {
 			number_of_objects 2
 			set_place_for_every_player
 			set_gaia_object_only
-			temp_min_distance_group_placement 8
+			temp_min_distance_group_placement 6
 			min_distance_group_placement 1
 			max_distance_to_other_zones 4
 			avoid_forest_zone 2
@@ -4722,7 +4722,7 @@ create_object TOWN_CENTER endif {
 
 			set_circular_placement
 			min_distance_to_players 14
-			max_distance_to_players 18
+			max_distance_to_players 20
 		}
 
 		/* TTL5: Fix missing Deer-equivalents. */

@@ -145,10 +145,10 @@ create_land {
 }
 
 /* Corner Forests */
-create_land { land_position 5 5 bottom_border 90 right_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 }
-create_land { land_position 5 95 top_border 90 right_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 }
-create_land { land_position 95 5 bottom_border 90 left_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 }
-create_land { land_position 95 95 top_border 90 left_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 }
+create_land { land_position 5 5 bottom_border 90 right_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 land_id 10 }
+create_land { land_position 5 95 top_border 90 right_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 land_id 10 }
+create_land { land_position 95 5 bottom_border 90 left_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 land_id 10 }
+create_land { land_position 95 95 top_border 90 left_border 90 terrain_type DLC_BAOBABFOREST base_elevation 2 land_id 10 }
 
 /* Forests behind players along the sides of the map. */
 create_land {
@@ -750,7 +750,35 @@ create_object STONE {
 }
 
 /* Neutral Golds and Stones */
+/* TODO balance these resources */
 create_object GOLD {
+  number_of_objects 2
+  set_tight_grouping
+  group_placement_radius 1
+  place_on_specific_land_id 10
+  max_distance_to_players 25
+  terrain_to_place_on DLC_SAVANNAH
+  avoid_forest_zone 4
+  min_distance_to_map_edge 3
+  min_distance_group_placement 3
+  actor_area neutral_gold
+  actor_area_radius 6
+}
+
+create_object STONE {
+  number_of_objects 2
+  set_tight_grouping
+  group_placement_radius 1
+  place_on_specific_land_id 10
+  max_distance_to_players 25
+  terrain_to_place_on DLC_SAVANNAH
+  avoid_forest_zone 4
+  min_distance_to_map_edge 3
+  min_distance_group_placement 3
+  avoid_actor_area neutral_gold
+}
+
+/* create_object GOLD {
   number_of_objects 2
   number_of_groups 12
   set_tight_grouping
@@ -770,7 +798,7 @@ create_object STONE {
   temp_min_distance_group_placement 40
   terrain_to_place_on DLC_SAVANNAH
   min_distance_group_placement 3
-}
+} */
 
 /* Mountain Boulders */
 create_object DLC_BOULDER_C {

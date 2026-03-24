@@ -105,7 +105,7 @@ elseif ASIAN_MAP
   #const SHORE DLC_BEACH2
   #const VALLEY_EDGE DIRT3
   #const FOREST_PRIMARY JUNGLE
-  #const FOREST_SECONDARY BIRCH_FOREST 
+  #const FOREST_SECONDARY BIRCH_FOREST
   #const FOREST_TERTIARY MEDITERRANEAN_FOREST
   #const TERRAIN_PRIMARY GRASS2
   #const TERRAIN_MASK_1 GRASS_FLOWERS_1
@@ -158,7 +158,11 @@ endif
 effect_amount SET_ATTRIBUTE HUNT ATTR_TERRAIN_ID 7
 
 /* Prohibits Docks from being constructed, allows them only on Black terrain. */
-effect_amount SET_ATTRIBUTE DOCK ATTR_TERRAIN_ID 47
+effect_amount SET_ATTRIBUTE DOCK ATTR_TERRAIN_ID DLC_BLACK
+effect_amount SET_ATTRIBUTE DOCK_F ATTR_TERRAIN_ID DLC_BLACK
+effect_amount SET_ATTRIBUTE DOCK_C ATTR_TERRAIN_ID DLC_BLACK
+effect_amount SET_ATTRIBUTE DOCK_I ATTR_TERRAIN_ID DLC_BLACK
+effect_amount SET_ATTRIBUTE HARBOR ATTR_TERRAIN_ID DLC_BLACK
 
 <PLAYER_SETUP>
 direct_placement
@@ -309,7 +313,7 @@ create_terrain SHORE {
     number_of_clumps 6
     clumping_factor 25
   }
-  
+
   /* Tertiary */
   create_terrain PALM_DESERT {
     base_terrain T_PLAYER$i
