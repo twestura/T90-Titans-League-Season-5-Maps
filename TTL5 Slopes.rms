@@ -1861,6 +1861,10 @@ elseif SETUP_B
   end_random
 endif
 
+
+/* Oystering Ship constant for the Dock arrow bug fix. */
+#const OYSTERING_SHIP 2171
+
 <PLAYER_SETUP>
 direct_placement
 
@@ -1916,6 +1920,10 @@ effect_amount SET_ATTRIBUTE PH_GENERIC_ON ATTR_TERRAIN_ID 0
 effect_amount SET_ATTRIBUTE PH_GENERIC_ON ATTR_LINE_OF_SIGHT 0
 effect_amount SET_ATTRIBUTE PH_GENERIC_ON ATTR_HITPOINTS 0
 effect_amount SET_ATTRIBUTE PH_GENERIC_ON ATTR_STORAGE_VALUE 0
+
+
+/* Ensure that Oystering Ships can attack. */
+effect_amount SET_ATTRIBUTE OYSTERING_SHIP ATTR_GARRISON_FIREPOWER -1
 
 <LAND_GENERATION>
 base_terrain BASE_TERRAIN

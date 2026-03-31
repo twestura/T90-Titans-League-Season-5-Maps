@@ -820,6 +820,10 @@ endif
 #const D2_359 (T2 - 359) #const B2_359 (D2_359 / D2_359 - 1 * -70) [ B2_359 #const U2 92 #const V2 59 ]
 /* End Position Calculation */
 
+
+/* Oystering Ship constant for the Dock arrow bug fix. */
+#const OYSTERING_SHIP 2171
+
 <PLAYER_SETUP>
 direct_placement
 behavior_version 2
@@ -837,6 +841,10 @@ else
   effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_GARRISON_CAPACITY -5
   effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_HITPOINTS -45
 endif
+
+
+/* Ensure that Oystering Ships can attack. */
+effect_amount SET_ATTRIBUTE OYSTERING_SHIP ATTR_GARRISON_FIREPOWER -1
 
 <LAND_GENERATION>
 base_terrain SHALLOW

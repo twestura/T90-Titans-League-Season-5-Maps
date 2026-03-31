@@ -176,6 +176,10 @@ start_random
   percent_chance 50 #const PLAYER_HUNT DLC_IBEX
 end_random
 
+
+/* Oystering Ship constant for the Dock arrow bug fix. */
+#const OYSTERING_SHIP 2171
+
 <PLAYER_SETUP>
 direct_placement
 ai_info_map_type ARABIA 0 0 0
@@ -193,6 +197,10 @@ else
   effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_GARRISON_CAPACITY -5
   effect_amount ADD_ATTRIBUTE DLC_SIEGETOWER ATTR_HITPOINTS -45
 endif
+
+
+/* Ensure that Oystering Ships can attack. */
+effect_amount SET_ATTRIBUTE OYSTERING_SHIP ATTR_GARRISON_FIREPOWER -1
 
 <LAND_GENERATION>
 base_terrain T_BASE

@@ -72,6 +72,9 @@ if ADMIN_RESTART
   guard_state SABOTEUR AMOUNT_GOLD 0 1
 endif
 
+/* Oystering Ship constant for the Dock arrow bug fix. */
+#const OYSTERING_SHIP 2171
+
 #const PHON 1543
 
 /* ------------------------------------------ */
@@ -2352,6 +2355,9 @@ endif
 	endif
 
 	effect_amount GAIA_UPGRADE_UNIT TREE_OAK TREE_DEAD 0
+
+/* Ensure that Oystering Ships can attack. */
+effect_amount SET_ATTRIBUTE OYSTERING_SHIP ATTR_GARRISON_FIREPOWER -1
 
 <LAND_GENERATION>
 base_terrain BASE_TERRAIN

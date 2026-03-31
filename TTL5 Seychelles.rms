@@ -102,6 +102,10 @@ endif
 #const HERDABLE_A 1245
 #const WTROFF 1547
 
+
+/* Oystering Ship constant for the Dock arrow bug fix. */
+#const OYSTERING_SHIP 2171
+
 <PLAYER_SETUP>
 /* Default size = Map size of +2 players */
 
@@ -245,6 +249,10 @@ Not needed, too few lands to justify
 
 
 */
+
+
+/* Ensure that Oystering Ships can attack. */
+effect_amount SET_ATTRIBUTE OYSTERING_SHIP ATTR_GARRISON_FIREPOWER -1
 
 <LAND_GENERATION>
 
